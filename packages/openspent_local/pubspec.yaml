@@ -1,0 +1,26 @@
+name: openspent_local
+description: Flutter-compatible local adapters for OpenSpent core repositories.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: "3.11.5"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  drift: 2.31.0
+  openspent_core:
+    path: ../core
+  shared_preferences: 2.5.3
+  sqlite3: 2.9.4
+  sqlite3_flutter_libs: 0.5.39
+
+dev_dependencies:
+  build_runner: 2.15.0
+  drift_dev: 2.31.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  test: 1.30.0

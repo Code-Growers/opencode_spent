@@ -1,0 +1,767 @@
+{
+  "@@locale": "en",
+  "appTitle": "OpenSpent",
+  "localLabel": "[ LOCAL ]",
+  "heroTitle": "Monitor OpenCode. Locally.",
+  "heroDescription": "A privacy-first local dashboard with cached metrics and terminal-style drilldowns.",
+  "statusPaneTitle": "STATUS",
+  "statusLineReady": "> Dashboard .......... {state}",
+  "@statusLineReady": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLineMode": "> Mode .............. {mode}",
+  "@statusLineMode": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLineServer": "> Server ............ {server}",
+  "@statusLineServer": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "statusLineProbe": "> Probe ............. {probe}",
+  "@statusLineProbe": {
+    "placeholders": {
+      "probe": {
+        "type": "String"
+      }
+    }
+  },
+  "statusProbeConnected": "CONNECTED",
+  "statusProbeDisconnected": "DISCONNECTED",
+  "statusProbeError": "ERROR",
+  "statusProbeLoading": "LOADING",
+  "statusProbeUnknown": "UNKNOWN",
+  "statusReady": "READY",
+  "statusLoading": "LOADING",
+  "statusModeLocalCache": "LOCAL CACHE",
+  "statusServerNotConfigured": "NOT CONFIGURED",
+  "statusServerLoading": "LOADING",
+  "privacyPaneTitle": "PRIVACY",
+  "privacyLinePrompts": "> Prompts stored ..... NO",
+  "privacyLineToolOutput": "> Tool output ........ NO",
+  "privacyLineErrors": "> Raw errors ......... NO",
+  "persistedAllowlist": "> Persisted metadata allowlist size: {count}",
+  "@persistedAllowlist": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsTitle": "METRICS",
+  "metricsLoad": "_ awaiting first metrics payload ...",
+  "metricsUnavailable": "> metrics unavailable",
+  "metricsMissingExchangeRatesHelper": "> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.",
+  "textTab": "[ TEXT ]",
+  "spendTab": "[ SPEND ]",
+  "tokensTab": "[ TOKENS ]",
+  "modelsTab": "[ MODELS ]",
+  "overallSection": "-- OVERALL --",
+  "selectedDaySection": "-- SELECTED DAY ({day}) --",
+  "@selectedDaySection": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "peakHourSection": "-- PEAK HOUR ({hour}:00 UTC) --",
+  "@peakHourSection": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "peakHourEmptySection": "-- PEAK HOUR --",
+  "lineTotalCost": "> Total cost ......... {currency} {value}",
+  "@lineTotalCost": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "lineSessions": "> Sessions ........... {value}",
+  "@lineSessions": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "lineTopMover": "> Top mover .......... {model} ({sign}{currency}{value})",
+  "@lineTopMover": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "sign": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "lineTopMoverEmpty": "> Top mover .......... NONE",
+  "compareSummary": "> Vs prior ........... {sign}{currency} {value}",
+  "@compareSummary": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compareSummaryDriver": "> Delta driver ....... {model} {sign}{currency} {value}",
+  "@compareSummaryDriver": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "sign": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compareSummaryNoDriver": "> Delta driver ....... NONE",
+  "lineInputTokens": "> Input tokens ....... {value}",
+  "@lineInputTokens": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "lineOutputTokens": "> Output tokens ...... {value}",
+  "@lineOutputTokens": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "lineTotalTokens": "> Total tokens ....... {value}",
+  "@lineTotalTokens": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "lineAvgTokensPerSession": "> Avg/session ........ {value}",
+  "@lineAvgTokensPerSession": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "lineCostPerMillionTokens": "> Cost/1M tokens ..... {currency} {value}",
+  "@lineCostPerMillionTokens": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "linePeakCost": "> Cost ............... {currency} {value}",
+  "@linePeakCost": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "linePeakTokensInOut": "> Tokens (In/Out) .... {input} / {output}",
+  "@linePeakTokensInOut": {
+    "placeholders": {
+      "input": {
+        "type": "int"
+      },
+      "output": {
+        "type": "int"
+      }
+    }
+  },
+  "lineNoActivity": "> No activity recorded",
+  "modelThreeDayTrend": "3D {first}/{second}/{third}",
+  "@modelThreeDayTrend": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "second": {
+        "type": "String"
+      },
+      "third": {
+        "type": "String"
+      }
+    }
+  },
+  "modelCostShareTrend": "{currency} {totalCost} [{share}%] • {trend}",
+  "@modelCostShareTrend": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "totalCost": {
+        "type": "String"
+      },
+      "share": {
+        "type": "int"
+      },
+      "trend": {
+        "type": "String"
+      }
+    }
+  },
+  "modelTokensSessions": "TOK {tokens} | SES {sessions}",
+  "@modelTokensSessions": {
+    "placeholders": {
+      "tokens": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "modelCostPerMillionTokens": "{currency} {value}/1M TOK",
+  "@modelCostPerMillionTokens": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "modelCostPerMillionTokensUnavailable": "{currency} --/1M TOK",
+  "@modelCostPerMillionTokensUnavailable": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "hourlySpendTitle": "HOURLY SPEND (UTC)",
+  "hourlyTokensTitle": "HOURLY TOKENS IN/OUT (UTC)",
+  "tokenLegend": "IN dim | OUT bright",
+  "spendTrendUnavailable": "> spend trend unavailable",
+  "tokenTrendUnavailable": "> token trend unavailable",
+  "modelSpendUnavailable": "> model spend unavailable",
+  "modelTrend": "{days}D {trend}",
+  "@modelTrend": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "trend": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsTitle": "[ SETTINGS ]",
+  "settingsCurrency": "Currency:",
+  "settingsLanguage": "Language:",
+  "settingsLanguageSystem": "System default",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageCzech": "Czech",
+  "settingsServerUrl": "Server URL:",
+  "settingsServerUsername": "Server username:",
+  "settingsServerPassword": "Server password:",
+  "settingsServerAuthHint": "Optional Basic Auth. If a password is set and the username is blank, OpenSpent uses `opencode`.",
+  "settingsServerUrlInvalid": "Enter a valid http:// or https:// server URL.",
+  "settingsSave": "[ SAVE ]",
+  "settingsClose": "[ CLOSE ]",
+  "helpDialogTitle": "[ INFO / HELP ]",
+  "helpTabLocal": "Local",
+  "helpTabRemote": "Remote",
+  "helpLocalLineImport": "> Import JSON or SQLite files directly into OpenSpent from the sessions panel.",
+  "helpLocalLinePaths": "> OpenCode usually stores its main DB at ~/.local/share/opencode/opencode.db on macOS/Linux and under %USERPROFILE%\\.local\\share\\opencode\\opencode.db on Windows.",
+  "helpLocalLineCommandDbPath": "> Useful command: opencode db path",
+  "helpLocalLineCommandExport": "> Useful commands: opencode export, opencode import",
+  "helpLocalLineCommandSessionList": "> Useful command: opencode session list",
+  "helpLocalLineCommandStats": "> Useful command: opencode stats",
+  "helpLocalLineBackup": "> Back up exported files and local DB copies carefully. Keep the workflow privacy-first and local-first.",
+  "helpRemoteLineServe": "> Start the API server with: opencode serve",
+  "helpRemoteLineDefaultUrl": "> Default server URL: http://localhost:4096",
+  "helpRemoteLineHostUse": "> Use localhost on the same machine. Use a remote host URL only when OpenCode is served from another machine.",
+  "helpRemoteLineAuthEnv": "> Basic Auth uses OPENCODE_SERVER_USERNAME and OPENCODE_SERVER_PASSWORD.",
+  "helpRemoteLineAuthDefaultUsername": "> When password protection is enabled and no username is set, the default username is `opencode`.",
+  "exchangeRatesTitle": "[ EXCHANGE RATES ]",
+  "exchangeRatesActionSync": "[ SYNC RATES ]",
+  "exchangeRatesStatusLoading": "LOADING",
+  "exchangeRatesStatusError": "ERROR",
+  "exchangeRatesStatusReady": "READY",
+  "exchangeRatesStatusMissing": "MISSING {count}",
+  "@exchangeRatesStatusMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exchangeRatesMissingDaysNone": "none",
+  "exchangeRatesCurrencyChanged": "> Display currency set to {currency}.",
+  "@exchangeRatesCurrencyChanged": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "exchangeRatesCurrencyChangeError": "> Failed to update display currency.",
+  "exchangeRatesSyncSuccess": "> Synced missing rates for {count} spend day(s).",
+  "@exchangeRatesSyncSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exchangeRatesSyncError": "> Exchange-rate sync failed.",
+  "exchangeRatesError": "> Error ............. {message}",
+  "@exchangeRatesError": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "exchangeRatesLineStatus": "> Status ............ {value}",
+  "@exchangeRatesLineStatus": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "exchangeRatesLineDisplay": "> Display ........... {currency}",
+  "@exchangeRatesLineDisplay": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "exchangeRatesLineSpendDays": "> Spend days ........ {count}",
+  "@exchangeRatesLineSpendDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exchangeRatesLineCoverage": "> Coverage .......... {covered}/{total}",
+  "@exchangeRatesLineCoverage": {
+    "placeholders": {
+      "covered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "exchangeRatesLineMissingDays": "> Missing days ...... {days}",
+  "@exchangeRatesLineMissingDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsSpotlightEmptyScope": "> No ranked evidence in current scope.",
+  "sessionsSpotlightEmpty": "> Ranked evidence unavailable.",
+  "sessionsExplorerTitle": "[ SESSIONS EXPLORER ]",
+  "sessionsExplorerActionSync": "[ SYNC NOW ]",
+  "sessionsExplorerActionImport": "[ IMPORT DATA ]",
+  "sessionsExplorerLoading": "> Loading cached sessions...",
+  "sessionsExplorerEmptyConnected": "> No cached sessions found. Sync or import to begin.",
+  "sessionsExplorerEmptyDisconnected": "> No cached sessions found. Connect to the local server or import data to begin.",
+  "activeModelFilter": "> Model filter ...... {model}",
+  "@activeModelFilter": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      }
+    }
+  },
+  "activeDayFilter": "> Day filter ........ {day}",
+  "@activeDayFilter": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "activeHourFilter": "> Hour filter ....... {hour}:00 UTC",
+  "@activeHourFilter": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "clearFilterAction": "[ CLEAR ]",
+  "sessionsExplorerFilteredEmpty": "> No sessions match the active filters.",
+  "sessionsExplorerSyncSuccess": "> Sync completed successfully.",
+  "sessionsExplorerSyncError": "> Sync failed.",
+  "sessionsExplorerImportSuccess": "> Import completed successfully.",
+  "sessionsExplorerImportError": "> Import failed: invalid format or error.",
+  "sessionsExplorerImportNoFile": "> Import cancelled.",
+  "sessionsExplorerUnknownModel": "Unknown model",
+  "sessionsExplorerSubagent": "> Subagent .......... {category}",
+  "@sessionsExplorerSubagent": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsExplorerError": "> Error ............. operation failed. Check source data or server status.",
+  "sessionRowData": "> {date} • {model} • {tokens} TOK • {currency} {cost} • ID: {id}",
+  "@sessionRowData": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "model": {
+        "type": "String"
+      },
+      "tokens": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "lineVisibleWindow": "> Window ............. {window}",
+  "@lineVisibleWindow": {
+    "placeholders": {
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "exchangeRatesLineWindow": "> Window ............ {window}",
+  "@exchangeRatesLineWindow": {
+    "placeholders": {
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsTokensTopDrivers": "-- TOP DRIVERS --",
+  "modelDriverRow": "> {modelName} {padding} {currency} {cost} | {tokens} TOK | {sessions} SES",
+  "@modelDriverRow": {
+    "placeholders": {
+      "modelName": {
+        "type": "String"
+      },
+      "padding": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "tokens": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsModelHourlySpend": "-- HOURLY SPEND --",
+  "metricsModelHourlyTokens": "-- HOURLY TOKENS --",
+  "modelSelectedDayMetrics": "> Day ............... {currency} {cost} | {tokens} TOK | {sessions} SES",
+  "@modelSelectedDayMetrics": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "tokens": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "windowAll": "ALL",
+  "window7d": "7D",
+  "window30d": "30D",
+  "window90d": "90D",
+  "windowCustom": "CUSTOM",
+  "windowActionAll": "[ ALL ]",
+  "windowAction7d": "[ 7D ]",
+  "windowAction30d": "[ 30D ]",
+  "windowAction90d": "[ 90D ]",
+  "windowActionCustom": "[ CUSTOM ]",
+  "sessionsExplorerCachedHistoryTitle": "-- CACHED HISTORY --",
+  "sessionsExplorerCachedCount": "> Sessions .......... {count}",
+  "@sessionsExplorerCachedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsExplorerCachedNewest": "> Newest ............ {date}",
+  "@sessionsExplorerCachedNewest": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsExplorerCachedOldest": "> Oldest ............ {date}",
+  "@sessionsExplorerCachedOldest": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsExplorerCachedEmpty": "> Cache is empty",
+  "sessionsExplorerLastOpTitle": "-- LAST OPERATION --",
+  "sessionsExplorerLastOpType": "> Type .............. {type}",
+  "@sessionsExplorerLastOpType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsExplorerLastOpStatus": "> Status ............ {status}",
+  "@sessionsExplorerLastOpStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsExplorerLastOpSource": "> Source ............ {source}",
+  "@sessionsExplorerLastOpSource": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionsExplorerLastOpCount": "> Cached ............ {count}",
+  "@sessionsExplorerLastOpCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsExplorerLastOpNone": "> No recent operations",
+  "opTypeLoad": "LOAD",
+  "opTypeSync": "SYNC",
+  "opTypeImportJson": "IMPORT JSON",
+  "opTypeImportSqlite": "IMPORT SQLITE",
+  "opStatusSuccess": "SUCCESS",
+  "opStatusFailure": "FAILURE",
+  "lineRollingAvgCost": "> Rolling avg cost ... {currency} {value}/day",
+  "@lineRollingAvgCost": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "lineRollingAvgTokens": "> Rolling avg tokens . {value}/day",
+  "@lineRollingAvgTokens": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "linePaceForecast": "> Pace (7d forecast) . {currency} {value}",
+  "@linePaceForecast": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "spendDailyAvgLabel": "AVG {currency} {amount}",
+  "@spendDailyAvgLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "spendDailyPeakLabel": "PEAK {currency} {amount}",
+  "@spendDailyPeakLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "spendHourlyAvgLabel": "AVG {currency} {amount}",
+  "@spendHourlyAvgLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "spendHourlyPeakLabel": "PEAK {currency} {amount}",
+  "@spendHourlyPeakLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "comparePriorWindow": "> Prior window ....... {window}",
+  "@comparePriorWindow": {
+    "placeholders": {
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "compareDeltaSessions": "> Delta sessions ..... {sign}{value}",
+  "@compareDeltaSessions": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "compareDeltaTokens": "> Delta tokens ....... {sign}{value}",
+  "@compareDeltaTokens": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "compareSplitSessions": "> Split sessions ..... {sign}{currency} {value}",
+  "@compareSplitSessions": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compareSplitAvg": "> Split avg/session .. {sign}{currency} {value}",
+  "@compareSplitAvg": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compareSplitCost": "> Split cost/1M ...... {sign}{currency} {value}",
+  "@compareSplitCost": {
+    "placeholders": {
+      "sign": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compareSplitUnavailable": "> Split breakdown .... math undefined",
+  "compareUnavailableHelper": "> Prior-window compare unavailable due to missing exchange rates."
+}

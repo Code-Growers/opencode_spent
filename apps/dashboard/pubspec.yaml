@@ -1,0 +1,41 @@
+name: openspent_dashboard
+description: "OpenSpent local dashboard app."
+publish_to: 'none'
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: "3.11.5"
+
+dependencies:
+  auto_route: 11.1.0
+  flutter:
+    sdk: flutter
+  flutter_bloc: 9.1.1
+  flutter_localizations:
+    sdk: flutter
+  openspent_core:
+    path: ../../packages/core
+  fl_chart: 1.2.0
+  openspent_local:
+    path: ../../packages/openspent_local
+  path_provider: 2.1.3
+  http: 1.6.0
+  path: 1.9.1
+  shared_preferences: 2.5.3
+  openspent_remote:
+    path: ../../packages/openspent_remote
+  dio: 5.9.2
+  file_picker: 6.1.1
+
+dev_dependencies:
+  auto_route_generator: 10.5.0
+  build_runner: 2.15.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  sqlite3: 2.9.4
+
+flutter:
+  generate: true
+  uses-material-design: true

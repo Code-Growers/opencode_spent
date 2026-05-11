@@ -1,0 +1,105 @@
+name: opencode_spent
+publish_to: none
+
+environment:
+  sdk: "3.11.5"
+
+workspace:
+  - apps/dashboard
+  - apps/website
+  - packages/core
+  - packages/openspent_remote
+  - packages/openspent_local
+
+dev_dependencies:
+  melos: 7.7.0
+
+melos:
+  scripts:
+    generate:
+      description: Run all configured code generators across the workspace.
+      run: melos run generate:drift && melos run generate:retrofit && melos run generate:auto-route
+
+    generate:drift:
+      description: Generate Drift code for packages that use Drift.
+      run: dart run build_runner build --delete-conflicting-outputs
+      exec:
+        concurrency: 1
+        orderDependents: true
+      packageFilters:
+        dependsOn: drift_dev
+
+    generate:retrofit:
+      description: Generate Retrofit code for packages that use Retrofit.
+      run: dart run build_runner build --delete-conflicting-outputs
+      exec:
+        concurrency: 1
+        orderDependents: true
+      packageFilters:
+        dependsOn: retrofit_generator
+
+    generate:auto-route:
+      description: Generate auto_route code for packages that use auto_route.
+      run: flutter pub run build_runner build --delete-conflicting-outputs
+      exec:
+        concurrency: 1
+        orderDependents: true
+      packageFilters:
+        dependsOn: auto_route_generator
+
+    generate:l10n:
+      description: Generate ARB-backed localization files for Flutter packages.
+      run: flutter gen-l10n
+      exec:
+        concurrency: 1
+        orderDependents: true
+      packageFilters:
+        flutter: true
+        fileExists: l10n.yaml
+
+    build:website:
+      description: Build the Jaspr website package.
+      run: dart run build_runner build --release
+      exec:
+        concurrency: 1
+      packageFilters:
+        scope:
+          - openspent_website
+
+    analyze:dart:
+      description: Analyze pure Dart workspace packages.
+      run: dart analyze .
+      packageFilters:
+        flutter: false
+
+    analyze:flutter:
+      description: Analyze Flutter workspace packages.
+      run: flutter analyze
+      packageFilters:
+        flutter: true
+
+    analyze:
+      description: Analyze every workspace package.
+      run: melos run analyze:dart && melos run analyze:flutter
+
+    test:dart:
+      description: Run tests for pure Dart workspace packages.
+      run: melos exec -- "dart test"
+      packageFilters:
+        flutter: false
+        dirExists: test
+
+    test:flutter:
+      description: Run tests for Flutter workspace packages.
+      run: melos exec -- "flutter test"
+      packageFilters:
+        flutter: true
+        dirExists: test
+
+    test:
+      description: Run every workspace test suite.
+      run: melos run test:dart && melos run test:flutter
+
+    clean:
+      description: Remove local build artifacts from workspace packages.
+      run: melos exec -- "rm -rf .dart_tool build"

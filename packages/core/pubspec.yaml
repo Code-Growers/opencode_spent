@@ -1,0 +1,12 @@
+name: openspent_core
+description: Shared pure Dart domain primitives for the OpenSpent workspace.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: "3.11.5"
+
+dev_dependencies:
+  lints: 6.0.0
+  test: 1.30.0

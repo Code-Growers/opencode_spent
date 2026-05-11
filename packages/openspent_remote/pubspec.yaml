@@ -1,0 +1,20 @@
+name: openspent_remote
+description: Pure Dart remote adapters for OpenSpent core repositories.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: "3.11.5"
+
+dependencies:
+  dio: 5.9.2
+  openspent_core:
+    path: ../core
+  retrofit: 4.9.2
+
+dev_dependencies:
+  build_runner: 2.15.0
+  lints: 6.0.0
+  retrofit_generator: 10.2.5
+  test: 1.30.0

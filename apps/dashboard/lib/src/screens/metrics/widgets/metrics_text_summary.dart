@@ -1,0 +1,692 @@
+import 'package:flutter/material.dart';
+import 'package:openspent_core/openspent_core.dart';
+
+import '../../../../l10n/app_localizations.dart';
+import '../../../theme/dashboard_colors.dart';
+import 'metrics_chart_widgets.dart';
+import '../metrics_utils.dart';
+
+class MetricsTextSummary extends StatelessWidget {
+  const MetricsTextSummary({
+    super.key,
+    required this.visibleDays,
+    required this.metrics,
+    required this.priorMetrics,
+    required this.displayCurrency,
+    required this.selectedDay,
+    required this.selectedModelFilter,
+    required this.onModelSelected,
+    this.from,
+    this.to,
+  });
+
+  final List<DateTime> visibleDays;
+  final MonetizedAggregatedMetrics metrics;
+  final MonetizedAggregatedMetrics? priorMetrics;
+  final String displayCurrency;
+  final DateTime? selectedDay;
+  final String? selectedModelFilter;
+  final ValueChanged<String?> onModelSelected;
+  final DateTime? from;
+  final DateTime? to;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+    final base = metrics.baseMetrics;
+    final totalTokensValue = totalTokens(
+      base.totalInputTokens,
+      base.totalOutputTokens,
+    );
+    final selectedDaily = selectedDay == null
+        ? null
+        : findDailyMetricsForDay(metrics.dailyBreakdown, selectedDay!);
+    final selectedHourEntries = selectedDay == null
+        ? const <MonetizedHourlyMetrics>[]
+        : findHourlyMetricsForDay(metrics.hourlyBreakdown, selectedDay!);
+
+    MonetizedHourlyMetrics? peakHour;
+    for (final hourMetrics in selectedHourEntries) {
+      if (peakHour == null ||
+          hourMetrics.displayTotalCost > peakHour.displayTotalCost) {
+        peakHour = hourMetrics;
+      }
+    }
+
+    final selectedInputTokens = selectedDaily?.baseMetrics.inputTokens ?? 0;
+    final selectedOutputTokens = selectedDaily?.baseMetrics.outputTokens ?? 0;
+    final selectedTotalTokens = totalTokens(
+      selectedInputTokens,
+      selectedOutputTokens,
+    );
+
+    final rollingCostSeries = buildVisibleDailyCostSeries(
+      metrics.dailyBreakdown,
+      visibleDays,
+    );
+    final rollingTokenSeries = buildVisibleDailyTokenSeries(
+      metrics.dailyBreakdown,
+      visibleDays,
+    );
+    final rollingAvgCost = averageDoubleSeries(rollingCostSeries);
+    final rollingAvgTokens = averageIntSeries(rollingTokenSeries);
+    final paceForecast = rollingAvgCost * 7;
+
+    String topMoverName = '';
+    double topMoverDelta = 0.0;
+
+    String compareDriverName = '';
+    double compareDriverDelta = 0.0;
+    if (priorMetrics != null) {
+      final allModels = {
+        ...metrics.perModelDailyBreakdown.keys,
+        ...priorMetrics!.perModelDailyBreakdown.keys,
+      };
+      for (final model in allModels) {
+        final currentCost =
+            metrics.perModelDailyBreakdown[model]?.fold<double>(
+              0.0,
+              (sum, entry) => sum + entry.displayTotalCost,
+            ) ??
+            0.0;
+        final previousCost =
+            priorMetrics!.perModelDailyBreakdown[model]?.fold<double>(
+              0.0,
+              (sum, entry) => sum + entry.displayTotalCost,
+            ) ??
+            0.0;
+        final delta = currentCost - previousCost;
+        if (delta.abs() > compareDriverDelta.abs()) {
+          compareDriverDelta = delta;
+          compareDriverName = model;
+        }
+      }
+    }
+
+    if (visibleDays.isNotEmpty && metrics.perModelDailyBreakdown.isNotEmpty) {
+      final anchorDay = visibleDays.last;
+      final prevVisibleDay = visibleDays.length > 1
+          ? visibleDays[visibleDays.length - 2]
+          : null;
+
+      for (final entry in metrics.perModelDailyBreakdown.entries) {
+        final anchorMetric = entry.value
+            .where((item) => isSameUtcDay(item.baseMetrics.date, anchorDay))
+            .firstOrNull;
+        final prevMetric = prevVisibleDay == null
+            ? null
+            : entry.value
+                  .where(
+                    (item) =>
+                        isSameUtcDay(item.baseMetrics.date, prevVisibleDay),
+                  )
+                  .firstOrNull;
+
+        final anchorCost = anchorMetric?.displayTotalCost ?? 0.0;
+        final prevCost = prevMetric?.displayTotalCost ?? 0.0;
+        final delta = anchorCost - prevCost;
+
+        if (delta.abs() > topMoverDelta.abs()) {
+          topMoverDelta = delta;
+          topMoverName = entry.key;
+        }
+      }
+    }
+
+    final usageByModel = <String, int>{};
+    for (final entry in metrics.perModelDailyBreakdown.entries) {
+      int tokens = 0;
+      for (final daily in entry.value) {
+        tokens +=
+            daily.baseMetrics.inputTokens + daily.baseMetrics.outputTokens;
+      }
+      if (tokens > 0) {
+        usageByModel[entry.key] = tokens;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.overallSection, style: textTheme.bodyMedium),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6, top: 6),
+          child: Text(
+            l10n.lineTotalCost(
+              displayCurrency,
+              metrics.displayTotalCost.toStringAsFixed(2),
+            ),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineRollingAvgCost(
+              displayCurrency,
+              rollingAvgCost.toStringAsFixed(2),
+            ),
+            key: const Key('metrics-rolling-cost-line'),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineRollingAvgTokens(rollingAvgTokens.toString()),
+            key: const Key('metrics-rolling-tokens-line'),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.linePaceForecast(
+              displayCurrency,
+              paceForecast.toStringAsFixed(2),
+            ),
+            key: const Key('metrics-pace-line'),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineSessions(base.totalSessionCount),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineInputTokens(base.totalInputTokens),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineOutputTokens(base.totalOutputTokens),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineTotalTokens(totalTokensValue),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            l10n.lineAvgTokensPerSession(
+              formatAverageTokensPerSession(
+                totalTokensValue: totalTokensValue,
+                sessionCount: base.totalSessionCount,
+              ),
+            ),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            l10n.lineCostPerMillionTokens(
+              displayCurrency,
+              formatCostPerMillion(
+                totalCost: metrics.displayTotalCost,
+                totalTokensValue: totalTokensValue,
+              ),
+            ),
+            style: textTheme.bodyLarge,
+          ),
+        ),
+        if (topMoverName.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: GestureDetector(
+              key: const Key('metrics-top-mover-line'),
+              onTap: () => onModelSelected(
+                selectedModelFilter == topMoverName ? null : topMoverName,
+              ),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Text(
+                  l10n.lineTopMover(
+                    topMoverName,
+                    topMoverDelta >= 0 ? '+' : '',
+                    displayCurrency,
+                    topMoverDelta.abs().toStringAsFixed(2),
+                  ),
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: selectedModelFilter == topMoverName
+                        ? dashboardBorderColor
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              l10n.lineTopMoverEmpty,
+              key: const Key('metrics-top-mover-line-empty'),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+        if (usageByModel.isNotEmpty) ...[
+          Text(l10n.modelsTab, style: textTheme.bodyMedium),
+          const SizedBox(height: 12),
+          ModelUsagePieChart(
+            usageByModel: usageByModel,
+            chartKey: const Key('metrics-summary-model-pie'),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (from != null && to != null) ...[
+          if (priorMetrics != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                l10n.comparePriorWindow(
+                  '${formatDateKey(from!.subtract(Duration(days: to!.difference(from!).inDays + 1)))} - ${formatDateKey(from!.subtract(const Duration(days: 1)))}',
+                ),
+                key: const Key('metrics-compare-prior-window'),
+                style: textTheme.bodyLarge,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                l10n.compareSummary(
+                  (metrics.displayTotalCost - priorMetrics!.displayTotalCost) >=
+                          0
+                      ? '+'
+                      : '-',
+                  displayCurrency,
+                  (metrics.displayTotalCost - priorMetrics!.displayTotalCost)
+                      .abs()
+                      .toStringAsFixed(2),
+                ),
+                key: const Key('metrics-compare-total-line'),
+                style: textTheme.bodyLarge,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                l10n.compareDeltaSessions(
+                  (metrics.baseMetrics.totalSessionCount -
+                              priorMetrics!.baseMetrics.totalSessionCount) >=
+                          0
+                      ? '+'
+                      : '-',
+                  (metrics.baseMetrics.totalSessionCount -
+                          priorMetrics!.baseMetrics.totalSessionCount)
+                      .abs(),
+                ),
+                key: const Key('metrics-compare-sessions-line'),
+                style: textTheme.bodyLarge,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                l10n.compareDeltaTokens(
+                  (totalTokensValue -
+                              totalTokens(
+                                priorMetrics!.baseMetrics.totalInputTokens,
+                                priorMetrics!.baseMetrics.totalOutputTokens,
+                              )) >=
+                          0
+                      ? '+'
+                      : '-',
+                  (totalTokensValue -
+                          totalTokens(
+                            priorMetrics!.baseMetrics.totalInputTokens,
+                            priorMetrics!.baseMetrics.totalOutputTokens,
+                          ))
+                      .abs(),
+                ),
+                key: const Key('metrics-compare-tokens-line'),
+                style: textTheme.bodyLarge,
+              ),
+            ),
+            Builder(
+              builder: (context) {
+                final priorTokens = totalTokens(
+                  priorMetrics!.baseMetrics.totalInputTokens,
+                  priorMetrics!.baseMetrics.totalOutputTokens,
+                );
+                final decomp = decomposeCompareDelta(
+                  currentSessions: metrics.baseMetrics.totalSessionCount,
+                  currentTokens: totalTokensValue,
+                  currentCost: metrics.displayTotalCost,
+                  priorSessions: priorMetrics!.baseMetrics.totalSessionCount,
+                  priorTokens: priorTokens,
+                  priorCost: priorMetrics!.displayTotalCost,
+                );
+
+                if (decomp == null) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      l10n.compareSplitUnavailable,
+                      key: const Key('metrics-compare-split-unavailable'),
+                      style: textTheme.bodyLarge,
+                    ),
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        l10n.compareSplitSessions(
+                          decomp.splitSessions >= 0 ? '+' : '-',
+                          displayCurrency,
+                          decomp.splitSessions.abs().toStringAsFixed(2),
+                        ),
+                        key: const Key('metrics-compare-split-sessions-line'),
+                        style: textTheme.bodyLarge,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        l10n.compareSplitAvg(
+                          decomp.splitAvg >= 0 ? '+' : '-',
+                          displayCurrency,
+                          decomp.splitAvg.abs().toStringAsFixed(2),
+                        ),
+                        key: const Key('metrics-compare-split-avg-line'),
+                        style: textTheme.bodyLarge,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        l10n.compareSplitCost(
+                          decomp.splitCost >= 0 ? '+' : '-',
+                          displayCurrency,
+                          decomp.splitCost.abs().toStringAsFixed(2),
+                        ),
+                        key: const Key('metrics-compare-split-cost-line'),
+                        style: textTheme.bodyLarge,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            if (compareDriverName.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: GestureDetector(
+                  key: const Key('metrics-compare-driver-line'),
+                  onTap: () {
+                    if (metrics.perModelDailyBreakdown.containsKey(
+                      compareDriverName,
+                    )) {
+                      onModelSelected(
+                        selectedModelFilter == compareDriverName
+                            ? null
+                            : compareDriverName,
+                      );
+                    }
+                  },
+                  child: MouseRegion(
+                    cursor:
+                        metrics.perModelDailyBreakdown.containsKey(
+                          compareDriverName,
+                        )
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.basic,
+                    child: Text(
+                      l10n.compareSummaryDriver(
+                        compareDriverName,
+                        compareDriverDelta >= 0 ? '+' : '-',
+                        displayCurrency,
+                        compareDriverDelta.abs().toStringAsFixed(2),
+                      ),
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: selectedModelFilter == compareDriverName
+                            ? dashboardBorderColor
+                            : (metrics.perModelDailyBreakdown.containsKey(
+                                    compareDriverName,
+                                  )
+                                  ? null
+                                  : textTheme.bodyLarge?.color?.withValues(
+                                      alpha: 0.5,
+                                    )),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(
+                  l10n.compareSummaryNoDriver,
+                  key: const Key('metrics-compare-driver-line-empty'),
+                  style: textTheme.bodyLarge,
+                ),
+              ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                l10n.compareUnavailableHelper,
+                key: const Key('metrics-compare-unavailable'),
+                style: textTheme.bodyLarge,
+              ),
+            ),
+          ],
+        ],
+        if (selectedDay != null) ...[
+          Text(
+            l10n.selectedDaySection(formatDateKey(selectedDay!)),
+            style: textTheme.bodyMedium,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6, top: 6),
+            child: Text(
+              l10n.lineTotalCost(
+                displayCurrency,
+                selectedDaily?.displayTotalCost.toStringAsFixed(2) ?? '0.00',
+              ),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              l10n.lineSessions(selectedDaily?.baseMetrics.sessionCount ?? 0),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              l10n.lineInputTokens(selectedInputTokens),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              l10n.lineOutputTokens(selectedOutputTokens),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              l10n.lineTotalTokens(selectedTotalTokens),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+        ],
+        if (peakHour != null) ...[
+          Text(
+            l10n.peakHourSection(
+              formatHourLabel(peakHour.baseMetrics.hour.hour),
+            ),
+            style: textTheme.bodyMedium,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6, top: 6),
+            child: Text(
+              l10n.linePeakCost(
+                displayCurrency,
+                peakHour.displayTotalCost.toStringAsFixed(2),
+              ),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              l10n.lineSessions(peakHour.baseMetrics.sessionCount),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              l10n.linePeakTokensInOut(
+                peakHour.baseMetrics.inputTokens,
+                peakHour.baseMetrics.outputTokens,
+              ),
+              style: textTheme.bodyLarge,
+            ),
+          ),
+        ] else if (selectedDay != null) ...[
+          Text(l10n.peakHourEmptySection, style: textTheme.bodyMedium),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6, top: 6),
+            child: Text(l10n.lineNoActivity, style: textTheme.bodyLarge),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class MetricsTokensTopDrivers extends StatelessWidget {
+  const MetricsTokensTopDrivers({
+    super.key,
+    required this.metrics,
+    required this.selectedDay,
+    required this.displayCurrency,
+    required this.selectedModelFilter,
+    required this.onModelSelected,
+  });
+
+  final MonetizedAggregatedMetrics metrics;
+  final DateTime selectedDay;
+  final String displayCurrency;
+  final String? selectedModelFilter;
+  final ValueChanged<String?> onModelSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
+
+    final modelsWithMetrics = <String, MonetizedDailyMetrics>{};
+    for (final entry in metrics.perModelDailyBreakdown.entries) {
+      final daily = findDailyMetricsForDay(entry.value, selectedDay);
+      if (daily != null) {
+        modelsWithMetrics[entry.key] = daily;
+      }
+    }
+
+    if (modelsWithMetrics.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final sortedEntries = modelsWithMetrics.entries.toList()
+      ..sort((a, b) {
+        final aTokens = totalTokens(
+          a.value.baseMetrics.inputTokens,
+          a.value.baseMetrics.outputTokens,
+        );
+        final bTokens = totalTokens(
+          b.value.baseMetrics.inputTokens,
+          b.value.baseMetrics.outputTokens,
+        );
+        final tokenCompare = bTokens.compareTo(aTokens);
+        if (tokenCompare != 0) {
+          return tokenCompare;
+        }
+
+        final costCompare = b.value.displayTotalCost.compareTo(
+          a.value.displayTotalCost,
+        );
+        if (costCompare != 0) {
+          return costCompare;
+        }
+
+        return a.key.compareTo(b.key);
+      });
+
+    final top3 = sortedEntries.take(3).toList();
+
+    return Column(
+      key: const Key('metrics-tokens-drivers-panel'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(l10n.metricsTokensTopDrivers, style: textTheme.bodyMedium),
+        const SizedBox(height: 6),
+        ...top3.map((entry) {
+          final modelName = entry.key;
+          final daily = entry.value;
+          final tokenCount = totalTokens(
+            daily.baseMetrics.inputTokens,
+            daily.baseMetrics.outputTokens,
+          );
+          final isSelected = selectedModelFilter == modelName;
+
+          return GestureDetector(
+            key: Key('token-driver-model-$modelName'),
+            onTap: () {
+              if (selectedModelFilter == modelName) {
+                onModelSelected(null);
+              } else {
+                onModelSelected(modelName);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                l10n.modelDriverRow(
+                  modelName,
+                  ''.padRight((16 - modelName.length).clamp(0, 16), '.'),
+                  displayCurrency,
+                  daily.displayTotalCost.toStringAsFixed(2),
+                  tokenCount,
+                  daily.baseMetrics.sessionCount,
+                ),
+                style: textTheme.bodyLarge?.copyWith(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected
+                      ? dashboardPrimaryTextColor
+                      : dashboardSecondaryTextColor,
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+}
