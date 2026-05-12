@@ -19,6 +19,7 @@ dependencies:
   openspent_core:
     path: ../../packages/core
   fl_chart: 1.2.0
+  intl: 0.20.2
   openspent_local:
     path: ../../packages/openspent_local
   path_provider: 2.1.3

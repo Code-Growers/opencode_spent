@@ -370,7 +370,7 @@ class MetricsTextSummary extends StatelessWidget {
                 if (priorMetrics != null) ...[
                   Text(
                     l10n.comparePriorWindow(
-                      '${formatDateKey(from!.subtract(Duration(days: to!.difference(from!).inDays + 1)))} - ${formatDateKey(from!.subtract(const Duration(days: 1)))}',
+                      '${formatDateKey(context, from!.subtract(Duration(days: to!.difference(from!).inDays + 1)))} - ${formatDateKey(context, from!.subtract(const Duration(days: 1)))}',
                     ),
                     key: const Key('metrics-compare-prior-window'),
                     style: textTheme.bodyMedium,
@@ -563,7 +563,7 @@ class MetricsTextSummary extends StatelessWidget {
                         children: [
                           Text(
                             l10n.selectedDaySection(
-                              formatDateKey(selectedDay!),
+                              formatDateKey(context, selectedDay!),
                             ),
                             style: textTheme.bodyMedium,
                           ),

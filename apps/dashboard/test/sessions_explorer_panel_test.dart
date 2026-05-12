@@ -11,6 +11,16 @@ import 'package:openspent_dashboard/src/sessions/import_selection.dart';
 import 'package:openspent_dashboard/src/sessions/sessions_explorer_panel.dart';
 import 'package:openspent_local/openspent_local.dart';
 
+String _expectedLocalTimestamp(DateTime value) {
+  final local = value.toLocal();
+  final day = local.day.toString().padLeft(2, '0');
+  final month = local.month.toString().padLeft(2, '0');
+  final year = local.year.toString().padLeft(4, '0');
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '$day.$month.$year $hour:$minute';
+}
+
 class _FakeSessionRepository implements OpenCodeSessionRepository {
   _FakeSessionRepository([List<OpenCodeSession>? sessions])
     : _sessions = sessions ?? <OpenCodeSession>[];
@@ -249,6 +259,18 @@ void main() {
     // Check cached history and last operation render correctly
     expect(find.text('-- CACHED HISTORY --'), findsOneWidget);
     expect(find.text('> Sessions .......... 1'), findsOneWidget);
+    expect(
+      find.text(
+        '> Newest ............ ${_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))}',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        '> Oldest ............ ${_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))}',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('-- LAST OPERATION --'), findsOneWidget);
     expect(find.text('> Type .............. IMPORT JSON'), findsOneWidget);
     expect(find.text('> Status ............ SUCCESS'), findsOneWidget);
@@ -319,6 +341,10 @@ void main() {
 
     expect(find.text('> Import completed successfully.'), findsOneWidget);
     expect(find.textContaining('ses_sqli'), findsWidgets);
+    expect(
+      find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))),
+      findsWidgets,
+    );
     expect(callbackCount, 1);
     expect(importedPath, sqlitePath);
   });
@@ -388,6 +414,10 @@ void main() {
 
       expect(find.text('> Import completed successfully.'), findsOneWidget);
       expect(find.textContaining('ses_sqli'), findsWidgets);
+      expect(
+        find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))),
+        findsWidgets,
+      );
       expect(callbackCount, 1);
       expect(importedBytes, same(sqliteBytes));
     },
@@ -662,7 +692,10 @@ void main() {
         wrapInScrollView: true,
       );
 
-      expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
+      expect(
+        find.text('> Day filter ........ 08.05.2026 00:00'),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('sessions-empty-state')), findsOneWidget);
       expect(find.byKey(const Key('sessions-list')), findsNothing);
       expect(find.textContaining('ses_window'), findsNothing);
@@ -788,7 +821,7 @@ void main() {
       selectedDay: DateTime.utc(2026, 5, 8),
     );
 
-    expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsOneWidget);
     expect(find.byKey(const Key('sessions-clear-filter')), findsNothing);
 
     expect(find.textContaining('ses_day1'), findsWidgets);
@@ -829,7 +862,7 @@ void main() {
     );
 
     expect(find.text('> Model filter ...... gpt-4o'), findsOneWidget);
-    expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsOneWidget);
 
     expect(find.textContaining('ses_gpt_'), findsWidgets);
     expect(find.textContaining('ses_gpt_day2'), findsNothing);
@@ -871,7 +904,7 @@ void main() {
     );
 
     expect(find.text('> Model filter ...... gpt-4o'), findsOneWidget);
-    expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsOneWidget);
     expect(find.text('> Hour filter ....... 09:00 UTC'), findsOneWidget);
 
     expect(find.textContaining('ses_h09g'), findsWidgets);
@@ -1094,6 +1127,70 @@ void main() {
       expect(find.textContaining('ID: test_ses'), findsWidgets);
       expect(find.textContaining('gpt-4o • 1.5K TOK'), findsWidgets);
       expect(find.textContaining('USD 0.1234'), findsWidgets);
+      expect(
+        find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))),
+        findsWidgets,
+      );
+    },
+  );
+
+  testWidgets(
+    'search matches formatted timestamp while preserving ISO search',
+    (WidgetTester tester) async {
+      final cubit = await _buildLoadedCubit(
+        sessions: [
+          _session(
+            id: 'ses_time_match',
+            createdAt: DateTime.utc(2026, 5, 8, 12),
+            modelName: 'gpt-4o',
+          ),
+          _session(
+            id: 'ses_other_time',
+            createdAt: DateTime.utc(2026, 5, 7, 9),
+            modelName: 'claude-3',
+          ),
+        ],
+      );
+      addTearDown(cubit.close);
+
+      await _pumpPanel(
+        tester,
+        cubit: cubit,
+        isConnected: true,
+        wrapInScrollView: true,
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('sessions-search-field')),
+        _expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('> Results ........... 1'), findsOneWidget);
+      expect(
+        find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))),
+        findsWidgets,
+      );
+      expect(
+        find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 7, 9))),
+        findsNothing,
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('sessions-search-field')),
+        '2026-05-08T12:00:00Z',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('> Results ........... 1'), findsOneWidget);
+      expect(
+        find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 8, 12))),
+        findsWidgets,
+      );
+      expect(
+        find.text(_expectedLocalTimestamp(DateTime.utc(2026, 5, 7, 9))),
+        findsNothing,
+      );
     },
   );
 

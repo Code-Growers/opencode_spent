@@ -235,7 +235,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                 final lastDate = visibleDays.last;
                 daySelector = Semantics(
                   button: true,
-                  value: formatDayChipLabel(selectedDay),
+                  value: formatDayChipLabel(context, selectedDay),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -284,7 +284,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '[ ${formatDayChipLabel(selectedDay)} ]',
+                              '[ ${formatDayChipLabel(context, selectedDay)} ]',
                               style: textTheme.bodyMedium?.copyWith(
                                 color: dashboardPrimaryTextColor,
                                 fontWeight: FontWeight.bold,
@@ -317,7 +317,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
                           DashboardChipButton(
                             key: const Key('metrics-window-7d'),
                             label: l10n.windowAction7d,
-                            isSelected: widget.selectedWindow == TimeWindow.days7,
+                            isSelected:
+                                widget.selectedWindow == TimeWindow.days7,
                             onTap: () =>
                                 widget.onWindowSelected(TimeWindow.days7),
                           ),

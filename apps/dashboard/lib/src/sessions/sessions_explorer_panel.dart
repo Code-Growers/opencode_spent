@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:openspent_core/openspent_core.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../app/date_time_extensions.dart';
 import '../screens/metrics/widgets/metrics_chart_widgets.dart';
 import '../screens/metrics/metrics_utils.dart';
 import '../screens/sessions/cubit/sessions_cubit.dart';
@@ -57,9 +58,9 @@ bool _isSameUtcDay(DateTime left, DateTime right) {
   return _normalizeUtcDay(left) == _normalizeUtcDay(right);
 }
 
-String _formatDateKey(DateTime value) {
-  final normalized = _normalizeUtcDay(value);
-  return '${normalized.year}-${normalized.month.toString().padLeft(2, '0')}-${normalized.day.toString().padLeft(2, '0')}';
+String _searchableIsoTimestamp(DateTime value) {
+  final iso = value.toUtc().toIso8601String();
+  return iso.replaceFirst(RegExp(r'\.000Z$'), 'Z');
 }
 
 enum _SessionSort { latest, cost, tokens }
@@ -297,6 +298,13 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
             final tokens = (s.inputTokens ?? 0) + (s.outputTokens ?? 0);
             return s.id.toLowerCase().contains(query) ||
                 s.createdAt.toIso8601String().toLowerCase().contains(query) ||
+                _searchableIsoTimestamp(
+                  s.createdAt,
+                ).toLowerCase().contains(query) ||
+                s.createdAt
+                    .formatDashboardDateTime(context)
+                    .toLowerCase()
+                    .contains(query) ||
                 (s.provider?.toLowerCase().contains(query) ?? false) ||
                 (s.modelName?.toLowerCase().contains(query) ?? false) ||
                 (s.subagentCategory?.toLowerCase().contains(query) ?? false) ||
@@ -405,7 +413,7 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                       ),
                     ),
                     Text(
-                      session.createdAt.toIso8601String(),
+                      session.createdAt.formatDashboardDateTime(context),
                       style: textTheme.bodyMedium?.copyWith(
                         color: _secondaryTextColor,
                       ),
@@ -653,7 +661,9 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                                 if (widget.selectedDay != null)
                                   Text(
                                     l10n.activeDayFilter(
-                                      _formatDateKey(widget.selectedDay!),
+                                      widget.selectedDay!.formatDashboardUtcDay(
+                                        context,
+                                      ),
                                     ),
                                     style: textTheme.bodyLarge?.copyWith(
                                       color: _statusColor,
@@ -712,19 +722,17 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                     ),
                     Text(
                       l10n.sessionsExplorerCachedNewest(
-                        rawSessions.first.createdAt
-                            .toIso8601String()
-                            .split("T")
-                            .first,
+                        rawSessions.first.createdAt.formatDashboardDateTime(
+                          context,
+                        ),
                       ),
                       style: textTheme.bodyLarge,
                     ),
                     Text(
                       l10n.sessionsExplorerCachedOldest(
-                        rawSessions.last.createdAt
-                            .toIso8601String()
-                            .split("T")
-                            .first,
+                        rawSessions.last.createdAt.formatDashboardDateTime(
+                          context,
+                        ),
                       ),
                       style: textTheme.bodyLarge,
                     ),

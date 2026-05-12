@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:openspent_core/openspent_core.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../app/date_time_extensions.dart';
 
 enum TimeWindow { days7, days30, days90, all, custom }
 
@@ -24,14 +25,12 @@ bool containsUtcDay(Iterable<DateTime> values, DateTime target) {
   return false;
 }
 
-String formatDateKey(DateTime value) {
-  final normalized = normalizeUtcDay(value);
-  return '${normalized.year}-${normalized.month.toString().padLeft(2, '0')}-${normalized.day.toString().padLeft(2, '0')}';
+String formatDateKey(BuildContext context, DateTime value) {
+  return normalizeUtcDay(value).formatDashboardUtcDay(context);
 }
 
-String formatDayChipLabel(DateTime value) {
-  final normalized = normalizeUtcDay(value);
-  return '${normalized.month.toString().padLeft(2, '0')}-${normalized.day.toString().padLeft(2, '0')}';
+String formatDayChipLabel(BuildContext context, DateTime value) {
+  return normalizeUtcDay(value).formatDashboardUtcDay(context);
 }
 
 String formatHourLabel(int hour) => hour.toString().padLeft(2, '0');
@@ -266,7 +265,7 @@ String formatWindowLabel(
       return l10n.windowAll;
     case TimeWindow.custom:
       if (from != null && to != null) {
-        return '${formatDateKey(from)} - ${formatDateKey(to)}';
+        return '${formatDateKey(context, from)} - ${formatDateKey(context, to)}';
       }
       return l10n.windowCustom;
   }

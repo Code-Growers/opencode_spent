@@ -1127,7 +1127,7 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('metrics-window-line')));
 
     expect(
-      find.text('> Window ............. 2026-05-06 - 2026-05-08'),
+      find.text('> Window ............. 06.05.2026 00:00 - 08.05.2026 00:00'),
       findsOneWidget,
     );
     expect(
@@ -1352,7 +1352,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await _openDashboardSection(tester, 'dashboard-nav-sessions');
-    expect(find.text('> Day filter ........ 2026-05-08'), findsNothing);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsNothing);
     expect(find.textContaining('ses_m08_'), findsWidgets);
     expect(find.textContaining('ses_m06_'), findsWidgets);
 
@@ -1370,7 +1370,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await _openDashboardSection(tester, 'dashboard-nav-sessions');
-    expect(find.text('> Day filter ........ 2026-05-06'), findsOneWidget);
+    expect(find.text('> Day filter ........ 06.05.2026 00:00'), findsOneWidget);
     expect(find.textContaining('ses_m06_'), findsWidgets);
     expect(find.textContaining('ses_m08_'), findsNothing);
   });
@@ -1430,7 +1430,7 @@ void main() {
 
     // Verify both are present initially
     await _openDashboardSection(tester, 'dashboard-nav-sessions');
-    expect(find.text('> Day filter ........ 2026-05-08'), findsNothing);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsNothing);
     expect(find.textContaining('ses_h09'), findsWidgets);
     expect(find.textContaining('ses_h14'), findsWidgets);
 
@@ -1448,7 +1448,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await _openDashboardSection(tester, 'dashboard-nav-sessions');
-    expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsOneWidget);
     expect(find.text('> Hour filter ....... 09:00 UTC'), findsOneWidget);
     expect(find.textContaining('ses_h09'), findsWidgets);
     expect(find.textContaining('ses_h14'), findsNothing);
@@ -1462,7 +1462,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await _openDashboardSection(tester, 'dashboard-nav-sessions');
-    expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
+    expect(find.text('> Day filter ........ 08.05.2026 00:00'), findsOneWidget);
     expect(find.text('> Hour filter ....... 09:00 UTC'), findsNothing);
     expect(find.textContaining('ses_h09'), findsWidgets);
     expect(find.textContaining('ses_h14'), findsWidgets);
@@ -1737,7 +1737,7 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('metrics-window-line')));
 
     expect(
-      find.text('> Window ............. 2026-05-01 - 2026-05-08'),
+      find.text('> Window ............. 01.05.2026 00:00 - 08.05.2026 00:00'),
       findsOneWidget,
     );
     expect(find.text('> Total cost ......... USD 0.30'), findsOneWidget);
@@ -1749,7 +1749,7 @@ void main() {
 
     expect(find.text('> Window ............. 7D'), findsOneWidget);
     expect(find.text('> Total cost ......... USD 0.30'), findsOneWidget);
-    expect(find.text('-- SELECTED DAY (2026-05-08) --'), findsOneWidget);
+    expect(find.text('-- SELECTED DAY (08.05.2026 00:00) --'), findsOneWidget);
     expect(find.text('> Sessions ........... 1'), findsNWidgets(2));
     await _openDashboardSection(tester, 'dashboard-nav-exchange-rates');
     expect(find.text('> Coverage .......... 1/3'), findsOneWidget);
@@ -1992,19 +1992,19 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    expect(find.text('-- SELECTED DAY (2026-05-06) --'), findsOneWidget);
+    expect(find.text('-- SELECTED DAY (06.05.2026 00:00) --'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('metrics-tab-spend')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('metrics-tab-text')));
     await tester.pumpAndSettle();
 
-    expect(find.text('-- SELECTED DAY (2026-05-06) --'), findsOneWidget);
+    expect(find.text('-- SELECTED DAY (06.05.2026 00:00) --'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('metrics-window-all')));
     await tester.pumpAndSettle();
 
-    expect(find.text('-- SELECTED DAY (2026-05-06) --'), findsOneWidget);
+    expect(find.text('-- SELECTED DAY (06.05.2026 00:00) --'), findsOneWidget);
 
     // Switch to CUSTOM window
     await tester.ensureVisible(find.byKey(const Key('metrics-window-custom')));
@@ -2022,7 +2022,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 05/06 is in range, so it is preserved
-    expect(find.text('-- SELECTED DAY (2026-05-06) --'), findsOneWidget);
+    expect(find.text('-- SELECTED DAY (06.05.2026 00:00) --'), findsOneWidget);
 
     // Switch to CUSTOM window outside the selected day
     await tester.ensureVisible(find.byKey(const Key('metrics-window-custom')));
@@ -2040,7 +2040,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 05/06 is out of range, fallback to latest visible day (05/08)
-    expect(find.text('-- SELECTED DAY (2026-05-08) --'), findsOneWidget);
+    expect(find.text('-- SELECTED DAY (08.05.2026 00:00) --'), findsOneWidget);
   });
 
   testWidgets('live probe status changes and triggers sync on reconnect', (
@@ -3461,7 +3461,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('metrics-window-line')), findsOneWidget);
     expect(
-      find.text('> Prior window ....... 2026-05-03 - 2026-05-05'),
+      find.text('> Prior window ....... 03.05.2026 00:00 - 05.05.2026 00:00'),
       findsOneWidget,
     );
     expect(find.text('> Vs prior ........... -USD 2.00'), findsOneWidget);

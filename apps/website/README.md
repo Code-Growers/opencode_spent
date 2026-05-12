@@ -13,7 +13,7 @@ dart pub global activate jaspr_cli 0.23.1
 jaspr serve
 ```
 
-For local static builds, keep port `8080` free. Jaspr's internal renderer uses it during `jaspr build`.
+For local static builds, keep port `8081` free. Jaspr's internal renderer uses it during `jaspr build`.
 
 ## Build
 

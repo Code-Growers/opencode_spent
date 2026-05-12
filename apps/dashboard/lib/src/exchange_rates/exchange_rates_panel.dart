@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:openspent_core/openspent_core.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../app/date_time_extensions.dart';
 import '../screens/dashboard/widgets/dashboard_chip_button.dart';
 import '../screens/dashboard/widgets/dashboard_surface.dart';
 import '../screens/exchange_rates/cubit/exchange_rates_cubit.dart';
@@ -127,7 +128,9 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
             : l10n.exchangeRatesStatusMissing(state.missingDates.length);
         final missingDaysText = state.missingDates.isEmpty
             ? l10n.exchangeRatesMissingDaysNone
-            : state.missingDates.map(_formatDateKey).join(', ');
+            : state.missingDates
+                  .map((date) => date.formatDashboardUtcDay(context))
+                  .join(', ');
 
         return DashboardSurface(
           key: const Key('exchange-rates-panel'),
@@ -203,7 +206,12 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
                             if (_statusMessage != null)
                               const SizedBox(height: 8),
                             Text(
-                              l10n.exchangeRatesError(state.errorMessage!),
+                              l10n.exchangeRatesError(
+                                formatDashboardUtcDayIsoStrings(
+                                  context,
+                                  state.errorMessage!,
+                                ),
+                              ),
                               key: const Key('exchange-rates-error-message'),
                               style: textTheme.bodyMedium?.copyWith(
                                 color: dashboardSecondaryTextColor,
@@ -273,9 +281,4 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
       },
     );
   }
-}
-
-String _formatDateKey(DateTime value) {
-  final normalized = value.toUtc();
-  return '${normalized.year}-${normalized.month.toString().padLeft(2, '0')}-${normalized.day.toString().padLeft(2, '0')}';
 }
