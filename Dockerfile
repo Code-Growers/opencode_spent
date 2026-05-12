@@ -1,10 +1,8 @@
 FROM ghcr.io/cirruslabs/flutter:3.41.7 AS build
 
-ARG TARGETARCH
-
 WORKDIR /app
 
-RUN case "$TARGETARCH" in amd64) tailwind_arch=x64 ;; arm64) tailwind_arch=arm64 ;; *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; esac && curl -fsSL "https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-${tailwind_arch}" -o /usr/local/bin/tailwindcss
+RUN build_arch="$(uname -m)" && case "$build_arch" in x86_64|amd64) tailwind_arch=x64 ;; aarch64|arm64) tailwind_arch=arm64 ;; *) echo "Unsupported build architecture: $build_arch" >&2; exit 1 ;; esac && curl -fsSL "https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-${tailwind_arch}" -o /usr/local/bin/tailwindcss
 RUN chmod +x /usr/local/bin/tailwindcss
 RUN tailwindcss --help >/dev/null
 
