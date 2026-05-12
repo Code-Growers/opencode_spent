@@ -158,7 +158,7 @@
   "@lineInputTokens": {
     "placeholders": {
       "value": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -166,7 +166,7 @@
   "@lineOutputTokens": {
     "placeholders": {
       "value": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -174,7 +174,7 @@
   "@lineTotalTokens": {
     "placeholders": {
       "value": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -212,10 +212,10 @@
   "@linePeakTokensInOut": {
     "placeholders": {
       "input": {
-        "type": "int"
+        "type": "String"
       },
       "output": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -234,7 +234,7 @@
       }
     }
   },
-  "modelCostShareTrend": "{currency} {totalCost} [{share}%] • {trend}",
+  "modelCostShareTrend": "{currency} {totalCost} [{share}%] \u2022 {trend}",
   "@modelCostShareTrend": {
     "placeholders": {
       "currency": {
@@ -255,10 +255,10 @@
   "@modelTokensSessions": {
     "placeholders": {
       "tokens": {
-        "type": "int"
+        "type": "String"
       },
       "sessions": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -294,6 +294,77 @@
         "type": "int"
       },
       "trend": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsProvidersTab": "[ PROVIDERS ]",
+  "metricsKpiTotalPrice": "> TOTAL PRICE ....... {currency} {value}",
+  "@metricsKpiTotalPrice": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiTotalRequests": "> TOTAL REQUESTS .... {value}",
+  "@metricsKpiTotalRequests": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiTotalToolCalls": "> TOTAL TOOL CALLS .. {value}",
+  "@metricsKpiTotalToolCalls": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiAvgResponseTime": "> AVG RESPONSE TIME . {value}",
+  "@metricsKpiAvgResponseTime": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiTotalTokens": "> TOTAL TOKENS ...... {value}",
+  "@metricsKpiTotalTokens": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiNotAvailable": "--",
+  "metricsKpiPartial": "{value} (partial)",
+  "@metricsKpiPartial": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "providersUsageChartTitle": "-- USAGE PER PROVIDER --",
+  "providersPriceChartTitle": "-- PRICE PER PROVIDER --",
+  "providersPriceUnavailable": "> {provider} price unavailable",
+  "@providersPriceUnavailable": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "helpRemoteLineCors": "> When using the dashboard in a browser against a local server, start OpenCode with --cors=\"{origin}\" so it allows this browser origin. The value must be origin only \u2014 not /demo or any other path.",
+  "@helpRemoteLineCors": {
+    "placeholders": {
+      "origin": {
         "type": "String"
       }
     }
@@ -446,6 +517,7 @@
   "sessionsExplorerSyncSuccess": "> Sync completed successfully.",
   "sessionsExplorerSyncError": "> Sync failed.",
   "sessionsExplorerImportSuccess": "> Import completed successfully.",
+  "sessionsExplorerImportWalModeError": "> Browser import requires a standalone SQLite file. WAL-mode OpenCode databases are not supported for single-file uploads yet.",
   "sessionsExplorerImportError": "> Import failed: invalid format or error.",
   "sessionsExplorerImportNoFile": "> Import cancelled.",
   "sessionsExplorerUnknownModel": "Unknown model",
@@ -458,7 +530,7 @@
     }
   },
   "sessionsExplorerError": "> Error ............. operation failed. Check source data or server status.",
-  "sessionRowData": "> {date} • {model} • {tokens} TOK • {currency} {cost} • ID: {id}",
+  "sessionRowData": "> {date} \u2022 {model} \u2022 {tokens} TOK \u2022 {currency} {cost} \u2022 ID: {id}",
   "@sessionRowData": {
     "placeholders": {
       "date": {
@@ -514,10 +586,10 @@
         "type": "String"
       },
       "tokens": {
-        "type": "int"
+        "type": "String"
       },
       "sessions": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -533,10 +605,10 @@
         "type": "String"
       },
       "tokens": {
-        "type": "int"
+        "type": "String"
       },
       "sessions": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -763,5 +835,24 @@
     }
   },
   "compareSplitUnavailable": "> Split breakdown .... math undefined",
-  "compareUnavailableHelper": "> Prior-window compare unavailable due to missing exchange rates."
+  "compareUnavailableHelper": "> Prior-window compare unavailable due to missing exchange rates.",
+  "sessionsSearchPlaceholder": "Search metadata...",
+  "sessionsSearchClear": "[ CLEAR ]",
+  "sessionsSearchResultsCount": "> Results ........... {count}",
+  "@sessionsSearchResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsListHeader": "-- SESSION LOG --",
+  "pieLegendOverflow": "+{count} more",
+  "@pieLegendOverflow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_core/openspent_core.dart';
-import 'package:openspent_local/openspent_local.dart';
+import 'package:openspent_local/openspent_local_native.dart';
+import 'package:openspent_local/src/repositories/open_code_uploaded_sqlite_session_repository.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 void main() {
@@ -134,10 +136,39 @@ void main() {
             1710000000000,
             isUtc: true,
           ),
+          provider: 'openai',
           modelName: 'gpt-5.4',
           inputTokens: 30,
           outputTokens: 12,
           totalCostUsd: 1.0,
+          requestCount: 1,
+          toolCallCount: 0,
+          responseCount: 2,
+          totalResponseTimeMs: 100,
+          usageSlices: <SessionUsageSlice>[
+            SessionUsageSlice(
+              provider: 'openai',
+              modelName: 'gpt-5.4',
+              inputTokens: 20,
+              outputTokens: 7,
+              totalCostUsd: 0.75,
+              requestCount: 0,
+              toolCallCount: 0,
+              responseCount: 1,
+              totalResponseTimeMs: null,
+            ),
+            SessionUsageSlice(
+              provider: 'openai',
+              modelName: 'o4-mini',
+              inputTokens: 10,
+              outputTokens: 5,
+              totalCostUsd: 0.25,
+              requestCount: 1,
+              toolCallCount: 0,
+              responseCount: 1,
+              totalResponseTimeMs: 100,
+            ),
+          ],
         ),
         OpenCodeSession(
           id: 'ses-no-assistant',
@@ -224,5 +255,42 @@ void main() {
         );
       },
     );
+
+    test(
+      'rejects uploaded WAL-mode main-db bytes before attempting a web DB open',
+      () async {
+        var attemptedDatabaseOpen = false;
+        final repository = OpenCodeUploadedSqliteSessionRepository(
+          _sqliteHeaderBytes(writeVersion: 2, readVersion: 2),
+          onWillAttemptDatabaseOpen: () {
+            attemptedDatabaseOpen = true;
+          },
+        );
+
+        await expectLater(
+          repository.readSessions(),
+          throwsA(
+            isA<FormatException>().having(
+              (error) => error.message,
+              'message',
+              OpenCodeUploadedSqliteSessionRepository.walModeUploadErrorMessage,
+            ),
+          ),
+        );
+        expect(attemptedDatabaseOpen, isFalse);
+      },
+    );
   });
+}
+
+Uint8List _sqliteHeaderBytes({
+  required int writeVersion,
+  required int readVersion,
+}) {
+  final bytes = Uint8List(100);
+  final header = 'SQLite format 3\u0000'.codeUnits;
+  bytes.setRange(0, header.length, header);
+  bytes[18] = writeVersion;
+  bytes[19] = readVersion;
+  return bytes;
 }

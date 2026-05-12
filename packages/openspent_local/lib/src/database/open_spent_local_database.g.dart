@@ -368,6 +368,17 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _providerMeta = const VerificationMeta(
+    'provider',
+  );
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+    'provider',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _modelNameMeta = const VerificationMeta(
     'modelName',
   );
@@ -412,6 +423,49 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _requestCountMeta = const VerificationMeta(
+    'requestCount',
+  );
+  @override
+  late final GeneratedColumn<int> requestCount = GeneratedColumn<int>(
+    'request_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _toolCallCountMeta = const VerificationMeta(
+    'toolCallCount',
+  );
+  @override
+  late final GeneratedColumn<int> toolCallCount = GeneratedColumn<int>(
+    'tool_call_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _responseCountMeta = const VerificationMeta(
+    'responseCount',
+  );
+  @override
+  late final GeneratedColumn<int> responseCount = GeneratedColumn<int>(
+    'response_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _totalResponseTimeMsMeta =
+      const VerificationMeta('totalResponseTimeMs');
+  @override
+  late final GeneratedColumn<int> totalResponseTimeMs = GeneratedColumn<int>(
+    'total_response_time_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _subagentCategoryMeta = const VerificationMeta(
     'subagentCategory',
   );
@@ -423,15 +477,32 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _usageSlicesJsonMeta = const VerificationMeta(
+    'usageSlicesJson',
+  );
+  @override
+  late final GeneratedColumn<String> usageSlicesJson = GeneratedColumn<String>(
+    'usage_slices_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     createdAtUtc,
+    provider,
     modelName,
     inputTokens,
     outputTokens,
     totalCostUsd,
+    requestCount,
+    toolCallCount,
+    responseCount,
+    totalResponseTimeMs,
     subagentCategory,
+    usageSlicesJson,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -460,6 +531,12 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
       );
     } else if (isInserting) {
       context.missing(_createdAtUtcMeta);
+    }
+    if (data.containsKey('provider')) {
+      context.handle(
+        _providerMeta,
+        provider.isAcceptableOrUnknown(data['provider']!, _providerMeta),
+      );
     }
     if (data.containsKey('model_name')) {
       context.handle(
@@ -494,12 +571,57 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
         ),
       );
     }
+    if (data.containsKey('request_count')) {
+      context.handle(
+        _requestCountMeta,
+        requestCount.isAcceptableOrUnknown(
+          data['request_count']!,
+          _requestCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tool_call_count')) {
+      context.handle(
+        _toolCallCountMeta,
+        toolCallCount.isAcceptableOrUnknown(
+          data['tool_call_count']!,
+          _toolCallCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('response_count')) {
+      context.handle(
+        _responseCountMeta,
+        responseCount.isAcceptableOrUnknown(
+          data['response_count']!,
+          _responseCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('total_response_time_ms')) {
+      context.handle(
+        _totalResponseTimeMsMeta,
+        totalResponseTimeMs.isAcceptableOrUnknown(
+          data['total_response_time_ms']!,
+          _totalResponseTimeMsMeta,
+        ),
+      );
+    }
     if (data.containsKey('subagent_category')) {
       context.handle(
         _subagentCategoryMeta,
         subagentCategory.isAcceptableOrUnknown(
           data['subagent_category']!,
           _subagentCategoryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('usage_slices_json')) {
+      context.handle(
+        _usageSlicesJsonMeta,
+        usageSlicesJson.isAcceptableOrUnknown(
+          data['usage_slices_json']!,
+          _usageSlicesJsonMeta,
         ),
       );
     }
@@ -523,6 +645,10 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at_utc'],
       )!,
+      provider: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider'],
+      ),
       modelName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}model_name'],
@@ -539,9 +665,29 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
         DriftSqlType.double,
         data['${effectivePrefix}total_cost_usd'],
       ),
+      requestCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}request_count'],
+      ),
+      toolCallCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tool_call_count'],
+      ),
+      responseCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}response_count'],
+      ),
+      totalResponseTimeMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_response_time_ms'],
+      ),
       subagentCategory: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}subagent_category'],
+      ),
+      usageSlicesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}usage_slices_json'],
       ),
     );
   }
@@ -556,25 +702,40 @@ class LocalOpenCodeSessionRow extends DataClass
     implements Insertable<LocalOpenCodeSessionRow> {
   final String id;
   final DateTime createdAtUtc;
+  final String? provider;
   final String? modelName;
   final int? inputTokens;
   final int? outputTokens;
   final double? totalCostUsd;
+  final int? requestCount;
+  final int? toolCallCount;
+  final int? responseCount;
+  final int? totalResponseTimeMs;
   final String? subagentCategory;
+  final String? usageSlicesJson;
   const LocalOpenCodeSessionRow({
     required this.id,
     required this.createdAtUtc,
+    this.provider,
     this.modelName,
     this.inputTokens,
     this.outputTokens,
     this.totalCostUsd,
+    this.requestCount,
+    this.toolCallCount,
+    this.responseCount,
+    this.totalResponseTimeMs,
     this.subagentCategory,
+    this.usageSlicesJson,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['created_at_utc'] = Variable<DateTime>(createdAtUtc);
+    if (!nullToAbsent || provider != null) {
+      map['provider'] = Variable<String>(provider);
+    }
     if (!nullToAbsent || modelName != null) {
       map['model_name'] = Variable<String>(modelName);
     }
@@ -587,8 +748,23 @@ class LocalOpenCodeSessionRow extends DataClass
     if (!nullToAbsent || totalCostUsd != null) {
       map['total_cost_usd'] = Variable<double>(totalCostUsd);
     }
+    if (!nullToAbsent || requestCount != null) {
+      map['request_count'] = Variable<int>(requestCount);
+    }
+    if (!nullToAbsent || toolCallCount != null) {
+      map['tool_call_count'] = Variable<int>(toolCallCount);
+    }
+    if (!nullToAbsent || responseCount != null) {
+      map['response_count'] = Variable<int>(responseCount);
+    }
+    if (!nullToAbsent || totalResponseTimeMs != null) {
+      map['total_response_time_ms'] = Variable<int>(totalResponseTimeMs);
+    }
     if (!nullToAbsent || subagentCategory != null) {
       map['subagent_category'] = Variable<String>(subagentCategory);
+    }
+    if (!nullToAbsent || usageSlicesJson != null) {
+      map['usage_slices_json'] = Variable<String>(usageSlicesJson);
     }
     return map;
   }
@@ -597,6 +773,9 @@ class LocalOpenCodeSessionRow extends DataClass
     return OpenCodeSessionsCompanion(
       id: Value(id),
       createdAtUtc: Value(createdAtUtc),
+      provider: provider == null && nullToAbsent
+          ? const Value.absent()
+          : Value(provider),
       modelName: modelName == null && nullToAbsent
           ? const Value.absent()
           : Value(modelName),
@@ -609,9 +788,24 @@ class LocalOpenCodeSessionRow extends DataClass
       totalCostUsd: totalCostUsd == null && nullToAbsent
           ? const Value.absent()
           : Value(totalCostUsd),
+      requestCount: requestCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(requestCount),
+      toolCallCount: toolCallCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(toolCallCount),
+      responseCount: responseCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(responseCount),
+      totalResponseTimeMs: totalResponseTimeMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(totalResponseTimeMs),
       subagentCategory: subagentCategory == null && nullToAbsent
           ? const Value.absent()
           : Value(subagentCategory),
+      usageSlicesJson: usageSlicesJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usageSlicesJson),
     );
   }
 
@@ -623,11 +817,19 @@ class LocalOpenCodeSessionRow extends DataClass
     return LocalOpenCodeSessionRow(
       id: serializer.fromJson<String>(json['id']),
       createdAtUtc: serializer.fromJson<DateTime>(json['createdAtUtc']),
+      provider: serializer.fromJson<String?>(json['provider']),
       modelName: serializer.fromJson<String?>(json['modelName']),
       inputTokens: serializer.fromJson<int?>(json['inputTokens']),
       outputTokens: serializer.fromJson<int?>(json['outputTokens']),
       totalCostUsd: serializer.fromJson<double?>(json['totalCostUsd']),
+      requestCount: serializer.fromJson<int?>(json['requestCount']),
+      toolCallCount: serializer.fromJson<int?>(json['toolCallCount']),
+      responseCount: serializer.fromJson<int?>(json['responseCount']),
+      totalResponseTimeMs: serializer.fromJson<int?>(
+        json['totalResponseTimeMs'],
+      ),
       subagentCategory: serializer.fromJson<String?>(json['subagentCategory']),
+      usageSlicesJson: serializer.fromJson<String?>(json['usageSlicesJson']),
     );
   }
   @override
@@ -636,32 +838,58 @@ class LocalOpenCodeSessionRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'createdAtUtc': serializer.toJson<DateTime>(createdAtUtc),
+      'provider': serializer.toJson<String?>(provider),
       'modelName': serializer.toJson<String?>(modelName),
       'inputTokens': serializer.toJson<int?>(inputTokens),
       'outputTokens': serializer.toJson<int?>(outputTokens),
       'totalCostUsd': serializer.toJson<double?>(totalCostUsd),
+      'requestCount': serializer.toJson<int?>(requestCount),
+      'toolCallCount': serializer.toJson<int?>(toolCallCount),
+      'responseCount': serializer.toJson<int?>(responseCount),
+      'totalResponseTimeMs': serializer.toJson<int?>(totalResponseTimeMs),
       'subagentCategory': serializer.toJson<String?>(subagentCategory),
+      'usageSlicesJson': serializer.toJson<String?>(usageSlicesJson),
     };
   }
 
   LocalOpenCodeSessionRow copyWith({
     String? id,
     DateTime? createdAtUtc,
+    Value<String?> provider = const Value.absent(),
     Value<String?> modelName = const Value.absent(),
     Value<int?> inputTokens = const Value.absent(),
     Value<int?> outputTokens = const Value.absent(),
     Value<double?> totalCostUsd = const Value.absent(),
+    Value<int?> requestCount = const Value.absent(),
+    Value<int?> toolCallCount = const Value.absent(),
+    Value<int?> responseCount = const Value.absent(),
+    Value<int?> totalResponseTimeMs = const Value.absent(),
     Value<String?> subagentCategory = const Value.absent(),
+    Value<String?> usageSlicesJson = const Value.absent(),
   }) => LocalOpenCodeSessionRow(
     id: id ?? this.id,
     createdAtUtc: createdAtUtc ?? this.createdAtUtc,
+    provider: provider.present ? provider.value : this.provider,
     modelName: modelName.present ? modelName.value : this.modelName,
     inputTokens: inputTokens.present ? inputTokens.value : this.inputTokens,
     outputTokens: outputTokens.present ? outputTokens.value : this.outputTokens,
     totalCostUsd: totalCostUsd.present ? totalCostUsd.value : this.totalCostUsd,
+    requestCount: requestCount.present ? requestCount.value : this.requestCount,
+    toolCallCount: toolCallCount.present
+        ? toolCallCount.value
+        : this.toolCallCount,
+    responseCount: responseCount.present
+        ? responseCount.value
+        : this.responseCount,
+    totalResponseTimeMs: totalResponseTimeMs.present
+        ? totalResponseTimeMs.value
+        : this.totalResponseTimeMs,
     subagentCategory: subagentCategory.present
         ? subagentCategory.value
         : this.subagentCategory,
+    usageSlicesJson: usageSlicesJson.present
+        ? usageSlicesJson.value
+        : this.usageSlicesJson,
   );
   LocalOpenCodeSessionRow copyWithCompanion(OpenCodeSessionsCompanion data) {
     return LocalOpenCodeSessionRow(
@@ -669,6 +897,7 @@ class LocalOpenCodeSessionRow extends DataClass
       createdAtUtc: data.createdAtUtc.present
           ? data.createdAtUtc.value
           : this.createdAtUtc,
+      provider: data.provider.present ? data.provider.value : this.provider,
       modelName: data.modelName.present ? data.modelName.value : this.modelName,
       inputTokens: data.inputTokens.present
           ? data.inputTokens.value
@@ -679,9 +908,24 @@ class LocalOpenCodeSessionRow extends DataClass
       totalCostUsd: data.totalCostUsd.present
           ? data.totalCostUsd.value
           : this.totalCostUsd,
+      requestCount: data.requestCount.present
+          ? data.requestCount.value
+          : this.requestCount,
+      toolCallCount: data.toolCallCount.present
+          ? data.toolCallCount.value
+          : this.toolCallCount,
+      responseCount: data.responseCount.present
+          ? data.responseCount.value
+          : this.responseCount,
+      totalResponseTimeMs: data.totalResponseTimeMs.present
+          ? data.totalResponseTimeMs.value
+          : this.totalResponseTimeMs,
       subagentCategory: data.subagentCategory.present
           ? data.subagentCategory.value
           : this.subagentCategory,
+      usageSlicesJson: data.usageSlicesJson.present
+          ? data.usageSlicesJson.value
+          : this.usageSlicesJson,
     );
   }
 
@@ -690,11 +934,17 @@ class LocalOpenCodeSessionRow extends DataClass
     return (StringBuffer('LocalOpenCodeSessionRow(')
           ..write('id: $id, ')
           ..write('createdAtUtc: $createdAtUtc, ')
+          ..write('provider: $provider, ')
           ..write('modelName: $modelName, ')
           ..write('inputTokens: $inputTokens, ')
           ..write('outputTokens: $outputTokens, ')
           ..write('totalCostUsd: $totalCostUsd, ')
-          ..write('subagentCategory: $subagentCategory')
+          ..write('requestCount: $requestCount, ')
+          ..write('toolCallCount: $toolCallCount, ')
+          ..write('responseCount: $responseCount, ')
+          ..write('totalResponseTimeMs: $totalResponseTimeMs, ')
+          ..write('subagentCategory: $subagentCategory, ')
+          ..write('usageSlicesJson: $usageSlicesJson')
           ..write(')'))
         .toString();
   }
@@ -703,11 +953,17 @@ class LocalOpenCodeSessionRow extends DataClass
   int get hashCode => Object.hash(
     id,
     createdAtUtc,
+    provider,
     modelName,
     inputTokens,
     outputTokens,
     totalCostUsd,
+    requestCount,
+    toolCallCount,
+    responseCount,
+    totalResponseTimeMs,
     subagentCategory,
+    usageSlicesJson,
   );
   @override
   bool operator ==(Object other) =>
@@ -715,62 +971,99 @@ class LocalOpenCodeSessionRow extends DataClass
       (other is LocalOpenCodeSessionRow &&
           other.id == this.id &&
           other.createdAtUtc == this.createdAtUtc &&
+          other.provider == this.provider &&
           other.modelName == this.modelName &&
           other.inputTokens == this.inputTokens &&
           other.outputTokens == this.outputTokens &&
           other.totalCostUsd == this.totalCostUsd &&
-          other.subagentCategory == this.subagentCategory);
+          other.requestCount == this.requestCount &&
+          other.toolCallCount == this.toolCallCount &&
+          other.responseCount == this.responseCount &&
+          other.totalResponseTimeMs == this.totalResponseTimeMs &&
+          other.subagentCategory == this.subagentCategory &&
+          other.usageSlicesJson == this.usageSlicesJson);
 }
 
 class OpenCodeSessionsCompanion
     extends UpdateCompanion<LocalOpenCodeSessionRow> {
   final Value<String> id;
   final Value<DateTime> createdAtUtc;
+  final Value<String?> provider;
   final Value<String?> modelName;
   final Value<int?> inputTokens;
   final Value<int?> outputTokens;
   final Value<double?> totalCostUsd;
+  final Value<int?> requestCount;
+  final Value<int?> toolCallCount;
+  final Value<int?> responseCount;
+  final Value<int?> totalResponseTimeMs;
   final Value<String?> subagentCategory;
+  final Value<String?> usageSlicesJson;
   final Value<int> rowid;
   const OpenCodeSessionsCompanion({
     this.id = const Value.absent(),
     this.createdAtUtc = const Value.absent(),
+    this.provider = const Value.absent(),
     this.modelName = const Value.absent(),
     this.inputTokens = const Value.absent(),
     this.outputTokens = const Value.absent(),
     this.totalCostUsd = const Value.absent(),
+    this.requestCount = const Value.absent(),
+    this.toolCallCount = const Value.absent(),
+    this.responseCount = const Value.absent(),
+    this.totalResponseTimeMs = const Value.absent(),
     this.subagentCategory = const Value.absent(),
+    this.usageSlicesJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OpenCodeSessionsCompanion.insert({
     required String id,
     required DateTime createdAtUtc,
+    this.provider = const Value.absent(),
     this.modelName = const Value.absent(),
     this.inputTokens = const Value.absent(),
     this.outputTokens = const Value.absent(),
     this.totalCostUsd = const Value.absent(),
+    this.requestCount = const Value.absent(),
+    this.toolCallCount = const Value.absent(),
+    this.responseCount = const Value.absent(),
+    this.totalResponseTimeMs = const Value.absent(),
     this.subagentCategory = const Value.absent(),
+    this.usageSlicesJson = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAtUtc = Value(createdAtUtc);
   static Insertable<LocalOpenCodeSessionRow> custom({
     Expression<String>? id,
     Expression<DateTime>? createdAtUtc,
+    Expression<String>? provider,
     Expression<String>? modelName,
     Expression<int>? inputTokens,
     Expression<int>? outputTokens,
     Expression<double>? totalCostUsd,
+    Expression<int>? requestCount,
+    Expression<int>? toolCallCount,
+    Expression<int>? responseCount,
+    Expression<int>? totalResponseTimeMs,
     Expression<String>? subagentCategory,
+    Expression<String>? usageSlicesJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (createdAtUtc != null) 'created_at_utc': createdAtUtc,
+      if (provider != null) 'provider': provider,
       if (modelName != null) 'model_name': modelName,
       if (inputTokens != null) 'input_tokens': inputTokens,
       if (outputTokens != null) 'output_tokens': outputTokens,
       if (totalCostUsd != null) 'total_cost_usd': totalCostUsd,
+      if (requestCount != null) 'request_count': requestCount,
+      if (toolCallCount != null) 'tool_call_count': toolCallCount,
+      if (responseCount != null) 'response_count': responseCount,
+      if (totalResponseTimeMs != null)
+        'total_response_time_ms': totalResponseTimeMs,
       if (subagentCategory != null) 'subagent_category': subagentCategory,
+      if (usageSlicesJson != null) 'usage_slices_json': usageSlicesJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -778,21 +1071,33 @@ class OpenCodeSessionsCompanion
   OpenCodeSessionsCompanion copyWith({
     Value<String>? id,
     Value<DateTime>? createdAtUtc,
+    Value<String?>? provider,
     Value<String?>? modelName,
     Value<int?>? inputTokens,
     Value<int?>? outputTokens,
     Value<double?>? totalCostUsd,
+    Value<int?>? requestCount,
+    Value<int?>? toolCallCount,
+    Value<int?>? responseCount,
+    Value<int?>? totalResponseTimeMs,
     Value<String?>? subagentCategory,
+    Value<String?>? usageSlicesJson,
     Value<int>? rowid,
   }) {
     return OpenCodeSessionsCompanion(
       id: id ?? this.id,
       createdAtUtc: createdAtUtc ?? this.createdAtUtc,
+      provider: provider ?? this.provider,
       modelName: modelName ?? this.modelName,
       inputTokens: inputTokens ?? this.inputTokens,
       outputTokens: outputTokens ?? this.outputTokens,
       totalCostUsd: totalCostUsd ?? this.totalCostUsd,
+      requestCount: requestCount ?? this.requestCount,
+      toolCallCount: toolCallCount ?? this.toolCallCount,
+      responseCount: responseCount ?? this.responseCount,
+      totalResponseTimeMs: totalResponseTimeMs ?? this.totalResponseTimeMs,
       subagentCategory: subagentCategory ?? this.subagentCategory,
+      usageSlicesJson: usageSlicesJson ?? this.usageSlicesJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -806,6 +1111,9 @@ class OpenCodeSessionsCompanion
     if (createdAtUtc.present) {
       map['created_at_utc'] = Variable<DateTime>(createdAtUtc.value);
     }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
     if (modelName.present) {
       map['model_name'] = Variable<String>(modelName.value);
     }
@@ -818,8 +1126,23 @@ class OpenCodeSessionsCompanion
     if (totalCostUsd.present) {
       map['total_cost_usd'] = Variable<double>(totalCostUsd.value);
     }
+    if (requestCount.present) {
+      map['request_count'] = Variable<int>(requestCount.value);
+    }
+    if (toolCallCount.present) {
+      map['tool_call_count'] = Variable<int>(toolCallCount.value);
+    }
+    if (responseCount.present) {
+      map['response_count'] = Variable<int>(responseCount.value);
+    }
+    if (totalResponseTimeMs.present) {
+      map['total_response_time_ms'] = Variable<int>(totalResponseTimeMs.value);
+    }
     if (subagentCategory.present) {
       map['subagent_category'] = Variable<String>(subagentCategory.value);
+    }
+    if (usageSlicesJson.present) {
+      map['usage_slices_json'] = Variable<String>(usageSlicesJson.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -832,11 +1155,17 @@ class OpenCodeSessionsCompanion
     return (StringBuffer('OpenCodeSessionsCompanion(')
           ..write('id: $id, ')
           ..write('createdAtUtc: $createdAtUtc, ')
+          ..write('provider: $provider, ')
           ..write('modelName: $modelName, ')
           ..write('inputTokens: $inputTokens, ')
           ..write('outputTokens: $outputTokens, ')
           ..write('totalCostUsd: $totalCostUsd, ')
+          ..write('requestCount: $requestCount, ')
+          ..write('toolCallCount: $toolCallCount, ')
+          ..write('responseCount: $responseCount, ')
+          ..write('totalResponseTimeMs: $totalResponseTimeMs, ')
           ..write('subagentCategory: $subagentCategory, ')
+          ..write('usageSlicesJson: $usageSlicesJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1062,22 +1391,34 @@ typedef $$OpenCodeSessionsTableCreateCompanionBuilder =
     OpenCodeSessionsCompanion Function({
       required String id,
       required DateTime createdAtUtc,
+      Value<String?> provider,
       Value<String?> modelName,
       Value<int?> inputTokens,
       Value<int?> outputTokens,
       Value<double?> totalCostUsd,
+      Value<int?> requestCount,
+      Value<int?> toolCallCount,
+      Value<int?> responseCount,
+      Value<int?> totalResponseTimeMs,
       Value<String?> subagentCategory,
+      Value<String?> usageSlicesJson,
       Value<int> rowid,
     });
 typedef $$OpenCodeSessionsTableUpdateCompanionBuilder =
     OpenCodeSessionsCompanion Function({
       Value<String> id,
       Value<DateTime> createdAtUtc,
+      Value<String?> provider,
       Value<String?> modelName,
       Value<int?> inputTokens,
       Value<int?> outputTokens,
       Value<double?> totalCostUsd,
+      Value<int?> requestCount,
+      Value<int?> toolCallCount,
+      Value<int?> responseCount,
+      Value<int?> totalResponseTimeMs,
       Value<String?> subagentCategory,
+      Value<String?> usageSlicesJson,
       Value<int> rowid,
     });
 
@@ -1097,6 +1438,11 @@ class $$OpenCodeSessionsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAtUtc => $composableBuilder(
     column: $table.createdAtUtc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get provider => $composableBuilder(
+    column: $table.provider,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1120,8 +1466,33 @@ class $$OpenCodeSessionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get requestCount => $composableBuilder(
+    column: $table.requestCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get toolCallCount => $composableBuilder(
+    column: $table.toolCallCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get responseCount => $composableBuilder(
+    column: $table.responseCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalResponseTimeMs => $composableBuilder(
+    column: $table.totalResponseTimeMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get subagentCategory => $composableBuilder(
     column: $table.subagentCategory,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get usageSlicesJson => $composableBuilder(
+    column: $table.usageSlicesJson,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1145,6 +1516,11 @@ class $$OpenCodeSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get modelName => $composableBuilder(
     column: $table.modelName,
     builder: (column) => ColumnOrderings(column),
@@ -1165,8 +1541,33 @@ class $$OpenCodeSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get requestCount => $composableBuilder(
+    column: $table.requestCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get toolCallCount => $composableBuilder(
+    column: $table.toolCallCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get responseCount => $composableBuilder(
+    column: $table.responseCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalResponseTimeMs => $composableBuilder(
+    column: $table.totalResponseTimeMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get subagentCategory => $composableBuilder(
     column: $table.subagentCategory,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get usageSlicesJson => $composableBuilder(
+    column: $table.usageSlicesJson,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -1188,6 +1589,9 @@ class $$OpenCodeSessionsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
   GeneratedColumn<String> get modelName =>
       $composableBuilder(column: $table.modelName, builder: (column) => column);
 
@@ -1206,8 +1610,33 @@ class $$OpenCodeSessionsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get requestCount => $composableBuilder(
+    column: $table.requestCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get toolCallCount => $composableBuilder(
+    column: $table.toolCallCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get responseCount => $composableBuilder(
+    column: $table.responseCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalResponseTimeMs => $composableBuilder(
+    column: $table.totalResponseTimeMs,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get subagentCategory => $composableBuilder(
     column: $table.subagentCategory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get usageSlicesJson => $composableBuilder(
+    column: $table.usageSlicesJson,
     builder: (column) => column,
   );
 }
@@ -1251,40 +1680,64 @@ class $$OpenCodeSessionsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<DateTime> createdAtUtc = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
                 Value<String?> modelName = const Value.absent(),
                 Value<int?> inputTokens = const Value.absent(),
                 Value<int?> outputTokens = const Value.absent(),
                 Value<double?> totalCostUsd = const Value.absent(),
+                Value<int?> requestCount = const Value.absent(),
+                Value<int?> toolCallCount = const Value.absent(),
+                Value<int?> responseCount = const Value.absent(),
+                Value<int?> totalResponseTimeMs = const Value.absent(),
                 Value<String?> subagentCategory = const Value.absent(),
+                Value<String?> usageSlicesJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OpenCodeSessionsCompanion(
                 id: id,
                 createdAtUtc: createdAtUtc,
+                provider: provider,
                 modelName: modelName,
                 inputTokens: inputTokens,
                 outputTokens: outputTokens,
                 totalCostUsd: totalCostUsd,
+                requestCount: requestCount,
+                toolCallCount: toolCallCount,
+                responseCount: responseCount,
+                totalResponseTimeMs: totalResponseTimeMs,
                 subagentCategory: subagentCategory,
+                usageSlicesJson: usageSlicesJson,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
                 required DateTime createdAtUtc,
+                Value<String?> provider = const Value.absent(),
                 Value<String?> modelName = const Value.absent(),
                 Value<int?> inputTokens = const Value.absent(),
                 Value<int?> outputTokens = const Value.absent(),
                 Value<double?> totalCostUsd = const Value.absent(),
+                Value<int?> requestCount = const Value.absent(),
+                Value<int?> toolCallCount = const Value.absent(),
+                Value<int?> responseCount = const Value.absent(),
+                Value<int?> totalResponseTimeMs = const Value.absent(),
                 Value<String?> subagentCategory = const Value.absent(),
+                Value<String?> usageSlicesJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OpenCodeSessionsCompanion.insert(
                 id: id,
                 createdAtUtc: createdAtUtc,
+                provider: provider,
                 modelName: modelName,
                 inputTokens: inputTokens,
                 outputTokens: outputTokens,
                 totalCostUsd: totalCostUsd,
+                requestCount: requestCount,
+                toolCallCount: toolCallCount,
+                responseCount: responseCount,
+                totalResponseTimeMs: totalResponseTimeMs,
                 subagentCategory: subagentCategory,
+                usageSlicesJson: usageSlicesJson,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

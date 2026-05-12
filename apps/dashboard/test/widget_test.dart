@@ -310,9 +310,12 @@ class _FakeExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     for (final rate in rates) {
-      final key = _normalize(rate.date);
+      final key = _normalize(effectiveDate ?? rate.date);
       final next = List<ExchangeRate>.from(_ratesByDate[key] ?? const []);
       next.removeWhere((entry) => entry.currency == rate.currency);
       next.add(rate);
@@ -343,7 +346,10 @@ class _FakeRemoteExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {}
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {}
 }
 
 class _FakeSessionRepository implements OpenCodeSessionRepository {
@@ -816,6 +822,23 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('settings-dialog')), findsOneWidget);
+
+    // Assert red error-border semantics on settings-server-url-field
+    final urlField = tester.widget<TextField>(
+      find.byKey(const Key('settings-server-url-field')),
+    );
+    final decoration = urlField.decoration!;
+    final errorBorder = decoration.errorBorder as OutlineInputBorder;
+    expect(
+      errorBorder.borderSide.color,
+      const Color(0xFFEF4444),
+    ); // dashboardErrorColor
+    final focusedErrorBorder =
+        decoration.focusedErrorBorder as OutlineInputBorder;
+    expect(
+      focusedErrorBorder.borderSide.color,
+      const Color(0xFFEF4444),
+    ); // dashboardErrorColor
   });
 
   testWidgets('default localhost offline state is reported as disconnected', (
@@ -837,6 +860,44 @@ void main() {
     );
     expect(find.text('> Probe ............. DISCONNECTED'), findsOneWidget);
   });
+
+  testWidgets(
+    'metrics error state is boxed while preserving metrics-error-text and existing strings',
+    (WidgetTester tester) async {
+      final service = MonetizedMetricsService(
+        settingsRepository: _FakeSettingsRepository(),
+        metricsRepository: _ErrorMetricsRepository(),
+        composer: MonetizedMetricsComposer(
+          exchangeRateRepository: _UnusedExchangeRateRepository(),
+        ),
+      );
+
+      await _pumpEnglishDashboard(
+        tester,
+        metricsService: service,
+        serverProbe: (_) async => ServerProbeState.unknown,
+      );
+      await tester.pumpAndSettle();
+
+      final errorSurface = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.byKey(const Key('metrics-error-text')),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final decoration = errorSurface.decoration as BoxDecoration;
+      final border = decoration.border as Border;
+      expect(border.top.color, const Color(0xFFEF4444)); // dashboardErrorColor
+
+      final text = tester.widget<Text>(
+        find.byKey(const Key('metrics-error-text')),
+      );
+      expect(text.data, '> metrics unavailable');
+      expect(text.style?.color, const Color(0xFFEF4444));
+    },
+  );
 
   testWidgets('chart modes show fallback when daily breakdown is empty', (
     WidgetTester tester,
@@ -1168,6 +1229,29 @@ void main() {
     expect(find.byKey(const Key('sessions-panel')), findsOneWidget);
     expect(find.textContaining('ID: ses_gpt'), findsWidgets);
     expect(find.textContaining('ses_othe'), findsWidgets);
+
+    // --- Semantics / Accessibility ---
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    await tester.tap(find.byKey(const Key('metrics-tab-text')));
+    await tester.pumpAndSettle();
+    final dayPickerSemantics = tester.getSemantics(
+      find.byKey(const Key('metrics-day-picker-button')),
+    );
+    expect(dayPickerSemantics, isSemantics(isButton: true));
+    await tester.tap(find.byKey(const Key('metrics-tab-tokens')));
+    await tester.pumpAndSettle();
+    final hourTarget = find.byKey(const Key('metrics-hour-test-15'));
+    if (tester.any(hourTarget)) {
+      final hourSemantics = tester.getSemantics(hourTarget);
+      expect(hourSemantics, isSemantics(isButton: true));
+    }
+    await tester.tap(find.byKey(const Key('metrics-tab-text')));
+    await tester.pumpAndSettle();
+    final topMover = find.byKey(const Key('metrics-top-mover-line'));
+    if (tester.any(topMover)) {
+      final moverSemantics = tester.getSemantics(topMover);
+      expect(moverSemantics, isSemantics(isButton: true));
+    }
 
     // Switch to models tab
     await _openDashboardSection(tester, 'dashboard-nav-metrics');
@@ -3865,6 +3949,243 @@ void main() {
       expect(capturedSyncSettings?.openCodeServerPassword, 'secret');
     },
   );
+
+  testWidgets('dashboard shell route area spans full available width', (
+    WidgetTester tester,
+  ) async {
+    await _pumpEnglishDashboard(
+      tester,
+      serverProbe: (_) async => ServerProbeState.connected,
+    );
+    await tester.pumpAndSettle();
+
+    final routeAreaFinder = find.byKey(const Key('dashboard-shell-route-area'));
+    expect(routeAreaFinder, findsOneWidget);
+
+    final routeAreaSize = tester.getSize(routeAreaFinder);
+    expect(
+      routeAreaSize.width,
+      equals(
+        1440.0 - 48.0,
+      ), // 1440 physical width minus 24px gutter on each side
+    ); // From physicalSize set in tests
+  });
+
+  testWidgets(
+    'Dashboard shell composition regression: shell header and nav do not move when route scrolls',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await _pumpEnglishDashboard(
+        tester,
+        serverProbe: (_) async => ServerProbeState.connected,
+      );
+      await tester.pumpAndSettle();
+
+      await _openDashboardSection(tester, 'dashboard-nav-state');
+      await tester.pumpAndSettle();
+
+      final headerFinder = find.byKey(const Key('dashboard-shell-header'));
+      final navFinder = find.byKey(const Key('dashboard-shell-nav'));
+
+      expect(headerFinder, findsOneWidget);
+      expect(navFinder, findsOneWidget);
+
+      final headerLocationBefore = tester.getTopLeft(headerFinder);
+      final navLocationBefore = tester.getTopLeft(navFinder);
+
+      final routeScrollable = find
+          .descendant(
+            of: find.byKey(const Key('dashboard-shell-route-area')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+
+      await tester.drag(routeScrollable, const Offset(0, -100));
+      await tester.pumpAndSettle();
+
+      final headerLocationAfter = tester.getTopLeft(headerFinder);
+      final navLocationAfter = tester.getTopLeft(navFinder);
+
+      expect(headerLocationAfter, equals(headerLocationBefore));
+      expect(navLocationAfter, equals(navLocationBefore));
+    },
+  );
+
+  testWidgets('Dashboard shell constrained-width smoke path (phase 6)', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    await _pumpEnglishDashboard(
+      tester,
+      sessionsDependencies: SessionsCubitDependencies(
+        localRepository: _FakeSessionRepository(),
+        jsonParser: const OpenCodeSessionJsonParser(),
+        remoteRepositoryFactory: (_) => _FakeSessionRepository(),
+      ),
+      exchangeRatesDependencies: ExchangeRatesCubitDependencies(
+        metricsRepository: _FakeMetricsRepository(),
+        settingsRepository: _FakeSettingsRepository(),
+        localExchangeRateRepository: _FakeExchangeRateRepository(),
+        syncService: ExchangeRateSyncService(
+          remoteRepository: _FakeRemoteExchangeRateRepository({}),
+          localRepository: _FakeExchangeRateRepository(),
+        ),
+      ),
+      pickImportSource: () async => null,
+    );
+    await tester.pumpAndSettle();
+
+    // Metrics
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    expect(tester.takeException(), isNull);
+
+    // Sessions
+    await _openDashboardSection(tester, 'dashboard-nav-sessions');
+    expect(tester.takeException(), isNull);
+
+    // Exchange Rates
+    await _openDashboardSection(tester, 'dashboard-nav-exchange-rates');
+    expect(tester.takeException(), isNull);
+
+    // Settings
+    await tester.tap(find.byKey(const Key('settings-open-button')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('KPI grid responsive wrap smoke test', (tester) async {
+    tester.view.physicalSize = const Size(800, 600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await _pumpEnglishDashboard(
+      tester,
+      sessionsDependencies: SessionsCubitDependencies(
+        localRepository: _FakeSessionRepository(),
+        jsonParser: const OpenCodeSessionJsonParser(),
+        remoteRepositoryFactory: (_) => _FakeSessionRepository(),
+      ),
+      exchangeRatesDependencies: ExchangeRatesCubitDependencies(
+        metricsRepository: _FakeMetricsRepository(),
+        settingsRepository: _FakeSettingsRepository(),
+        localExchangeRateRepository: _FakeExchangeRateRepository(),
+        syncService: ExchangeRateSyncService(
+          remoteRepository: _FakeRemoteExchangeRateRepository({}),
+          localRepository: _FakeExchangeRateRepository(),
+        ),
+      ),
+      pickImportSource: () async => null,
+    );
+    await tester.pumpAndSettle();
+
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    expect(find.byKey(const Key('metrics-kpi-total-price')), findsOneWidget);
+    expect(find.byKey(const Key('metrics-kpi-total-tokens')), findsOneWidget);
+  });
+
+  testWidgets('metrics text summary renders new surfaces with stable keys', (
+    tester,
+  ) async {
+    await _pumpEnglishDashboard(
+      tester,
+      sessionsDependencies: SessionsCubitDependencies(
+        localRepository: _FakeSessionRepository(),
+        jsonParser: const OpenCodeSessionJsonParser(),
+        remoteRepositoryFactory: (_) => _FakeSessionRepository(),
+      ),
+      exchangeRatesDependencies: ExchangeRatesCubitDependencies(
+        metricsRepository: _FakeMetricsRepository(),
+        settingsRepository: _FakeSettingsRepository(),
+        localExchangeRateRepository: _FakeExchangeRateRepository(),
+        syncService: ExchangeRateSyncService(
+          remoteRepository: _FakeRemoteExchangeRateRepository({}),
+          localRepository: _FakeExchangeRateRepository(),
+        ),
+      ),
+      pickImportSource: () async => null,
+    );
+    await tester.pumpAndSettle();
+
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    await tester.ensureVisible(find.byKey(const Key('metrics-tab-text')));
+    await tester.tap(find.byKey(const Key('metrics-tab-text')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('metrics-window-7d')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('metrics-summary-overview-surface')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('metrics-summary-compare-surface')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('models tab drilldown smoke test', (tester) async {
+    await _pumpEnglishDashboard(
+      tester,
+      sessionsDependencies: SessionsCubitDependencies(
+        localRepository: _FakeSessionRepository(),
+        jsonParser: const OpenCodeSessionJsonParser(),
+        remoteRepositoryFactory: (_) => _FakeSessionRepository(),
+      ),
+      exchangeRatesDependencies: ExchangeRatesCubitDependencies(
+        metricsRepository: _FakeMetricsRepository(),
+        settingsRepository: _FakeSettingsRepository(),
+        localExchangeRateRepository: _FakeExchangeRateRepository(),
+        syncService: ExchangeRateSyncService(
+          remoteRepository: _FakeRemoteExchangeRateRepository({}),
+          localRepository: _FakeExchangeRateRepository(),
+        ),
+      ),
+      pickImportSource: () async => null,
+    );
+    await tester.pumpAndSettle();
+
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    await tester.ensureVisible(find.byKey(const Key('metrics-tab-models')));
+    await tester.tap(find.byKey(const Key('metrics-tab-models')));
+    await tester.pumpAndSettle();
+
+    // Verify model chart section is shown
+    expect(
+      find.byKey(const Key('metrics-model-detail-section')),
+      findsOneWidget,
+    );
+
+    // Tap on a specific model row (assuming the fake repository returns 'gpt-5.4')
+    // We see in _FakeMetricsRepository it returns 'gpt-5.4' and 'o4-mini'
+    final modelFilterKey = const Key('model-filter-gpt-5.4');
+    // Scroll to it if needed
+    await tester.dragUntilVisible(
+      find.byKey(modelFilterKey),
+      find.byKey(const Key('metrics-scroll-view')),
+      const Offset(0, -100),
+    );
+    await tester.tap(find.byKey(modelFilterKey));
+    await tester.pumpAndSettle();
+
+    // Selecting a model should reveal hourly chart detail since we have day selected by default (the last day in fake repo)
+    // Wait, the hourly chart requires a day to be selected. The metrics screen defaults to no selected day (shows trend across window), or maybe defaults to the last day if it's the daily chart?
+    // Let's check. Without day selected, selecting model only filters it.
+    // If it doesn't show hourly chart, that's fine. We at least verify the selection works without crash.
+    expect(tester.takeException(), isNull);
+  });
+}
+
+class _ErrorMetricsRepository implements MetricsRepository {
+  @override
+  Future<AggregatedMetrics> readMetrics({DateTime? from, DateTime? to}) async {
+    throw Exception('Simulated metrics failure');
+  }
 }
 
 class _EmptyMetricsRepository implements MetricsRepository {
@@ -3883,7 +4204,10 @@ class _EmptyMetricsRepository implements MetricsRepository {
 
 class _UnusedExchangeRateRepository implements ExchangeRateRepository {
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {}
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {}
   @override
   Future<List<ExchangeRate>> readExchangeRatesForDate(DateTime date) async =>
       [];

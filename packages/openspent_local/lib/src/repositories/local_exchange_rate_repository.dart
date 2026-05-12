@@ -26,20 +26,27 @@ final class LocalExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     if (rates.isEmpty) {
       return;
     }
+
+    final normalizedEffectiveDate = effectiveDate == null
+        ? null
+        : _normalizeDate(effectiveDate);
 
     await _database.transaction(() async {
       final rateCompanions = rates
           .map((ExchangeRate rate) {
             _validateRate(rate);
-            final normalizedDate = _normalizeDate(rate.date);
             final sourceDate = rate.date.toUtc();
             return ExchangeRatesCompanion.insert(
               currencyCode: rate.currency.code,
-              effectiveDateUtc: normalizedDate,
+              effectiveDateUtc:
+                  normalizedEffectiveDate ?? _normalizeDate(rate.date),
               sourceDateUtc: sourceDate,
               rateToCzk: rate.rateToCzk,
             );

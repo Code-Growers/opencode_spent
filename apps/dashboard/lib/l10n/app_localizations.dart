@@ -62,7 +62,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('cs'),
-    Locale('en')
+    Locale('en'),
   ];
 
   /// No description provided for @appTitle.
@@ -345,7 +348,12 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'> Delta driver ....... {model} {sign}{currency} {value}'**
-  String compareSummaryDriver(String model, String sign, String currency, String value);
+  String compareSummaryDriver(
+    String model,
+    String sign,
+    String currency,
+    String value,
+  );
 
   /// No description provided for @compareSummaryNoDriver.
   ///
@@ -357,19 +365,19 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'> Input tokens ....... {value}'**
-  String lineInputTokens(int value);
+  String lineInputTokens(String value);
 
   /// No description provided for @lineOutputTokens.
   ///
   /// In en, this message translates to:
   /// **'> Output tokens ...... {value}'**
-  String lineOutputTokens(int value);
+  String lineOutputTokens(String value);
 
   /// No description provided for @lineTotalTokens.
   ///
   /// In en, this message translates to:
   /// **'> Total tokens ....... {value}'**
-  String lineTotalTokens(int value);
+  String lineTotalTokens(String value);
 
   /// No description provided for @lineAvgTokensPerSession.
   ///
@@ -393,7 +401,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'> Tokens (In/Out) .... {input} / {output}'**
-  String linePeakTokensInOut(int input, int output);
+  String linePeakTokensInOut(String input, String output);
 
   /// No description provided for @lineNoActivity.
   ///
@@ -411,13 +419,18 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{currency} {totalCost} [{share}%] • {trend}'**
-  String modelCostShareTrend(String currency, String totalCost, int share, String trend);
+  String modelCostShareTrend(
+    String currency,
+    String totalCost,
+    int share,
+    String trend,
+  );
 
   /// No description provided for @modelTokensSessions.
   ///
   /// In en, this message translates to:
   /// **'TOK {tokens} | SES {sessions}'**
-  String modelTokensSessions(int tokens, int sessions);
+  String modelTokensSessions(String tokens, String sessions);
 
   /// No description provided for @modelCostPerMillionTokens.
   ///
@@ -472,6 +485,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days}D {trend}'**
   String modelTrend(int days, String trend);
+
+  /// No description provided for @metricsProvidersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'[ PROVIDERS ]'**
+  String get metricsProvidersTab;
+
+  /// No description provided for @metricsKpiTotalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'> TOTAL PRICE ....... {currency} {value}'**
+  String metricsKpiTotalPrice(String currency, String value);
+
+  /// No description provided for @metricsKpiTotalRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'> TOTAL REQUESTS .... {value}'**
+  String metricsKpiTotalRequests(String value);
+
+  /// No description provided for @metricsKpiTotalToolCalls.
+  ///
+  /// In en, this message translates to:
+  /// **'> TOTAL TOOL CALLS .. {value}'**
+  String metricsKpiTotalToolCalls(String value);
+
+  /// No description provided for @metricsKpiAvgResponseTime.
+  ///
+  /// In en, this message translates to:
+  /// **'> AVG RESPONSE TIME . {value}'**
+  String metricsKpiAvgResponseTime(String value);
+
+  /// No description provided for @metricsKpiTotalTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'> TOTAL TOKENS ...... {value}'**
+  String metricsKpiTotalTokens(String value);
+
+  /// No description provided for @metricsKpiNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'--'**
+  String get metricsKpiNotAvailable;
+
+  /// No description provided for @metricsKpiPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} (partial)'**
+  String metricsKpiPartial(String value);
+
+  /// No description provided for @providersUsageChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'-- USAGE PER PROVIDER --'**
+  String get providersUsageChartTitle;
+
+  /// No description provided for @providersPriceChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'-- PRICE PER PROVIDER --'**
+  String get providersPriceChartTitle;
+
+  /// No description provided for @providersPriceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'> {provider} price unavailable'**
+  String providersPriceUnavailable(String provider);
+
+  /// No description provided for @helpRemoteLineCors.
+  ///
+  /// In en, this message translates to:
+  /// **'> When using the dashboard in a browser against a local server, start OpenCode with --cors=\"{origin}\" so it allows this browser origin. The value must be origin only — not /demo or any other path.'**
+  String helpRemoteLineCors(String origin);
 
   /// No description provided for @settingsTitle.
   ///
@@ -839,6 +924,12 @@ abstract class AppLocalizations {
   /// **'> Import completed successfully.'**
   String get sessionsExplorerImportSuccess;
 
+  /// No description provided for @sessionsExplorerImportWalModeError.
+  ///
+  /// In en, this message translates to:
+  /// **'> Browser import requires a standalone SQLite file. WAL-mode OpenCode databases are not supported for single-file uploads yet.'**
+  String get sessionsExplorerImportWalModeError;
+
   /// No description provided for @sessionsExplorerImportError.
   ///
   /// In en, this message translates to:
@@ -873,7 +964,14 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'> {date} • {model} • {tokens} TOK • {currency} {cost} • ID: {id}'**
-  String sessionRowData(String date, String model, String tokens, String currency, String cost, String id);
+  String sessionRowData(
+    String date,
+    String model,
+    String tokens,
+    String currency,
+    String cost,
+    String id,
+  );
 
   /// No description provided for @lineVisibleWindow.
   ///
@@ -897,7 +995,14 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'> {modelName} {padding} {currency} {cost} | {tokens} TOK | {sessions} SES'**
-  String modelDriverRow(String modelName, String padding, String currency, String cost, int tokens, int sessions);
+  String modelDriverRow(
+    String modelName,
+    String padding,
+    String currency,
+    String cost,
+    String tokens,
+    String sessions,
+  );
 
   /// No description provided for @metricsModelHourlySpend.
   ///
@@ -915,7 +1020,12 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'> Day ............... {currency} {cost} | {tokens} TOK | {sessions} SES'**
-  String modelSelectedDayMetrics(String currency, String cost, int tokens, int sessions);
+  String modelSelectedDayMetrics(
+    String currency,
+    String cost,
+    String tokens,
+    String sessions,
+  );
 
   /// No description provided for @windowAll.
   ///
@@ -1168,9 +1278,40 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'> Prior-window compare unavailable due to missing exchange rates.'**
   String get compareUnavailableHelper;
+
+  /// No description provided for @sessionsSearchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search metadata...'**
+  String get sessionsSearchPlaceholder;
+
+  /// No description provided for @sessionsSearchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'[ CLEAR ]'**
+  String get sessionsSearchClear;
+
+  /// No description provided for @sessionsSearchResultsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'> Results ........... {count}'**
+  String sessionsSearchResultsCount(int count);
+
+  /// No description provided for @sessionsListHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'-- SESSION LOG --'**
+  String get sessionsListHeader;
+
+  /// No description provided for @pieLegendOverflow.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String pieLegendOverflow(int count);
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1179,25 +1320,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['cs', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['cs', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'cs': return AppLocalizationsCs();
-    case 'en': return AppLocalizationsEn();
+    case 'cs':
+      return AppLocalizationsCs();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

@@ -13,6 +13,7 @@ void main() {
       expect(find.text('[EN] / CS'), findsOneComponent);
       expect(find.text('Metrics & Charts'), findsOneComponent);
       expect(find.text('Sessions Overview'), findsOneComponent);
+      expect(find.text('Try the Demo'), findsOneComponent);
       expect(find.text('GitHub Repository'), findsOneComponent);
       expect(find.text('Code Growers s.r.o.'), findsOneComponent);
     });
@@ -28,6 +29,7 @@ void main() {
       expect(find.text('EN / [CS]'), findsOneComponent);
       expect(find.text('Metriky a Grafy'), findsOneComponent);
       expect(find.text('Přehled Relací'), findsOneComponent);
+      expect(find.text('Vyzkoušet Demo'), findsOneComponent);
       expect(find.text('GitHub Repository'), findsOneComponent);
       expect(find.text('Code Growers s.r.o.'), findsOneComponent);
     });

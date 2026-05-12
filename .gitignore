@@ -31,3 +31,4 @@ logs/
 exports/
 data/
 prompts/
+.playwright-mcp/

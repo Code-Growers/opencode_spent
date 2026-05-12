@@ -1,0 +1,10 @@
+.git
+.gitignore
+.idea
+.playwright-mcp
+.dart_tool
+build
+**/.dart_tool
+**/build
+**/.DS_Store
+melos_opencode_spent.iml

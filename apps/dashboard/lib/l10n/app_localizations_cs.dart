@@ -18,7 +18,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get heroTitle => 'Monitorujte OpenCode. Lokálně.';
 
   @override
-  String get heroDescription => 'Soukromý lokální dashboard s cachovanými metrikami a terminálovým zobrazením.';
+  String get heroDescription =>
+      'Soukromý lokální dashboard s cachovanými metrikami a terminálovým zobrazením.';
 
   @override
   String get statusPaneTitle => 'STAV';
@@ -100,7 +101,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get metricsUnavailable => '> metriky nedostupné';
 
   @override
-  String get metricsMissingExchangeRatesHelper => '> chybí kurzy CZK pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.';
+  String get metricsMissingExchangeRatesHelper =>
+      '> chybí kurzy CZK pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.';
 
   @override
   String get textTab => '[ TEXT ]';
@@ -141,7 +143,12 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String lineTopMover(String model, String sign, String currency, String value) {
+  String lineTopMover(
+    String model,
+    String sign,
+    String currency,
+    String value,
+  ) {
     return '> Největší skokan .... $model ($sign$currency$value)';
   }
 
@@ -154,7 +161,12 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String compareSummaryDriver(String model, String sign, String currency, String value) {
+  String compareSummaryDriver(
+    String model,
+    String sign,
+    String currency,
+    String value,
+  ) {
     return '> Hlavní tahoun ...... $model $sign$value $currency';
   }
 
@@ -162,17 +174,17 @@ class AppLocalizationsCs extends AppLocalizations {
   String get compareSummaryNoDriver => '> Hlavní tahoun ...... ŽÁDNÝ';
 
   @override
-  String lineInputTokens(int value) {
+  String lineInputTokens(String value) {
     return '> Vstupní tokeny ..... $value';
   }
 
   @override
-  String lineOutputTokens(int value) {
+  String lineOutputTokens(String value) {
     return '> Výstupní tokeny .... $value';
   }
 
   @override
-  String lineTotalTokens(int value) {
+  String lineTotalTokens(String value) {
     return '> Celkem tokenů ...... $value';
   }
 
@@ -192,7 +204,7 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String linePeakTokensInOut(int input, int output) {
+  String linePeakTokensInOut(String input, String output) {
     return '> Tokeny (Dovnitř/Ven) $input / $output';
   }
 
@@ -205,12 +217,17 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String modelCostShareTrend(String currency, String totalCost, int share, String trend) {
+  String modelCostShareTrend(
+    String currency,
+    String totalCost,
+    int share,
+    String trend,
+  ) {
     return '$currency $totalCost [$share%] • $trend';
   }
 
   @override
-  String modelTokensSessions(int tokens, int sessions) {
+  String modelTokensSessions(String tokens, String sessions) {
     return 'TOK $tokens | REL $sessions';
   }
 
@@ -248,6 +265,58 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String get metricsProvidersTab => '[ POSKYTOVATELÉ ]';
+
+  @override
+  String metricsKpiTotalPrice(String currency, String value) {
+    return '> CELKOVÁ CENA ...... $value $currency';
+  }
+
+  @override
+  String metricsKpiTotalRequests(String value) {
+    return '> CELKEM POŽADAVKŮ .. $value';
+  }
+
+  @override
+  String metricsKpiTotalToolCalls(String value) {
+    return '> CELKEM TOOL CALLŮ . $value';
+  }
+
+  @override
+  String metricsKpiAvgResponseTime(String value) {
+    return '> PRŮM. ODEZVA ...... $value';
+  }
+
+  @override
+  String metricsKpiTotalTokens(String value) {
+    return '> CELKEM TOKENŮ ..... $value';
+  }
+
+  @override
+  String get metricsKpiNotAvailable => '--';
+
+  @override
+  String metricsKpiPartial(String value) {
+    return '$value (částečně)';
+  }
+
+  @override
+  String get providersUsageChartTitle => '-- VYUŽITÍ PODLE POSKYTOVATELE --';
+
+  @override
+  String get providersPriceChartTitle => '-- CENA PODLE POSKYTOVATELE --';
+
+  @override
+  String providersPriceUnavailable(String provider) {
+    return '> cena za $provider nedostupná';
+  }
+
+  @override
+  String helpRemoteLineCors(String origin) {
+    return '> Při používání dashboardu v prohlížeči proti lokálnímu serveru spusťte OpenCode s --cors=\"$origin\", aby povolil tento browser origin. Hodnota musí být jen origin — ne /demo ani žádná jiná cesta.';
+  }
+
+  @override
   String get settingsTitle => '[ NASTAVENÍ ]';
 
   @override
@@ -275,10 +344,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsServerPassword => 'Heslo serveru:';
 
   @override
-  String get settingsServerAuthHint => 'Volitelné Basic Auth. Pokud je nastavené heslo a jméno zůstane prázdné, OpenSpent použije `opencode`.';
+  String get settingsServerAuthHint =>
+      'Volitelné Basic Auth. Pokud je nastavené heslo a jméno zůstane prázdné, OpenSpent použije `opencode`.';
 
   @override
-  String get settingsServerUrlInvalid => 'Zadejte platnou URL serveru s http:// nebo https://.';
+  String get settingsServerUrlInvalid =>
+      'Zadejte platnou URL serveru s http:// nebo https://.';
 
   @override
   String get settingsSave => '[ ULOŽIT ]';
@@ -296,40 +367,51 @@ class AppLocalizationsCs extends AppLocalizations {
   String get helpTabRemote => 'Remote';
 
   @override
-  String get helpLocalLineImport => '> Importujte JSON nebo SQLite soubory přímo do OpenSpent z panelu relací.';
+  String get helpLocalLineImport =>
+      '> Importujte JSON nebo SQLite soubory přímo do OpenSpent z panelu relací.';
 
   @override
-  String get helpLocalLinePaths => '> OpenCode obvykle ukládá hlavní DB do ~/.local/share/opencode/opencode.db na macOS/Linux a na Windows pod %USERPROFILE%\\.local\\share\\opencode\\opencode.db.';
+  String get helpLocalLinePaths =>
+      '> OpenCode obvykle ukládá hlavní DB do ~/.local/share/opencode/opencode.db na macOS/Linux a na Windows pod %USERPROFILE%\\.local\\share\\opencode\\opencode.db.';
 
   @override
-  String get helpLocalLineCommandDbPath => '> Užitečný příkaz: opencode db path';
+  String get helpLocalLineCommandDbPath =>
+      '> Užitečný příkaz: opencode db path';
 
   @override
-  String get helpLocalLineCommandExport => '> Užitečné příkazy: opencode export, opencode import';
+  String get helpLocalLineCommandExport =>
+      '> Užitečné příkazy: opencode export, opencode import';
 
   @override
-  String get helpLocalLineCommandSessionList => '> Užitečný příkaz: opencode session list';
+  String get helpLocalLineCommandSessionList =>
+      '> Užitečný příkaz: opencode session list';
 
   @override
   String get helpLocalLineCommandStats => '> Užitečný příkaz: opencode stats';
 
   @override
-  String get helpLocalLineBackup => '> Zálohujte exportované soubory a kopie lokální DB opatrně. Zachovejte privacy-first a local-first workflow.';
+  String get helpLocalLineBackup =>
+      '> Zálohujte exportované soubory a kopie lokální DB opatrně. Zachovejte privacy-first a local-first workflow.';
 
   @override
-  String get helpRemoteLineServe => '> API server spusťte příkazem: opencode serve';
+  String get helpRemoteLineServe =>
+      '> API server spusťte příkazem: opencode serve';
 
   @override
-  String get helpRemoteLineDefaultUrl => '> Výchozí URL serveru: http://localhost:4096';
+  String get helpRemoteLineDefaultUrl =>
+      '> Výchozí URL serveru: http://localhost:4096';
 
   @override
-  String get helpRemoteLineHostUse => '> Na stejném stroji používejte localhost. URL vzdáleného hosta používejte jen tehdy, když OpenCode běží na jiném stroji.';
+  String get helpRemoteLineHostUse =>
+      '> Na stejném stroji používejte localhost. URL vzdáleného hosta používejte jen tehdy, když OpenCode běží na jiném stroji.';
 
   @override
-  String get helpRemoteLineAuthEnv => '> Basic Auth používá OPENCODE_SERVER_USERNAME a OPENCODE_SERVER_PASSWORD.';
+  String get helpRemoteLineAuthEnv =>
+      '> Basic Auth používá OPENCODE_SERVER_USERNAME a OPENCODE_SERVER_PASSWORD.';
 
   @override
-  String get helpRemoteLineAuthDefaultUsername => '> Pokud je zapnutá ochrana heslem a není nastaveno jméno, výchozí uživatelské jméno je `opencode`.';
+  String get helpRemoteLineAuthDefaultUsername =>
+      '> Pokud je zapnutá ochrana heslem a není nastaveno jméno, výchozí uživatelské jméno je `opencode`.';
 
   @override
   String get exchangeRatesTitle => '[ KURZY ]';
@@ -360,7 +442,8 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get exchangeRatesCurrencyChangeError => '> Nepodařilo se změnit zobrazovanou měnu.';
+  String get exchangeRatesCurrencyChangeError =>
+      '> Nepodařilo se změnit zobrazovanou měnu.';
 
   @override
   String exchangeRatesSyncSuccess(int count) {
@@ -401,10 +484,12 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get sessionsSpotlightEmptyScope => '> V aktuálním rozsahu není žádné hodnocené evidence.';
+  String get sessionsSpotlightEmptyScope =>
+      '> V aktuálním rozsahu není žádné hodnocené evidence.';
 
   @override
-  String get sessionsSpotlightEmpty => '> Hodnocené evidence nejsou k dispozici.';
+  String get sessionsSpotlightEmpty =>
+      '> Hodnocené evidence nejsou k dispozici.';
 
   @override
   String get sessionsExplorerTitle => '[ PRŮZKUMNÍK RELACÍ ]';
@@ -419,10 +504,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get sessionsExplorerLoading => '> Načítám cachované relace...';
 
   @override
-  String get sessionsExplorerEmptyConnected => '> Žádné cachované relace nebyly nalezeny. Začněte synchronizací nebo importem.';
+  String get sessionsExplorerEmptyConnected =>
+      '> Žádné cachované relace nebyly nalezeny. Začněte synchronizací nebo importem.';
 
   @override
-  String get sessionsExplorerEmptyDisconnected => '> Žádné cachované relace nebyly nalezeny. Připojte lokální server nebo importujte data.';
+  String get sessionsExplorerEmptyDisconnected =>
+      '> Žádné cachované relace nebyly nalezeny. Připojte lokální server nebo importujte data.';
 
   @override
   String activeModelFilter(String model) {
@@ -443,10 +530,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get clearFilterAction => '[ ZRUŠIT ]';
 
   @override
-  String get sessionsExplorerFilteredEmpty => '> Žádné relace neodpovídají aktivním filtrům.';
+  String get sessionsExplorerFilteredEmpty =>
+      '> Žádné relace neodpovídají aktivním filtrům.';
 
   @override
-  String get sessionsExplorerSyncSuccess => '> Synchronizace byla úspěšně dokončena.';
+  String get sessionsExplorerSyncSuccess =>
+      '> Synchronizace byla úspěšně dokončena.';
 
   @override
   String get sessionsExplorerSyncError => '> Synchronizace selhala.';
@@ -455,7 +544,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get sessionsExplorerImportSuccess => '> Import byl úspěšně dokončen.';
 
   @override
-  String get sessionsExplorerImportError => '> Import selhal: neplatný formát nebo chyba.';
+  String get sessionsExplorerImportWalModeError =>
+      '> Import v prohlížeči vyžaduje samostatný SQLite soubor. OpenCode databáze v režimu WAL zatím nejsou podporované pro nahrání jediného souboru.';
+
+  @override
+  String get sessionsExplorerImportError =>
+      '> Import selhal: neplatný formát nebo chyba.';
 
   @override
   String get sessionsExplorerImportNoFile => '> Import byl zrušen.';
@@ -469,10 +563,18 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get sessionsExplorerError => '> Chyba ............. operace selhala. Zkontrolujte zdroj dat nebo stav serveru.';
+  String get sessionsExplorerError =>
+      '> Chyba ............. operace selhala. Zkontrolujte zdroj dat nebo stav serveru.';
 
   @override
-  String sessionRowData(String date, String model, String tokens, String currency, String cost, String id) {
+  String sessionRowData(
+    String date,
+    String model,
+    String tokens,
+    String currency,
+    String cost,
+    String id,
+  ) {
     return '> $date • $model • $tokens TOK • $currency $cost • ID: $id';
   }
 
@@ -490,7 +592,14 @@ class AppLocalizationsCs extends AppLocalizations {
   String get metricsTokensTopDrivers => '-- NEJVYUŽÍVANĚJŠÍ --';
 
   @override
-  String modelDriverRow(String modelName, String padding, String currency, String cost, int tokens, int sessions) {
+  String modelDriverRow(
+    String modelName,
+    String padding,
+    String currency,
+    String cost,
+    String tokens,
+    String sessions,
+  ) {
     return '> $modelName $padding $currency $cost | $tokens TOK | $sessions SES';
   }
 
@@ -501,7 +610,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get metricsModelHourlyTokens => '-- HODINOVÉ TOKENY --';
 
   @override
-  String modelSelectedDayMetrics(String currency, String cost, int tokens, int sessions) {
+  String modelSelectedDayMetrics(
+    String currency,
+    String cost,
+    String tokens,
+    String sessions,
+  ) {
     return '> Den ............... $currency $cost | $tokens TOK | $sessions SES';
   }
 
@@ -669,5 +783,25 @@ class AppLocalizationsCs extends AppLocalizations {
   String get compareSplitUnavailable => '> Rozklad delty ...... nelze spočítat';
 
   @override
-  String get compareUnavailableHelper => '> Porovnání s minulým obdobím není dostupné kvůli chybějícím kurzům.';
+  String get compareUnavailableHelper =>
+      '> Porovnání s minulým obdobím není dostupné kvůli chybějícím kurzům.';
+
+  @override
+  String get sessionsSearchPlaceholder => 'Hledat v metadatech...';
+
+  @override
+  String get sessionsSearchClear => '[ ZRUŠIT ]';
+
+  @override
+  String sessionsSearchResultsCount(int count) {
+    return '> Výsledky .......... $count';
+  }
+
+  @override
+  String get sessionsListHeader => '-- ZÁZNAM RELACÍ --';
+
+  @override
+  String pieLegendOverflow(int count) {
+    return '+$count dalších';
+  }
 }

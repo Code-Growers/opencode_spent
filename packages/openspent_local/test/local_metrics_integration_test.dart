@@ -149,7 +149,10 @@ final class _SpyExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     throw UnimplementedError();
   }
 }

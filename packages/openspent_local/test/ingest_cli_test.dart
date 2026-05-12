@@ -62,7 +62,7 @@ void main() {
       expect(result.importedCount, 2);
       expect(result.message, 'Imported 2 sessions.');
 
-      final database = OpenSpentLocalDatabase.file(databaseFile);
+      final database = OpenSpentLocalDatabase.filePath(databaseFile.path);
       addTearDown(database.close);
 
       final storedSessions = await LocalOpenCodeSessionRepository(
@@ -146,7 +146,7 @@ void main() {
       expect(result.importedCount, 1);
       expect(result.message, 'Imported 1 session.');
 
-      final database = OpenSpentLocalDatabase.file(localDatabaseFile);
+      final database = OpenSpentLocalDatabase.filePath(localDatabaseFile.path);
       addTearDown(database.close);
 
       final storedSessions = await LocalOpenCodeSessionRepository(
@@ -164,6 +164,9 @@ void main() {
           inputTokens: 10,
           outputTokens: 4,
           totalCostUsd: 0.33,
+          requestCount: 0,
+          toolCallCount: 0,
+          responseCount: 1,
         ),
       ]);
     });

@@ -126,6 +126,46 @@ void main() {
       },
     );
 
+    test(
+      'writes fallback source dates into the requested effective-date bucket',
+      () async {
+        final database = OpenSpentLocalDatabase.inMemory();
+        addTearDown(database.close);
+
+        final repository = LocalExchangeRateRepository(database);
+        final effectiveDate = DateTime.utc(2026, 5, 3);
+
+        await repository.writeExchangeRates(<ExchangeRate>[
+          ExchangeRate(
+            currency: SupportedCurrency.usd,
+            date: DateTime.utc(2026, 5, 2),
+            rateToCzk: 21.93,
+          ),
+          ExchangeRate(
+            currency: SupportedCurrency.czk,
+            date: DateTime.utc(2026, 5, 2),
+            rateToCzk: 1,
+          ),
+        ], effectiveDate: effectiveDate);
+
+        expect(
+          await repository.readExchangeRatesForDate(effectiveDate),
+          <ExchangeRate>[
+            ExchangeRate(
+              currency: SupportedCurrency.czk,
+              date: DateTime.utc(2026, 5, 2),
+              rateToCzk: 1,
+            ),
+            ExchangeRate(
+              currency: SupportedCurrency.usd,
+              date: DateTime.utc(2026, 5, 2),
+              rateToCzk: 21.93,
+            ),
+          ],
+        );
+      },
+    );
+
     test('migrates legacy schema-v1 exchange rates to schema v2', () async {
       final tempDirectory = await Directory.systemTemp.createTemp(
         'openspent_local_',
@@ -156,7 +196,7 @@ void main() {
       );
       await legacyDatabase.close();
 
-      final database = OpenSpentLocalDatabase.file(databaseFile);
+      final database = OpenSpentLocalDatabase.filePath(databaseFile.path);
       addTearDown(database.close);
 
       final repository = LocalExchangeRateRepository(database);

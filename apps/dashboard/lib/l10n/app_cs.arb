@@ -1,9 +1,9 @@
 {
   "@@locale": "cs",
   "appTitle": "OpenSpent",
-  "localLabel": "[ LOKÁLNÍ ]",
-  "heroTitle": "Monitorujte OpenCode. Lokálně.",
-  "heroDescription": "Soukromý lokální dashboard s cachovanými metrikami a terminálovým zobrazením.",
+  "localLabel": "[ LOK\u00c1LN\u00cd ]",
+  "heroTitle": "Monitorujte OpenCode. Lok\u00e1ln\u011b.",
+  "heroDescription": "Soukrom\u00fd lok\u00e1ln\u00ed dashboard s cachovan\u00fdmi metrikami a termin\u00e1lov\u00fdm zobrazen\u00edm.",
   "statusPaneTitle": "STAV",
   "statusLineReady": "> Dashboard .......... {state}",
   "@statusLineReady": {
@@ -13,7 +13,7 @@
       }
     }
   },
-  "statusLineMode": "> Režim ............. {mode}",
+  "statusLineMode": "> Re\u017eim ............. {mode}",
   "@statusLineMode": {
     "placeholders": {
       "mode": {
@@ -37,21 +37,21 @@
       }
     }
   },
-  "statusProbeConnected": "PŘIPOJENO",
+  "statusProbeConnected": "P\u0158IPOJENO",
   "statusProbeDisconnected": "ODPOJENO",
   "statusProbeError": "CHYBA",
-  "statusProbeLoading": "NAČÍTÁM",
-  "statusProbeUnknown": "NEZNÁMO",
-  "statusReady": "PŘIPRAVEN",
-  "statusLoading": "NAČÍTÁM",
-  "statusModeLocalCache": "LOKÁLNÍ CACHE",
-  "statusServerNotConfigured": "NENÍ NASTAVENO",
-  "statusServerLoading": "NAČÍTÁM",
-  "privacyPaneTitle": "SOUKROMÍ",
-  "privacyLinePrompts": "> Promptů uloženo ..... NE",
-  "privacyLineToolOutput": "> Výstup nástrojů ..... NE",
-  "privacyLineErrors": "> Syrové chyby ........ NE",
-  "persistedAllowlist": "> Velikost uloženého allowlistu metadat: {count}",
+  "statusProbeLoading": "NA\u010c\u00cdT\u00c1M",
+  "statusProbeUnknown": "NEZN\u00c1MO",
+  "statusReady": "P\u0158IPRAVEN",
+  "statusLoading": "NA\u010c\u00cdT\u00c1M",
+  "statusModeLocalCache": "LOK\u00c1LN\u00cd CACHE",
+  "statusServerNotConfigured": "NEN\u00cd NASTAVENO",
+  "statusServerLoading": "NA\u010c\u00cdT\u00c1M",
+  "privacyPaneTitle": "SOUKROM\u00cd",
+  "privacyLinePrompts": "> Prompt\u016f ulo\u017eeno ..... NE",
+  "privacyLineToolOutput": "> V\u00fdstup n\u00e1stroj\u016f ..... NE",
+  "privacyLineErrors": "> Syrov\u00e9 chyby ........ NE",
+  "persistedAllowlist": "> Velikost ulo\u017een\u00e9ho allowlistu metadat: {count}",
   "@persistedAllowlist": {
     "placeholders": {
       "count": {
@@ -60,15 +60,15 @@
     }
   },
   "metricsTitle": "METRIKY",
-  "metricsLoad": "_ čekám na první data metrik ...",
-  "metricsUnavailable": "> metriky nedostupné",
-  "metricsMissingExchangeRatesHelper": "> chybí kurzy CZK pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.",
+  "metricsLoad": "_ \u010dek\u00e1m na prvn\u00ed data metrik ...",
+  "metricsUnavailable": "> metriky nedostupn\u00e9",
+  "metricsMissingExchangeRatesHelper": "> chyb\u00ed kurzy CZK pro dny s \u00fatratou. Synchronizujte kurzy v panelu m\u011bn a zkuste to znovu.",
   "textTab": "[ TEXT ]",
-  "spendTab": "[ ÚTRATA ]",
+  "spendTab": "[ \u00daTRATA ]",
   "tokensTab": "[ TOKENY ]",
   "modelsTab": "[ MODELY ]",
-  "overallSection": "-- CELKOVĚ --",
-  "selectedDaySection": "-- VYBRANÝ DEN ({day}) --",
+  "overallSection": "-- CELKOV\u011a --",
+  "selectedDaySection": "-- VYBRAN\u00dd DEN ({day}) --",
   "@selectedDaySection": {
     "placeholders": {
       "day": {
@@ -76,7 +76,7 @@
       }
     }
   },
-  "peakHourSection": "-- NEJVYŠŠÍ HODINA ({hour}:00 UTC) --",
+  "peakHourSection": "-- NEJVY\u0160\u0160\u00cd HODINA ({hour}:00 UTC) --",
   "@peakHourSection": {
     "placeholders": {
       "hour": {
@@ -84,8 +84,8 @@
       }
     }
   },
-  "peakHourEmptySection": "-- NEJVYŠŠÍ HODINA --",
-  "lineTotalCost": "> Celková cena ....... {currency} {value}",
+  "peakHourEmptySection": "-- NEJVY\u0160\u0160\u00cd HODINA --",
+  "lineTotalCost": "> Celkov\u00e1 cena ....... {currency} {value}",
   "@lineTotalCost": {
     "placeholders": {
       "currency": {
@@ -104,7 +104,7 @@
       }
     }
   },
-  "lineTopMover": "> Největší skokan .... {model} ({sign}{currency}{value})",
+  "lineTopMover": "> Nejv\u011bt\u0161\u00ed skokan .... {model} ({sign}{currency}{value})",
   "@lineTopMover": {
     "placeholders": {
       "model": {
@@ -121,7 +121,7 @@
       }
     }
   },
-  "lineTopMoverEmpty": "> Největší skokan .... ŽÁDNÝ",
+  "lineTopMoverEmpty": "> Nejv\u011bt\u0161\u00ed skokan .... \u017d\u00c1DN\u00dd",
   "compareSummary": "> Oproti minulosti ... {sign}{value} {currency}",
   "@compareSummary": {
     "placeholders": {
@@ -136,7 +136,7 @@
       }
     }
   },
-  "compareSummaryDriver": "> Hlavní tahoun ...... {model} {sign}{value} {currency}",
+  "compareSummaryDriver": "> Hlavn\u00ed tahoun ...... {model} {sign}{value} {currency}",
   "@compareSummaryDriver": {
     "placeholders": {
       "model": {
@@ -153,32 +153,32 @@
       }
     }
   },
-  "compareSummaryNoDriver": "> Hlavní tahoun ...... ŽÁDNÝ",
-  "lineInputTokens": "> Vstupní tokeny ..... {value}",
+  "compareSummaryNoDriver": "> Hlavn\u00ed tahoun ...... \u017d\u00c1DN\u00dd",
+  "lineInputTokens": "> Vstupn\u00ed tokeny ..... {value}",
   "@lineInputTokens": {
     "placeholders": {
       "value": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "lineOutputTokens": "> Výstupní tokeny .... {value}",
+  "lineOutputTokens": "> V\u00fdstupn\u00ed tokeny .... {value}",
   "@lineOutputTokens": {
     "placeholders": {
       "value": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "lineTotalTokens": "> Celkem tokenů ...... {value}",
+  "lineTotalTokens": "> Celkem token\u016f ...... {value}",
   "@lineTotalTokens": {
     "placeholders": {
       "value": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "lineAvgTokensPerSession": "> Průměr/relaci ...... {value}",
+  "lineAvgTokensPerSession": "> Pr\u016fm\u011br/relaci ...... {value}",
   "@lineAvgTokensPerSession": {
     "placeholders": {
       "value": {
@@ -186,7 +186,7 @@
       }
     }
   },
-  "lineCostPerMillionTokens": "> Cena/1M tokenů ..... {currency} {value}",
+  "lineCostPerMillionTokens": "> Cena/1M token\u016f ..... {currency} {value}",
   "@lineCostPerMillionTokens": {
     "placeholders": {
       "currency": {
@@ -208,18 +208,18 @@
       }
     }
   },
-  "linePeakTokensInOut": "> Tokeny (Dovnitř/Ven) {input} / {output}",
+  "linePeakTokensInOut": "> Tokeny (Dovnit\u0159/Ven) {input} / {output}",
   "@linePeakTokensInOut": {
     "placeholders": {
       "input": {
-        "type": "int"
+        "type": "String"
       },
       "output": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "lineNoActivity": "> Žádná zaznamenaná aktivita",
+  "lineNoActivity": "> \u017d\u00e1dn\u00e1 zaznamenan\u00e1 aktivita",
   "modelThreeDayTrend": "3D {first}/{second}/{third}",
   "@modelThreeDayTrend": {
     "placeholders": {
@@ -234,7 +234,7 @@
       }
     }
   },
-  "modelCostShareTrend": "{currency} {totalCost} [{share}%] • {trend}",
+  "modelCostShareTrend": "{currency} {totalCost} [{share}%] \u2022 {trend}",
   "@modelCostShareTrend": {
     "placeholders": {
       "currency": {
@@ -255,10 +255,10 @@
   "@modelTokensSessions": {
     "placeholders": {
       "tokens": {
-        "type": "int"
+        "type": "String"
       },
       "sessions": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -281,12 +281,12 @@
       }
     }
   },
-  "hourlySpendTitle": "HODINOVÁ ÚTRATA (UTC)",
-  "hourlyTokensTitle": "HODINOVÉ TOKENY DOVNITŘ/VEN (UTC)",
-  "tokenLegend": "IN tlum. | OUT jasně",
-  "spendTrendUnavailable": "> trend útraty nedostupný",
-  "tokenTrendUnavailable": "> trend tokenů nedostupný",
-  "modelSpendUnavailable": "> útrata modelů nedostupná",
+  "hourlySpendTitle": "HODINOV\u00c1 \u00daTRATA (UTC)",
+  "hourlyTokensTitle": "HODINOV\u00c9 TOKENY DOVNIT\u0158/VEN (UTC)",
+  "tokenLegend": "IN tlum. | OUT jasn\u011b",
+  "spendTrendUnavailable": "> trend \u00fatraty nedostupn\u00fd",
+  "tokenTrendUnavailable": "> trend token\u016f nedostupn\u00fd",
+  "modelSpendUnavailable": "> \u00fatrata model\u016f nedostupn\u00e1",
   "modelTrend": "{days}D {trend}",
   "@modelTrend": {
     "placeholders": {
@@ -298,40 +298,111 @@
       }
     }
   },
-  "settingsTitle": "[ NASTAVENÍ ]",
-  "settingsCurrency": "Měna:",
+  "metricsProvidersTab": "[ POSKYTOVATEL\u00c9 ]",
+  "metricsKpiTotalPrice": "> CELKOV\u00c1 CENA ...... {value} {currency}",
+  "@metricsKpiTotalPrice": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiTotalRequests": "> CELKEM PO\u017dADAVK\u016e .. {value}",
+  "@metricsKpiTotalRequests": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiTotalToolCalls": "> CELKEM TOOL CALL\u016e . {value}",
+  "@metricsKpiTotalToolCalls": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiAvgResponseTime": "> PR\u016eM. ODEZVA ...... {value}",
+  "@metricsKpiAvgResponseTime": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiTotalTokens": "> CELKEM TOKEN\u016e ..... {value}",
+  "@metricsKpiTotalTokens": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsKpiNotAvailable": "--",
+  "metricsKpiPartial": "{value} (\u010d\u00e1ste\u010dn\u011b)",
+  "@metricsKpiPartial": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "providersUsageChartTitle": "-- VYU\u017dIT\u00cd PODLE POSKYTOVATELE --",
+  "providersPriceChartTitle": "-- CENA PODLE POSKYTOVATELE --",
+  "providersPriceUnavailable": "> cena za {provider} nedostupn\u00e1",
+  "@providersPriceUnavailable": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "helpRemoteLineCors": "> P\u0159i pou\u017e\u00edv\u00e1n\u00ed dashboardu v prohl\u00ed\u017ee\u010di proti lok\u00e1ln\u00edmu serveru spus\u0165te OpenCode s --cors=\"{origin}\", aby povolil tento browser origin. Hodnota mus\u00ed b\u00fdt jen origin \u2014 ne /demo ani \u017e\u00e1dn\u00e1 jin\u00e1 cesta.",
+  "@helpRemoteLineCors": {
+    "placeholders": {
+      "origin": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsTitle": "[ NASTAVEN\u00cd ]",
+  "settingsCurrency": "M\u011bna:",
   "settingsLanguage": "Jazyk:",
-  "settingsLanguageSystem": "Výchozí podle systému",
-  "settingsLanguageEnglish": "Angličtina",
-  "settingsLanguageCzech": "Čeština",
+  "settingsLanguageSystem": "V\u00fdchoz\u00ed podle syst\u00e9mu",
+  "settingsLanguageEnglish": "Angli\u010dtina",
+  "settingsLanguageCzech": "\u010ce\u0161tina",
   "settingsServerUrl": "URL serveru:",
-  "settingsServerUsername": "Uživatelské jméno serveru:",
+  "settingsServerUsername": "U\u017eivatelsk\u00e9 jm\u00e9no serveru:",
   "settingsServerPassword": "Heslo serveru:",
-  "settingsServerAuthHint": "Volitelné Basic Auth. Pokud je nastavené heslo a jméno zůstane prázdné, OpenSpent použije `opencode`.",
+  "settingsServerAuthHint": "Voliteln\u00e9 Basic Auth. Pokud je nastaven\u00e9 heslo a jm\u00e9no z\u016fstane pr\u00e1zdn\u00e9, OpenSpent pou\u017eije `opencode`.",
   "settingsServerUrlInvalid": "Zadejte platnou URL serveru s http:// nebo https://.",
-  "settingsSave": "[ ULOŽIT ]",
-  "settingsClose": "[ ZAVŘÍT ]",
-  "helpDialogTitle": "[ INFO / NÁPOVĚDA ]",
-  "helpTabLocal": "Lokální",
+  "settingsSave": "[ ULO\u017dIT ]",
+  "settingsClose": "[ ZAV\u0158\u00cdT ]",
+  "helpDialogTitle": "[ INFO / N\u00c1POV\u011aDA ]",
+  "helpTabLocal": "Lok\u00e1ln\u00ed",
   "helpTabRemote": "Remote",
-  "helpLocalLineImport": "> Importujte JSON nebo SQLite soubory přímo do OpenSpent z panelu relací.",
-  "helpLocalLinePaths": "> OpenCode obvykle ukládá hlavní DB do ~/.local/share/opencode/opencode.db na macOS/Linux a na Windows pod %USERPROFILE%\\.local\\share\\opencode\\opencode.db.",
-  "helpLocalLineCommandDbPath": "> Užitečný příkaz: opencode db path",
-  "helpLocalLineCommandExport": "> Užitečné příkazy: opencode export, opencode import",
-  "helpLocalLineCommandSessionList": "> Užitečný příkaz: opencode session list",
-  "helpLocalLineCommandStats": "> Užitečný příkaz: opencode stats",
-  "helpLocalLineBackup": "> Zálohujte exportované soubory a kopie lokální DB opatrně. Zachovejte privacy-first a local-first workflow.",
-  "helpRemoteLineServe": "> API server spusťte příkazem: opencode serve",
-  "helpRemoteLineDefaultUrl": "> Výchozí URL serveru: http://localhost:4096",
-  "helpRemoteLineHostUse": "> Na stejném stroji používejte localhost. URL vzdáleného hosta používejte jen tehdy, když OpenCode běží na jiném stroji.",
-  "helpRemoteLineAuthEnv": "> Basic Auth používá OPENCODE_SERVER_USERNAME a OPENCODE_SERVER_PASSWORD.",
-  "helpRemoteLineAuthDefaultUsername": "> Pokud je zapnutá ochrana heslem a není nastaveno jméno, výchozí uživatelské jméno je `opencode`.",
+  "helpLocalLineImport": "> Importujte JSON nebo SQLite soubory p\u0159\u00edmo do OpenSpent z panelu relac\u00ed.",
+  "helpLocalLinePaths": "> OpenCode obvykle ukl\u00e1d\u00e1 hlavn\u00ed DB do ~/.local/share/opencode/opencode.db na macOS/Linux a na Windows pod %USERPROFILE%\\.local\\share\\opencode\\opencode.db.",
+  "helpLocalLineCommandDbPath": "> U\u017eite\u010dn\u00fd p\u0159\u00edkaz: opencode db path",
+  "helpLocalLineCommandExport": "> U\u017eite\u010dn\u00e9 p\u0159\u00edkazy: opencode export, opencode import",
+  "helpLocalLineCommandSessionList": "> U\u017eite\u010dn\u00fd p\u0159\u00edkaz: opencode session list",
+  "helpLocalLineCommandStats": "> U\u017eite\u010dn\u00fd p\u0159\u00edkaz: opencode stats",
+  "helpLocalLineBackup": "> Z\u00e1lohujte exportovan\u00e9 soubory a kopie lok\u00e1ln\u00ed DB opatrn\u011b. Zachovejte privacy-first a local-first workflow.",
+  "helpRemoteLineServe": "> API server spus\u0165te p\u0159\u00edkazem: opencode serve",
+  "helpRemoteLineDefaultUrl": "> V\u00fdchoz\u00ed URL serveru: http://localhost:4096",
+  "helpRemoteLineHostUse": "> Na stejn\u00e9m stroji pou\u017e\u00edvejte localhost. URL vzd\u00e1len\u00e9ho hosta pou\u017e\u00edvejte jen tehdy, kdy\u017e OpenCode b\u011b\u017e\u00ed na jin\u00e9m stroji.",
+  "helpRemoteLineAuthEnv": "> Basic Auth pou\u017e\u00edv\u00e1 OPENCODE_SERVER_USERNAME a OPENCODE_SERVER_PASSWORD.",
+  "helpRemoteLineAuthDefaultUsername": "> Pokud je zapnut\u00e1 ochrana heslem a nen\u00ed nastaveno jm\u00e9no, v\u00fdchoz\u00ed u\u017eivatelsk\u00e9 jm\u00e9no je `opencode`.",
   "exchangeRatesTitle": "[ KURZY ]",
   "exchangeRatesActionSync": "[ SYNCHRONIZOVAT KURZY ]",
-  "exchangeRatesStatusLoading": "NAČÍTÁM",
+  "exchangeRatesStatusLoading": "NA\u010c\u00cdT\u00c1M",
   "exchangeRatesStatusError": "CHYBA",
-  "exchangeRatesStatusReady": "PŘIPRAVENO",
-  "exchangeRatesStatusMissing": "CHYBÍ {count}",
+  "exchangeRatesStatusReady": "P\u0158IPRAVENO",
+  "exchangeRatesStatusMissing": "CHYB\u00cd {count}",
   "@exchangeRatesStatusMissing": {
     "placeholders": {
       "count": {
@@ -339,8 +410,8 @@
       }
     }
   },
-  "exchangeRatesMissingDaysNone": "žádné",
-  "exchangeRatesCurrencyChanged": "> Zobrazovaná měna nastavena na {currency}.",
+  "exchangeRatesMissingDaysNone": "\u017e\u00e1dn\u00e9",
+  "exchangeRatesCurrencyChanged": "> Zobrazovan\u00e1 m\u011bna nastavena na {currency}.",
   "@exchangeRatesCurrencyChanged": {
     "placeholders": {
       "currency": {
@@ -348,8 +419,8 @@
       }
     }
   },
-  "exchangeRatesCurrencyChangeError": "> Nepodařilo se změnit zobrazovanou měnu.",
-  "exchangeRatesSyncSuccess": "> Chybějící kurzy byly synchronizovány pro {count} den(dny) útraty.",
+  "exchangeRatesCurrencyChangeError": "> Nepoda\u0159ilo se zm\u011bnit zobrazovanou m\u011bnu.",
+  "exchangeRatesSyncSuccess": "> Chyb\u011bj\u00edc\u00ed kurzy byly synchronizov\u00e1ny pro {count} den(dny) \u00fatraty.",
   "@exchangeRatesSyncSuccess": {
     "placeholders": {
       "count": {
@@ -357,7 +428,7 @@
       }
     }
   },
-  "exchangeRatesSyncError": "> Synchronizace kurzů selhala.",
+  "exchangeRatesSyncError": "> Synchronizace kurz\u016f selhala.",
   "exchangeRatesError": "> Chyba ............. {message}",
   "@exchangeRatesError": {
     "placeholders": {
@@ -374,7 +445,7 @@
       }
     }
   },
-  "exchangeRatesLineDisplay": "> Zobrazení ......... {currency}",
+  "exchangeRatesLineDisplay": "> Zobrazen\u00ed ......... {currency}",
   "@exchangeRatesLineDisplay": {
     "placeholders": {
       "currency": {
@@ -382,7 +453,7 @@
       }
     }
   },
-  "exchangeRatesLineSpendDays": "> Dny útraty ........ {count}",
+  "exchangeRatesLineSpendDays": "> Dny \u00fatraty ........ {count}",
   "@exchangeRatesLineSpendDays": {
     "placeholders": {
       "count": {
@@ -390,7 +461,7 @@
       }
     }
   },
-  "exchangeRatesLineCoverage": "> Pokrytí ........... {covered}/{total}",
+  "exchangeRatesLineCoverage": "> Pokryt\u00ed ........... {covered}/{total}",
   "@exchangeRatesLineCoverage": {
     "placeholders": {
       "covered": {
@@ -401,7 +472,7 @@
       }
     }
   },
-  "exchangeRatesLineMissingDays": "> Chybějící dny ..... {days}",
+  "exchangeRatesLineMissingDays": "> Chyb\u011bj\u00edc\u00ed dny ..... {days}",
   "@exchangeRatesLineMissingDays": {
     "placeholders": {
       "days": {
@@ -409,14 +480,14 @@
       }
     }
   },
-  "sessionsSpotlightEmptyScope": "> V aktuálním rozsahu není žádné hodnocené evidence.",
-  "sessionsSpotlightEmpty": "> Hodnocené evidence nejsou k dispozici.",
-  "sessionsExplorerTitle": "[ PRŮZKUMNÍK RELACÍ ]",
+  "sessionsSpotlightEmptyScope": "> V aktu\u00e1ln\u00edm rozsahu nen\u00ed \u017e\u00e1dn\u00e9 hodnocen\u00e9 evidence.",
+  "sessionsSpotlightEmpty": "> Hodnocen\u00e9 evidence nejsou k dispozici.",
+  "sessionsExplorerTitle": "[ PR\u016eZKUMN\u00cdK RELAC\u00cd ]",
   "sessionsExplorerActionSync": "[ SYNCHRONIZOVAT ]",
   "sessionsExplorerActionImport": "[ IMPORTOVAT DATA ]",
-  "sessionsExplorerLoading": "> Načítám cachované relace...",
-  "sessionsExplorerEmptyConnected": "> Žádné cachované relace nebyly nalezeny. Začněte synchronizací nebo importem.",
-  "sessionsExplorerEmptyDisconnected": "> Žádné cachované relace nebyly nalezeny. Připojte lokální server nebo importujte data.",
+  "sessionsExplorerLoading": "> Na\u010d\u00edt\u00e1m cachovan\u00e9 relace...",
+  "sessionsExplorerEmptyConnected": "> \u017d\u00e1dn\u00e9 cachovan\u00e9 relace nebyly nalezeny. Za\u010dn\u011bte synchronizac\u00ed nebo importem.",
+  "sessionsExplorerEmptyDisconnected": "> \u017d\u00e1dn\u00e9 cachovan\u00e9 relace nebyly nalezeny. P\u0159ipojte lok\u00e1ln\u00ed server nebo importujte data.",
   "activeModelFilter": "> Filtr modelu ...... {model}",
   "@activeModelFilter": {
     "placeholders": {
@@ -441,14 +512,15 @@
       }
     }
   },
-  "clearFilterAction": "[ ZRUŠIT ]",
-  "sessionsExplorerFilteredEmpty": "> Žádné relace neodpovídají aktivním filtrům.",
-  "sessionsExplorerSyncSuccess": "> Synchronizace byla úspěšně dokončena.",
+  "clearFilterAction": "[ ZRU\u0160IT ]",
+  "sessionsExplorerFilteredEmpty": "> \u017d\u00e1dn\u00e9 relace neodpov\u00eddaj\u00ed aktivn\u00edm filtr\u016fm.",
+  "sessionsExplorerSyncSuccess": "> Synchronizace byla \u00fasp\u011b\u0161n\u011b dokon\u010dena.",
   "sessionsExplorerSyncError": "> Synchronizace selhala.",
-  "sessionsExplorerImportSuccess": "> Import byl úspěšně dokončen.",
-  "sessionsExplorerImportError": "> Import selhal: neplatný formát nebo chyba.",
-  "sessionsExplorerImportNoFile": "> Import byl zrušen.",
-  "sessionsExplorerUnknownModel": "Neznámý model",
+  "sessionsExplorerImportSuccess": "> Import byl \u00fasp\u011b\u0161n\u011b dokon\u010den.",
+  "sessionsExplorerImportWalModeError": "> Import v prohl\u00ed\u017ee\u010di vy\u017eaduje samostatn\u00fd SQLite soubor. OpenCode datab\u00e1ze v re\u017eimu WAL zat\u00edm nejsou podporovan\u00e9 pro nahr\u00e1n\u00ed jedin\u00e9ho souboru.",
+  "sessionsExplorerImportError": "> Import selhal: neplatn\u00fd form\u00e1t nebo chyba.",
+  "sessionsExplorerImportNoFile": "> Import byl zru\u0161en.",
+  "sessionsExplorerUnknownModel": "Nezn\u00e1m\u00fd model",
   "sessionsExplorerSubagent": "> Subagent .......... {category}",
   "@sessionsExplorerSubagent": {
     "placeholders": {
@@ -458,7 +530,7 @@
     }
   },
   "sessionsExplorerError": "> Chyba ............. operace selhala. Zkontrolujte zdroj dat nebo stav serveru.",
-  "sessionRowData": "> {date} • {model} • {tokens} TOK • {currency} {cost} • ID: {id}",
+  "sessionRowData": "> {date} \u2022 {model} \u2022 {tokens} TOK \u2022 {currency} {cost} \u2022 ID: {id}",
   "@sessionRowData": {
     "placeholders": {
       "date": {
@@ -497,7 +569,7 @@
       }
     }
   },
-  "metricsTokensTopDrivers": "-- NEJVYUŽÍVANĚJŠÍ --",
+  "metricsTokensTopDrivers": "-- NEJVYU\u017d\u00cdVAN\u011aJ\u0160\u00cd --",
   "modelDriverRow": "> {modelName} {padding} {currency} {cost} | {tokens} TOK | {sessions} SES",
   "@modelDriverRow": {
     "placeholders": {
@@ -514,15 +586,15 @@
         "type": "String"
       },
       "tokens": {
-        "type": "int"
+        "type": "String"
       },
       "sessions": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "metricsModelHourlySpend": "-- HODINOVÁ ÚTRATA --",
-  "metricsModelHourlyTokens": "-- HODINOVÉ TOKENY --",
+  "metricsModelHourlySpend": "-- HODINOV\u00c1 \u00daTRATA --",
+  "metricsModelHourlyTokens": "-- HODINOV\u00c9 TOKENY --",
   "modelSelectedDayMetrics": "> Den ............... {currency} {cost} | {tokens} TOK | {sessions} SES",
   "@modelSelectedDayMetrics": {
     "placeholders": {
@@ -533,25 +605,25 @@
         "type": "String"
       },
       "tokens": {
-        "type": "int"
+        "type": "String"
       },
       "sessions": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "windowAll": "VŠE",
+  "windowAll": "V\u0160E",
   "window7d": "7D",
   "window30d": "30D",
   "window90d": "90D",
-  "windowCustom": "VLASTNÍ",
-  "windowActionAll": "[ VŠE ]",
+  "windowCustom": "VLASTN\u00cd",
+  "windowActionAll": "[ V\u0160E ]",
   "windowAction7d": "[ 7D ]",
   "windowAction30d": "[ 30D ]",
   "windowAction90d": "[ 90D ]",
-  "windowActionCustom": "[ VLASTNÍ ]",
-  "sessionsExplorerCachedHistoryTitle": "-- CACHOVANÁ HISTORIE --",
-  "sessionsExplorerCachedCount": "> Relací ............ {count}",
+  "windowActionCustom": "[ VLASTN\u00cd ]",
+  "sessionsExplorerCachedHistoryTitle": "-- CACHOVAN\u00c1 HISTORIE --",
+  "sessionsExplorerCachedCount": "> Relac\u00ed ............ {count}",
   "@sessionsExplorerCachedCount": {
     "placeholders": {
       "count": {
@@ -559,7 +631,7 @@
       }
     }
   },
-  "sessionsExplorerCachedNewest": "> Nejnovější ........ {date}",
+  "sessionsExplorerCachedNewest": "> Nejnov\u011bj\u0161\u00ed ........ {date}",
   "@sessionsExplorerCachedNewest": {
     "placeholders": {
       "date": {
@@ -567,7 +639,7 @@
       }
     }
   },
-  "sessionsExplorerCachedOldest": "> Nejstarší ......... {date}",
+  "sessionsExplorerCachedOldest": "> Nejstar\u0161\u00ed ......... {date}",
   "@sessionsExplorerCachedOldest": {
     "placeholders": {
       "date": {
@@ -575,8 +647,8 @@
       }
     }
   },
-  "sessionsExplorerCachedEmpty": "> Cache je prázdná",
-  "sessionsExplorerLastOpTitle": "-- POSLEDNÍ OPERACE --",
+  "sessionsExplorerCachedEmpty": "> Cache je pr\u00e1zdn\u00e1",
+  "sessionsExplorerLastOpTitle": "-- POSLEDN\u00cd OPERACE --",
   "sessionsExplorerLastOpType": "> Typ ............... {type}",
   "@sessionsExplorerLastOpType": {
     "placeholders": {
@@ -601,7 +673,7 @@
       }
     }
   },
-  "sessionsExplorerLastOpCount": "> Cachováno ......... {count}",
+  "sessionsExplorerLastOpCount": "> Cachov\u00e1no ......... {count}",
   "@sessionsExplorerLastOpCount": {
     "placeholders": {
       "count": {
@@ -609,21 +681,21 @@
       }
     }
   },
-  "sessionsExplorerLastOpNone": "> Žádné nedávné operace",
-  "opTypeLoad": "NAČTENÍ",
+  "sessionsExplorerLastOpNone": "> \u017d\u00e1dn\u00e9 ned\u00e1vn\u00e9 operace",
+  "opTypeLoad": "NA\u010cTEN\u00cd",
   "opTypeSync": "SYNCHRONIZACE",
   "opTypeImportJson": "IMPORT JSON",
   "opTypeImportSqlite": "IMPORT SQLITE",
-  "opStatusSuccess": "ÚSPĚCH",
-  "opStatusFailure": "SELHÁNÍ",
-  "lineRollingAvgCost": "> Průměrný denní náklad . {currency} {value}/den",
-  "lineRollingAvgTokens": "> Průměrné denní tokeny . {value}/den",
-  "linePaceForecast": "> Odhad (na 7 dní) ...... {currency} {value}",
-  "spendDailyAvgLabel": "PRŮMĚR {currency} {amount}",
+  "opStatusSuccess": "\u00daSP\u011aCH",
+  "opStatusFailure": "SELH\u00c1N\u00cd",
+  "lineRollingAvgCost": "> Pr\u016fm\u011brn\u00fd denn\u00ed n\u00e1klad . {currency} {value}/den",
+  "lineRollingAvgTokens": "> Pr\u016fm\u011brn\u00e9 denn\u00ed tokeny . {value}/den",
+  "linePaceForecast": "> Odhad (na 7 dn\u00ed) ...... {currency} {value}",
+  "spendDailyAvgLabel": "PR\u016eM\u011aR {currency} {amount}",
   "spendDailyPeakLabel": "MAX {currency} {amount}",
-  "spendHourlyAvgLabel": "PRŮMĚR {currency} {amount}",
+  "spendHourlyAvgLabel": "PR\u016eM\u011aR {currency} {amount}",
   "spendHourlyPeakLabel": "MAX {currency} {amount}",
-  "comparePriorWindow": "> Minulé období ...... {window}",
+  "comparePriorWindow": "> Minul\u00e9 obdob\u00ed ...... {window}",
   "@comparePriorWindow": {
     "placeholders": {
       "window": {
@@ -631,7 +703,7 @@
       }
     }
   },
-  "compareDeltaSessions": "> Rozdíl relací ...... {sign}{value}",
+  "compareDeltaSessions": "> Rozd\u00edl relac\u00ed ...... {sign}{value}",
   "@compareDeltaSessions": {
     "placeholders": {
       "sign": {
@@ -642,7 +714,7 @@
       }
     }
   },
-  "compareDeltaTokens": "> Rozdíl tokenů ...... {sign}{value}",
+  "compareDeltaTokens": "> Rozd\u00edl token\u016f ...... {sign}{value}",
   "@compareDeltaTokens": {
     "placeholders": {
       "sign": {
@@ -653,7 +725,7 @@
       }
     }
   },
-  "compareSplitSessions": "> Vliv relací ........ {sign}{value} {currency}",
+  "compareSplitSessions": "> Vliv relac\u00ed ........ {sign}{value} {currency}",
   "@compareSplitSessions": {
     "placeholders": {
       "sign": {
@@ -667,7 +739,7 @@
       }
     }
   },
-  "compareSplitAvg": "> Vliv prům./relaci .. {sign}{value} {currency}",
+  "compareSplitAvg": "> Vliv pr\u016fm./relaci .. {sign}{value} {currency}",
   "@compareSplitAvg": {
     "placeholders": {
       "sign": {
@@ -695,6 +767,18 @@
       }
     }
   },
-  "compareSplitUnavailable": "> Rozklad delty ...... nelze spočítat",
-  "compareUnavailableHelper": "> Porovnání s minulým obdobím není dostupné kvůli chybějícím kurzům."
+  "compareSplitUnavailable": "> Rozklad delty ...... nelze spo\u010d\u00edtat",
+  "compareUnavailableHelper": "> Porovn\u00e1n\u00ed s minul\u00fdm obdob\u00edm nen\u00ed dostupn\u00e9 kv\u016fli chyb\u011bj\u00edc\u00edm kurz\u016fm.",
+  "sessionsSearchPlaceholder": "Hledat v metadatech...",
+  "sessionsSearchClear": "[ ZRU\u0160IT ]",
+  "sessionsSearchResultsCount": "> V\u00fdsledky .......... {count}",
+  "@sessionsSearchResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsListHeader": "-- Z\u00c1ZNAM RELAC\u00cd --",
+  "pieLegendOverflow": "+{count} dal\u0161\u00edch"
 }

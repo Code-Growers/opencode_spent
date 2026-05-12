@@ -6,12 +6,18 @@ final class OpenSpentInfo {
   static const bool isLocalOnly = true;
 
   static const List<String> persistedMetadataAllowlist = <String>[
+    'provider',
     'modelName',
     'inputTokens',
     'outputTokens',
     'totalCostUsd',
+    'requestCount',
+    'toolCallCount',
+    'responseCount',
+    'totalResponseTimeMs',
     'createdAt',
     'subagentCategory',
+    'usageSlices',
   ];
 
   static const List<String> sensitiveFieldsDenylist = <String>[
@@ -23,12 +29,18 @@ final class OpenSpentInfo {
 
   static const List<String> ingestedSessionFieldAllowlist = <String>[
     'id',
+    'provider',
     'modelName',
     'inputTokens',
     'outputTokens',
     'totalCostUsd',
+    'requestCount',
+    'toolCallCount',
+    'responseCount',
+    'totalResponseTimeMs',
     'createdAt',
     'subagentCategory',
+    'usageSlices',
   ];
 
   static const List<String> supportedSubagentCategories = <String>[

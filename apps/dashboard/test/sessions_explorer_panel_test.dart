@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:openspent_dashboard/l10n/app_localizations.dart';
 import 'package:openspent_dashboard/src/screens/sessions/cubit/sessions_cubit.dart';
 import 'package:openspent_dashboard/src/sessions/import_selection.dart';
 import 'package:openspent_dashboard/src/sessions/sessions_explorer_panel.dart';
+import 'package:openspent_local/openspent_local.dart';
 
 class _FakeSessionRepository implements OpenCodeSessionRepository {
   _FakeSessionRepository([List<OpenCodeSession>? sessions])
@@ -52,15 +54,18 @@ SessionsCubitDependencies _buildDependencies({
   List<OpenCodeSession>? sessions,
   OpenCodeSessionRepository Function(OpenCodeSettings settings)?
   remoteRepositoryFactory,
-  OpenCodeSessionRepository Function(File dbFile)?
-  importedSqliteRepositoryFactory,
+  OpenCodeSessionRepository Function(String path)?
+  importedSqlitePathRepositoryFactory,
+  OpenCodeSessionRepository Function(Uint8List bytes)?
+  importedSqliteBytesRepositoryFactory,
 }) {
   return SessionsCubitDependencies(
     localRepository: _FakeSessionRepository(sessions),
     jsonParser: const OpenCodeSessionJsonParser(),
     remoteRepositoryFactory:
         remoteRepositoryFactory ?? (_) => _FakeSessionRepository(),
-    importedSqliteRepositoryFactory: importedSqliteRepositoryFactory,
+    importedSqlitePathRepositoryFactory: importedSqlitePathRepositoryFactory,
+    importedSqliteBytesRepositoryFactory: importedSqliteBytesRepositoryFactory,
   );
 }
 
@@ -74,10 +79,18 @@ Future<void> _pumpPanel(
   String? selectedModelFilter,
   DateTime? selectedDay,
   int? selectedUtcHour,
+  VoidCallback? onClearModelFilter,
   DateTime? windowFrom,
   DateTime? windowTo,
-  bool wrapInScrollView = false,
+  bool wrapInScrollView = true,
 }) async {
+  tester.view.physicalSize = const Size(1440, 2200);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+
   await tester.pumpWidget(
     MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -95,6 +108,7 @@ Future<void> _pumpPanel(
                     selectedModelFilter: selectedModelFilter,
                     selectedDay: selectedDay,
                     selectedUtcHour: selectedUtcHour,
+                    onClearModelFilter: onClearModelFilter,
                     windowFrom: windowFrom,
                     windowTo: windowTo,
                   ),
@@ -107,6 +121,7 @@ Future<void> _pumpPanel(
                   selectedModelFilter: selectedModelFilter,
                   selectedDay: selectedDay,
                   selectedUtcHour: selectedUtcHour,
+                  onClearModelFilter: onClearModelFilter,
                   windowFrom: windowFrom,
                   windowTo: windowTo,
                 ),
@@ -123,14 +138,18 @@ Future<SessionsCubit> _buildLoadedCubit({
   List<OpenCodeSession>? sessions,
   OpenCodeSessionRepository Function(OpenCodeSettings settings)?
   remoteRepositoryFactory,
-  OpenCodeSessionRepository Function(File dbFile)?
-  importedSqliteRepositoryFactory,
+  OpenCodeSessionRepository Function(String path)?
+  importedSqlitePathRepositoryFactory,
+  OpenCodeSessionRepository Function(Uint8List bytes)?
+  importedSqliteBytesRepositoryFactory,
 }) async {
   final cubit = SessionsCubit(
     dependencies: _buildDependencies(
       sessions: sessions,
       remoteRepositoryFactory: remoteRepositoryFactory,
-      importedSqliteRepositoryFactory: importedSqliteRepositoryFactory,
+      importedSqlitePathRepositoryFactory: importedSqlitePathRepositoryFactory,
+      importedSqliteBytesRepositoryFactory:
+          importedSqliteBytesRepositoryFactory,
     ),
   );
   await cubit.load();
@@ -263,11 +282,11 @@ void main() {
     WidgetTester tester,
   ) async {
     var callbackCount = 0;
-    File? importedFile;
-    final sqliteFile = File('/tmp/opencode.db');
+    String? importedPath;
+    const sqlitePath = '/tmp/opencode.db';
     final cubit = await _buildLoadedCubit(
-      importedSqliteRepositoryFactory: (dbFile) {
-        importedFile = dbFile;
+      importedSqlitePathRepositoryFactory: (path) {
+        importedPath = path;
         return _FakeSessionRepository([
           _session(
             id: 'ses_sqlite',
@@ -287,7 +306,8 @@ void main() {
       cubit: cubit,
       isConnected: true,
       serverUrl: Uri.parse('http://localhost:4096'),
-      pickImportSource: () async => ImportSelection.sqlite(sqliteFile),
+      pickImportSource: () async =>
+          const ImportSelection.sqlitePath(sqlitePath),
       onDataChanged: () {
         callbackCount++;
       },
@@ -300,7 +320,7 @@ void main() {
     expect(find.text('> Import completed successfully.'), findsOneWidget);
     expect(find.textContaining('ses_sqli'), findsWidgets);
     expect(callbackCount, 1);
-    expect(importedFile?.path, sqliteFile.path);
+    expect(importedPath, sqlitePath);
   });
 
   testWidgets('shows error when sqlite import fails due to invalid file', (
@@ -315,7 +335,7 @@ void main() {
       cubit: cubit,
       isConnected: true,
       serverUrl: Uri.parse('http://localhost:4096'),
-      pickImportSource: () async => ImportSelection.sqlite(sqliteFile),
+      pickImportSource: () async => ImportSelection.sqlitePath(sqliteFile.path),
     );
 
     await tester.tap(find.byKey(const Key('sessions-import-button')));
@@ -328,14 +348,103 @@ void main() {
   });
 
   testWidgets(
+    'shows imported session after successful uploaded sqlite import',
+    (WidgetTester tester) async {
+      var callbackCount = 0;
+      Uint8List? importedBytes;
+      final sqliteBytes = Uint8List.fromList(<int>[1, 2, 3, 4]);
+      final cubit = await _buildLoadedCubit(
+        importedSqliteBytesRepositoryFactory: (bytes) {
+          importedBytes = bytes;
+          return _FakeSessionRepository([
+            _session(
+              id: 'ses_sqlite_web',
+              createdAt: DateTime.utc(2026, 5, 8, 12),
+              modelName: 'o4-mini',
+              inputTokens: 11,
+              outputTokens: 7,
+              totalCostUsd: 0.42,
+            ),
+          ]);
+        },
+      );
+      addTearDown(cubit.close);
+
+      await _pumpPanel(
+        tester,
+        cubit: cubit,
+        isConnected: true,
+        serverUrl: Uri.parse('http://localhost:4096'),
+        pickImportSource: () async =>
+            ImportSelection.sqliteBytes(sqliteBytes, sourceLabel: 'upload.db'),
+        onDataChanged: () {
+          callbackCount++;
+        },
+      );
+
+      await tester.tap(find.byKey(const Key('sessions-import-button')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('> Import completed successfully.'), findsOneWidget);
+      expect(find.textContaining('ses_sqli'), findsWidgets);
+      expect(callbackCount, 1);
+      expect(importedBytes, same(sqliteBytes));
+    },
+  );
+
+  testWidgets('shows explicit WAL upload message for browser sqlite import', (
+    WidgetTester tester,
+  ) async {
+    final walBytes = Uint8List(100)
+      ..setRange(
+        0,
+        'SQLite format 3\u0000'.length,
+        'SQLite format 3\u0000'.codeUnits,
+      )
+      ..[18] = 2
+      ..[19] = 2;
+
+    final cubit = await _buildLoadedCubit(
+      importedSqliteBytesRepositoryFactory: (bytes) =>
+          OpenCodeUploadedSqliteSessionRepository(
+            bytes,
+            onWillAttemptDatabaseOpen: () {
+              fail('WAL upload should be rejected before DB open');
+            },
+          ),
+    );
+    addTearDown(cubit.close);
+
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      pickImportSource: () async =>
+          ImportSelection.sqliteBytes(walBytes, sourceLabel: 'upload.db'),
+    );
+
+    await tester.tap(find.byKey(const Key('sessions-import-button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        '> Browser import requires a standalone SQLite file. WAL-mode OpenCode databases are not supported for single-file uploads yet.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        '> Error ............. operation failed. Check source data or server status.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
     'keeps spotlight ranking aligned with the scoped list across sort toggles',
     (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1440, 2200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
       final cubit = await _buildLoadedCubit(
         sessions: [
           _session(
@@ -474,30 +583,16 @@ void main() {
 
     bool clearFilterCalled = false;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BlocProvider<SessionsCubit>.value(
-            value: cubit,
-            child: SessionsExplorerPanel(
-              serverUrl: Uri.parse('http://localhost:4096'),
-              isConnected: true,
-              onDataChanged: () {},
-              pickImportSource: () async => null,
-              selectedModelFilter: 'gpt-4o',
-              onClearModelFilter: () {
-                clearFilterCalled = true;
-              },
-            ),
-          ),
-        ),
-      ),
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      selectedModelFilter: 'gpt-4o',
+      onClearModelFilter: () {
+        clearFilterCalled = true;
+      },
     );
-
-    await tester.binding.setLocale('en', 'US');
-    await tester.pumpAndSettle();
 
     // The clear filter banner should be visible
     expect(find.text('> Model filter ...... gpt-4o'), findsOneWidget);
@@ -527,27 +622,13 @@ void main() {
     );
     addTearDown(cubit.close);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BlocProvider<SessionsCubit>.value(
-            value: cubit,
-            child: SessionsExplorerPanel(
-              serverUrl: Uri.parse('http://localhost:4096'),
-              isConnected: true,
-              onDataChanged: () {},
-              pickImportSource: () async => null,
-              selectedModelFilter: 'gpt-4o',
-            ),
-          ),
-        ),
-      ),
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      selectedModelFilter: 'gpt-4o',
     );
-
-    await tester.binding.setLocale('en', 'US');
-    await tester.pumpAndSettle();
 
     expect(
       find.text('> No sessions match the active filters.'),
@@ -559,12 +640,6 @@ void main() {
   testWidgets(
     'shows an empty panel when selected day is outside the visible window',
     (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1440, 2200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
       final cubit = await _buildLoadedCubit(
         sessions: [
           _session(
@@ -597,12 +672,6 @@ void main() {
   testWidgets('breaks equal cost and token ties by newer createdAt then id', (
     WidgetTester tester,
   ) async {
-    tester.view.physicalSize = const Size(1440, 2200);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
     final cubit = await _buildLoadedCubit(
       sessions: [
         _session(
@@ -681,27 +750,13 @@ void main() {
     );
     addTearDown(cubit.close);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BlocProvider<SessionsCubit>.value(
-            value: cubit,
-            child: SessionsExplorerPanel(
-              serverUrl: Uri.parse('http://localhost:4096'),
-              isConnected: true,
-              onDataChanged: () {},
-              pickImportSource: () async => null,
-              selectedModelFilter: ' gpt-4o ',
-            ),
-          ),
-        ),
-      ),
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      selectedModelFilter: ' gpt-4o ',
     );
-
-    await tester.binding.setLocale('en', 'US');
-    await tester.pumpAndSettle();
 
     expect(find.textContaining('ses_gpt'), findsWidgets);
     expect(find.textContaining('ses_othe'), findsNothing);
@@ -725,27 +780,13 @@ void main() {
     );
     addTearDown(cubit.close);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BlocProvider<SessionsCubit>.value(
-            value: cubit,
-            child: SessionsExplorerPanel(
-              serverUrl: Uri.parse('http://localhost:4096'),
-              isConnected: true,
-              onDataChanged: () {},
-              pickImportSource: () async => null,
-              selectedDay: DateTime.utc(2026, 5, 8),
-            ),
-          ),
-        ),
-      ),
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      selectedDay: DateTime.utc(2026, 5, 8),
     );
-
-    await tester.binding.setLocale('en', 'US');
-    await tester.pumpAndSettle();
 
     expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
     expect(find.byKey(const Key('sessions-clear-filter')), findsNothing);
@@ -778,28 +819,14 @@ void main() {
     );
     addTearDown(cubit.close);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BlocProvider<SessionsCubit>.value(
-            value: cubit,
-            child: SessionsExplorerPanel(
-              serverUrl: Uri.parse('http://localhost:4096'),
-              isConnected: true,
-              onDataChanged: () {},
-              pickImportSource: () async => null,
-              selectedModelFilter: 'gpt-4o',
-              selectedDay: DateTime.utc(2026, 5, 8),
-            ),
-          ),
-        ),
-      ),
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      selectedModelFilter: 'gpt-4o',
+      selectedDay: DateTime.utc(2026, 5, 8),
     );
-
-    await tester.binding.setLocale('en', 'US');
-    await tester.pumpAndSettle();
 
     expect(find.text('> Model filter ...... gpt-4o'), findsOneWidget);
     expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
@@ -833,29 +860,15 @@ void main() {
     );
     addTearDown(cubit.close);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: BlocProvider<SessionsCubit>.value(
-            value: cubit,
-            child: SessionsExplorerPanel(
-              serverUrl: Uri.parse('http://localhost:4096'),
-              isConnected: true,
-              onDataChanged: () {},
-              pickImportSource: () async => null,
-              selectedModelFilter: 'gpt-4o',
-              selectedDay: DateTime.utc(2026, 5, 8),
-              selectedUtcHour: 9,
-            ),
-          ),
-        ),
-      ),
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      selectedModelFilter: 'gpt-4o',
+      selectedDay: DateTime.utc(2026, 5, 8),
+      selectedUtcHour: 9,
     );
-
-    await tester.binding.setLocale('en', 'US');
-    await tester.pumpAndSettle();
 
     expect(find.text('> Model filter ...... gpt-4o'), findsOneWidget);
     expect(find.text('> Day filter ........ 2026-05-08'), findsOneWidget);
@@ -864,5 +877,325 @@ void main() {
     expect(find.textContaining('ses_h09g'), findsWidgets);
     expect(find.textContaining('ses_h14g'), findsNothing);
     expect(find.textContaining('ses_h09c'), findsNothing);
+  });
+  testWidgets('filters sessions using local metadata search', (
+    WidgetTester tester,
+  ) async {
+    final cubit = await _buildLoadedCubit(
+      sessions: [
+        _session(
+          id: 'test_id',
+          createdAt: DateTime.utc(2026, 5, 8, 12),
+          modelName: 'gpt-4o',
+          subagentCategory: 'test_category_unique',
+        ),
+        _session(
+          id: 'other_id',
+          createdAt: DateTime.utc(2026, 5, 8, 11),
+          modelName: 'claude-3',
+        ),
+      ],
+    );
+    addTearDown(cubit.close);
+
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      wrapInScrollView: true,
+    );
+
+    expect(find.textContaining('test_id'), findsWidgets);
+    expect(find.textContaining('other_id'), findsWidgets);
+    expect(find.text('> Results ........... 2'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('sessions-search-field')),
+      'test_category_unique',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('test_id'), findsWidgets);
+    expect(find.textContaining('other_id'), findsNothing);
+    expect(find.text('> Results ........... 1'), findsOneWidget);
+
+    // Test zero-results search
+    await tester.enterText(
+      find.byKey(const Key('sessions-search-field')),
+      'something_that_will_never_match',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('test_id'), findsNothing);
+    expect(find.textContaining('other_id'), findsNothing);
+    expect(find.text('> Results ........... 0'), findsOneWidget);
+    expect(
+      find.text('> No sessions match the active filters.'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('sessions-search-clear-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('test_id'), findsWidgets);
+    expect(find.textContaining('other_id'), findsWidgets);
+    expect(find.text('> Results ........... 2'), findsOneWidget);
+  });
+
+  testWidgets(
+    'SessionsExplorerPanel constrained-width spotlight/search/filter regression',
+    (tester) async {
+      final cubit = await _buildLoadedCubit();
+      addTearDown(cubit.close);
+
+      tester.view.physicalSize = const Size(500, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: BlocProvider<SessionsCubit>.value(
+              value: cubit,
+              child: SingleChildScrollView(
+                child: SessionsExplorerPanel(
+                  isConnected: true,
+                  onDataChanged: () {},
+                  pickImportSource: () async => null,
+                  selectedModelFilter: 'model',
+                  selectedDay: DateTime.utc(2025, 1, 1),
+                  selectedUtcHour: 12,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(SessionsExplorerPanel), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'SessionsExplorerPanel wide layout stacks explorer above full-width records and enlarges spotlight pie',
+    (tester) async {
+      final cubit = await _buildLoadedCubit(
+        sessions: [_session(id: '1', createdAt: DateTime.now())],
+      );
+      addTearDown(cubit.close);
+
+      tester.view.physicalSize = const Size(1440, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: BlocProvider<SessionsCubit>.value(
+              value: cubit,
+              child: SessionsExplorerPanel(
+                isConnected: true,
+                onDataChanged: () {},
+                pickImportSource: () async => null,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final listColumn = find.byKey(const Key('sessions-list-column'));
+      final sidebarColumn = find.byKey(const Key('sessions-sidebar-column'));
+      final panel = find.byKey(const Key('sessions-panel'));
+      final spotlightPie = find.byKey(const Key('sessions-top-model-pie'));
+
+      expect(panel, findsOneWidget);
+      expect(listColumn, findsOneWidget);
+      expect(sidebarColumn, findsOneWidget);
+      expect(spotlightPie, findsOneWidget);
+
+      final panelRect = tester.getRect(panel);
+      final sidebarRect = tester.getRect(sidebarColumn);
+      final listRect = tester.getRect(listColumn);
+      final pieSize = tester.getSize(spotlightPie);
+
+      expect(sidebarRect.top, lessThan(listRect.top));
+      expect(listRect.left, closeTo(panelRect.left + 8, 1));
+      expect(listRect.width, greaterThan(panelRect.width * 0.9));
+      expect(pieSize.height, greaterThan(300));
+
+      expect(
+        find.descendant(
+          of: listColumn,
+          matching: find.byKey(const Key('sessions-list-header')),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: listColumn,
+          matching: find.byKey(const Key('sessions-search-field')),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: listColumn,
+          matching: find.byKey(const Key('sessions-search-results-count')),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: listColumn,
+          matching: find.byKey(const Key('sessions-list')),
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.descendant(
+          of: sidebarColumn,
+          matching: find.byKey(const Key('sessions-spotlight-panel')),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'SessionsExplorerPanel row-hierarchy displays tested substrings',
+    (tester) async {
+      final cubit = await _buildLoadedCubit(
+        sessions: [
+          _session(
+            id: 'test_session_id',
+            createdAt: DateTime.utc(2026, 5, 8, 12),
+            modelName: 'gpt-4o',
+            inputTokens: 1000,
+            outputTokens: 500,
+            totalCostUsd: 0.1234,
+          ),
+        ],
+      );
+      addTearDown(cubit.close);
+
+      await _pumpPanel(tester, cubit: cubit, isConnected: true);
+
+      expect(find.textContaining('ID: test_ses'), findsWidgets);
+      expect(find.textContaining('gpt-4o • 1.5K TOK'), findsWidgets);
+      expect(find.textContaining('USD 0.1234'), findsWidgets);
+    },
+  );
+
+  testWidgets(
+    'SessionsExplorerPanel search field maintains filled decoration and semantics',
+    (WidgetTester tester) async {
+      final cubit = await _buildLoadedCubit();
+      addTearDown(cubit.close);
+
+      await _pumpPanel(
+        tester,
+        cubit: cubit,
+        isConnected: true,
+        wrapInScrollView: true,
+      );
+
+      final textField = tester.widget<TextField>(
+        find.byKey(const Key('sessions-search-field')),
+      );
+      final decoration = textField.decoration!;
+      expect(decoration.filled, isTrue);
+      expect(
+        decoration.fillColor,
+        const Color(0xFF0D0E10),
+      ); // dashboardBackgroundColor
+      expect(decoration.isDense, isTrue);
+
+      final enabledBorder = decoration.enabledBorder as OutlineInputBorder;
+      expect(
+        enabledBorder.borderSide.color,
+        const Color(0xFF2B2D31),
+      ); // dashboardBorderColor
+      expect(enabledBorder.borderRadius, BorderRadius.circular(4.0));
+
+      final focusedBorder = decoration.focusedBorder as OutlineInputBorder;
+      expect(
+        focusedBorder.borderSide.color,
+        const Color(0xFF3B82F6),
+      ); // dashboardAccentColor
+      expect(focusedBorder.borderRadius, BorderRadius.circular(4.0));
+    },
+  );
+
+  testWidgets('SessionsExplorerPanel phase 11 focused regressions', (
+    tester,
+  ) async {
+    final cubit = await _buildLoadedCubit();
+    addTearDown(cubit.close);
+
+    // 1. Polished empty list panel preserving disconnected text while sessions-list is absent
+    await _pumpPanel(tester, cubit: cubit, isConnected: false);
+    expect(
+      find.text(
+        '> No cached sessions found. Connect to the local server or import data to begin.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('sessions-list')), findsNothing);
+
+    // 2. Spotlight fallback distinction between scoped-empty and globally-empty states
+    expect(
+      find.text('> Ranked evidence unavailable.'),
+      findsOneWidget,
+    ); // globally-empty
+
+    // 3. Wide layout still showing cached history and last operation in the sidebar after the polish
+    expect(find.text('-- CACHED HISTORY --'), findsOneWidget);
+    expect(find.text('-- LAST OPERATION --'), findsOneWidget);
+  });
+
+  testWidgets('clears local status message on load transition', (
+    WidgetTester tester,
+  ) async {
+    final cubit = await _buildLoadedCubit();
+    addTearDown(cubit.close);
+
+    await _pumpPanel(
+      tester,
+      cubit: cubit,
+      isConnected: true,
+      serverUrl: Uri.parse('http://localhost:4096'),
+      pickImportSource: () async => ImportSelection.json(
+        '[{"id":"ses_imported","createdAt":"2026-05-08T12:00:00Z","modelName":"o4-mini","inputTokens":10,"outputTokens":5,"totalCostUsd":0.05}]',
+        sourceLabel: 'test.json',
+      ),
+    );
+
+    // Initial empty state
+    expect(find.text('> Import completed successfully.'), findsNothing);
+
+    // Simulate an import success
+    await tester.tap(find.byKey(const Key('sessions-import-button')));
+    await tester.pumpAndSettle();
+
+    // Status message should be visible
+    expect(find.text('> Import completed successfully.'), findsOneWidget);
+
+    // Trigger a load which causes isLoading = true
+    await cubit.load();
+
+    // The success message should be cleared immediately when loading starts
+    await tester.pumpAndSettle();
+    expect(find.text('> Import completed successfully.'), findsNothing);
   });
 }

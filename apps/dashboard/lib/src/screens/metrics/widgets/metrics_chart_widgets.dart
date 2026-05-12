@@ -7,6 +7,7 @@ import 'package:openspent_core/openspent_core.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../theme/dashboard_colors.dart';
 import '../metrics_utils.dart';
+import '../../dashboard/widgets/dashboard_surface.dart';
 
 class SpendTrendChart extends StatelessWidget {
   const SpendTrendChart({
@@ -24,11 +25,14 @@ class SpendTrendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (dailyBreakdown.isEmpty || visibleDays.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Text(
-          l10n.spendTrendUnavailable,
-          style: Theme.of(context).textTheme.bodyLarge,
+      return DashboardSurface(
+        child: Center(
+          child: Text(
+            l10n.spendTrendUnavailable,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: dashboardSecondaryTextColor),
+          ),
         ),
       );
     }
@@ -72,7 +76,7 @@ class SpendTrendChart extends StatelessWidget {
           ),
         SizedBox(
           key: const Key('metrics-spend-daily-chart'),
-          height: 120,
+          height: 320,
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
@@ -240,7 +244,7 @@ class HourlySpendChart extends StatelessWidget {
         const SizedBox(height: 8),
         SizedBox(
           key: chartKey ?? const Key('metrics-spend-hourly-chart'),
-          height: 120,
+          height: 320,
           child: Stack(
             children: [
               BarChart(
@@ -357,13 +361,10 @@ class HourlySpendChart extends StatelessWidget {
                 Positioned.fill(
                   child: Row(
                     children: List.generate(24, (index) {
-                      return Expanded(
-                        child: GestureDetector(
-                          key: Key('metrics-hour-test-$index'),
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => onHourSelected!(index),
-                          child: Container(),
-                        ),
+                      return _HourTarget(
+                        index: index,
+                        isSelected: index == selectedUtcHour,
+                        onTap: () => onHourSelected!(index),
                       );
                     }),
                   ),
@@ -390,11 +391,14 @@ class TokenTrendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (dailyBreakdown.isEmpty || visibleDays.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Text(
-          l10n.tokenTrendUnavailable,
-          style: Theme.of(context).textTheme.bodyLarge,
+      return DashboardSurface(
+        child: Center(
+          child: Text(
+            l10n.tokenTrendUnavailable,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: dashboardSecondaryTextColor),
+          ),
         ),
       );
     }
@@ -422,7 +426,7 @@ class TokenTrendChart extends StatelessWidget {
 
     return SizedBox(
       key: const Key('metrics-tokens-daily-chart'),
-      height: 120,
+      height: 320,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
@@ -549,7 +553,7 @@ class HourlyTokenChart extends StatelessWidget {
         const SizedBox(height: 8),
         SizedBox(
           key: chartKey ?? const Key('metrics-tokens-hourly-chart'),
-          height: 120,
+          height: 320,
           child: Stack(
             children: [
               BarChart(
@@ -629,13 +633,10 @@ class HourlyTokenChart extends StatelessWidget {
                 Positioned.fill(
                   child: Row(
                     children: List.generate(24, (index) {
-                      return Expanded(
-                        child: GestureDetector(
-                          key: Key('metrics-hour-test-$index'),
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => onHourSelected!(index),
-                          child: Container(),
-                        ),
+                      return _HourTarget(
+                        index: index,
+                        isSelected: index == selectedUtcHour,
+                        onTap: () => onHourSelected!(index),
                       );
                     }),
                   ),
@@ -674,11 +675,14 @@ class ModelSpendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (perModelDailyBreakdown.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 12),
-        child: Text(
-          l10n.modelSpendUnavailable,
-          style: Theme.of(context).textTheme.bodyLarge,
+      return DashboardSurface(
+        child: Center(
+          child: Text(
+            l10n.modelSpendUnavailable,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: dashboardSecondaryTextColor),
+          ),
         ),
       );
     }
@@ -759,6 +763,7 @@ class ModelSpendChart extends StatelessWidget {
         ModelUsagePieChart(
           usageByModel: usageByModel,
           chartKey: const Key('metrics-model-usage-pie'),
+          expanded: true,
         ),
         const SizedBox(height: 16),
         for (final item in aggregated) _buildItem(context, item),
@@ -784,97 +789,113 @@ class ModelSpendChart extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: GestureDetector(
-        key: Key('model-filter-${item.name}'),
-        onTap: () => onModelSelected(isSelected ? null : item.name),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isSelected ? dashboardBorderColor : Colors.transparent,
-            border: Border.all(
-              color: isSelected
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            key: Key('model-filter-${item.name}'),
+            onTap: () => onModelSelected(isSelected ? null : item.name),
+            hoverColor: dashboardPrimaryTextColor.withValues(alpha: 0.05),
+            focusColor: dashboardPrimaryTextColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(4.0),
+            child: DashboardSurface(
+              padding: const EdgeInsets.all(12),
+              highlight: isSelected,
+              backgroundColor: Colors.transparent,
+              borderColor: isSelected
                   ? dashboardPrimaryTextColor
                   : dashboardBorderColor,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '[ ${item.name} ]',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isSelected
-                      ? dashboardPrimaryTextColor
-                      : dashboardSecondaryTextColor,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.modelCostShareTrend(
-                  currencyCode,
-                  item.totalCost.toStringAsFixed(2),
-                  share,
-                  item.trend,
-                ),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: isSelected
-                      ? dashboardPrimaryTextColor
-                      : dashboardSecondaryTextColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l10n.modelTokensSessions(item.totalTokens, item.totalSessions),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: isSelected
-                      ? dashboardPrimaryTextColor
-                      : dashboardSecondaryTextColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                costPerMillion,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: isSelected
-                      ? dashboardPrimaryTextColor
-                      : dashboardSecondaryTextColor,
-                ),
-              ),
-              if (selectedDay != null && item.selectedDayCost != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  l10n.modelSelectedDayMetrics(
-                    currencyCode,
-                    item.selectedDayCost!.toStringAsFixed(2),
-                    item.selectedDayTokens ?? 0,
-                    item.selectedDaySessions ?? 0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '[ ${item.name} ]',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: isSelected
+                          ? dashboardPrimaryTextColor
+                          : dashboardSecondaryTextColor,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.normal,
+                    ),
                   ),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: isSelected
-                        ? dashboardPrimaryTextColor
-                        : dashboardSecondaryTextColor,
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.modelCostShareTrend(
+                      currencyCode,
+                      item.totalCost.toStringAsFixed(2),
+                      share,
+                      item.trend,
+                    ),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: isSelected
+                          ? dashboardPrimaryTextColor
+                          : dashboardSecondaryTextColor,
+                    ),
                   ),
-                ),
-                if (showSelectedModelHourlyCharts) ...[
-                  const SizedBox(height: 12),
-                  HourlySpendChart(
-                    hourlyBreakdown: modelHourly,
-                    selectedDay: selectedDay!,
-                    title: l10n.metricsModelHourlySpend,
-                    chartKey: const Key('metrics-model-hourly-spend-chart'),
-                    displayCurrency: currencyCode,
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.modelTokensSessions(
+                      compactNumber(item.totalTokens.toDouble()),
+                      compactNumber(item.totalSessions.toDouble()),
+                    ),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: isSelected
+                          ? dashboardPrimaryTextColor
+                          : dashboardSecondaryTextColor,
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  HourlyTokenChart(
-                    hourlyBreakdown: modelHourly,
-                    selectedDay: selectedDay!,
-                    title: l10n.metricsModelHourlyTokens,
-                    chartKey: const Key('metrics-model-hourly-tokens-chart'),
+                  const SizedBox(height: 4),
+                  Text(
+                    costPerMillion,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: isSelected
+                          ? dashboardPrimaryTextColor
+                          : dashboardSecondaryTextColor,
+                    ),
                   ),
+                  if (selectedDay != null && item.selectedDayCost != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.modelSelectedDayMetrics(
+                        currencyCode,
+                        item.selectedDayCost!.toStringAsFixed(2),
+                        compactNumber((item.selectedDayTokens ?? 0).toDouble()),
+                        compactNumber(
+                          (item.selectedDaySessions ?? 0).toDouble(),
+                        ),
+                      ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: isSelected
+                            ? dashboardPrimaryTextColor
+                            : dashboardSecondaryTextColor,
+                      ),
+                    ),
+                    if (showSelectedModelHourlyCharts) ...[
+                      const SizedBox(height: 12),
+                      HourlySpendChart(
+                        hourlyBreakdown: modelHourly,
+                        selectedDay: selectedDay!,
+                        title: l10n.metricsModelHourlySpend,
+                        chartKey: const Key('metrics-model-hourly-spend-chart'),
+                        displayCurrency: currencyCode,
+                      ),
+                      const SizedBox(height: 16),
+                      HourlyTokenChart(
+                        hourlyBreakdown: modelHourly,
+                        selectedDay: selectedDay!,
+                        title: l10n.metricsModelHourlyTokens,
+                        chartKey: const Key(
+                          'metrics-model-hourly-tokens-chart',
+                        ),
+                      ),
+                    ],
+                  ],
                 ],
-              ],
-            ],
+              ),
+            ),
           ),
         ),
       ),
@@ -887,9 +908,31 @@ class ModelUsagePieChart extends StatelessWidget {
     super.key,
     required this.usageByModel,
     this.chartKey,
+    this.expanded = false,
   });
   final Map<String, int> usageByModel;
   final Key? chartKey;
+  final bool expanded;
+
+  List<Color> _deriveMonochromeShades(int count) {
+    if (count <= 0) return [];
+    final colors = <Color>[
+      dashboardAccentColor,
+      dashboardPrimaryTextColor,
+      dashboardSecondaryTextColor,
+      dashboardSecondaryTextColor.withValues(alpha: 0.7),
+      dashboardSecondaryTextColor.withValues(alpha: 0.5),
+      dashboardBorderColor,
+      dashboardSurfaceHighlightColor,
+    ];
+    if (count <= colors.length) return colors.sublist(0, count);
+
+    final result = List<Color>.from(colors);
+    for (var i = colors.length; i < count; i++) {
+      result.add(dashboardBorderColor.withValues(alpha: 0.5 - (0.1 * (i % 3))));
+    }
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -899,89 +942,150 @@ class ModelUsagePieChart extends StatelessWidget {
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = sorted.fold<int>(0, (sum, e) => sum + e.value);
 
-    // Pick distinct grays/monochrome colors
-    final colors = [
-      const Color(0xFFFFFFFF),
-      const Color(0xFFD4D4D8),
-      const Color(0xFFA1A1AA),
-      const Color(0xFF71717A),
-      const Color(0xFF52525B),
-      const Color(0xFF3F3F46),
-      const Color(0xFF27272A),
-    ];
+    final colors = _deriveMonochromeShades(sorted.length);
+    final l10n = AppLocalizations.of(context)!;
 
-    return SizedBox(
-      key: chartKey,
-      height: 100,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 2,
-                centerSpaceRadius: 16,
-                sections: List.generate(sorted.length, (i) {
-                  final entry = sorted[i];
-                  final value = entry.value;
-                  final percentage = total == 0 ? 0.0 : (value / total) * 100;
-                  return PieChartSectionData(
-                    color: colors[i % colors.length],
-                    value: percentage,
-                    title: percentage > 5
-                        ? '${percentage.toStringAsFixed(0)}%'
-                        : '',
-                    radius: 24,
-                    titleStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF000000),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  );
-                }),
-              ),
-            ),
+    final maxLegendItems = 5;
+    final showOverflow = sorted.length > maxLegendItems;
+    final legendItems = showOverflow
+        ? sorted.sublist(0, maxLegendItems)
+        : sorted;
+    final overflowCount = showOverflow ? sorted.length - maxLegendItems : 0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 600;
+        final height = expanded
+            ? (isNarrow ? 400.0 : 360.0)
+            : (isNarrow ? 300.0 : 240.0);
+        final radius = expanded
+            ? (isNarrow ? 60.0 : 100.0)
+            : (isNarrow ? 45.0 : 70.0);
+        final centerSpaceRadius = expanded
+            ? (isNarrow ? 40.0 : 80.0)
+            : (isNarrow ? 30.0 : 50.0);
+
+        final pieWidget = PieChart(
+          PieChartData(
+            sectionsSpace: 2,
+            centerSpaceRadius: centerSpaceRadius,
+            sections: List.generate(sorted.length, (i) {
+              final entry = sorted[i];
+              final value = entry.value;
+              final percentage = total == 0 ? 0.0 : (value / total) * 100;
+              return PieChartSectionData(
+                color: colors[i],
+                value: percentage,
+                title: percentage > 5
+                    ? '${percentage.toStringAsFixed(0)}%'
+                    : '',
+                radius: radius,
+                titleStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: dashboardBackgroundColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+              );
+            }),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 3,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(math.min(sorted.length, 6), (i) {
-                  final entry = sorted[i];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          color: colors[i % colors.length],
+        );
+
+        final legendWidget = SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...List.generate(legendItems.length, (i) {
+                final entry = legendItems[i];
+                final percentage = total == 0
+                    ? 0.0
+                    : (entry.value / total) * 100;
+                final formattedValue = compactNumber(entry.value.toDouble());
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        margin: const EdgeInsets.only(top: 2),
+                        decoration: BoxDecoration(
+                          color: colors[i],
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            style: Theme.of(context).textTheme.bodySmall,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: dashboardPrimaryTextColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${percentage.toStringAsFixed(1)}% • $formattedValue',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: dashboardSecondaryTextColor,
+                                  ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              if (showOverflow)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    l10n.pieLegendOverflow(overflowCount),
+                    key: const Key('metrics-pie-legend-overflow'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: dashboardSecondaryTextColor,
+                      fontStyle: FontStyle.italic,
                     ),
-                  );
-                }),
-              ),
-            ),
+                  ),
+                ),
+            ],
           ),
-        ],
-      ),
+        );
+
+        return DashboardSurface(
+          key: chartKey,
+          child: SizedBox(
+            height: height,
+            child: isNarrow
+                ? Column(
+                    children: [
+                      Expanded(child: pieWidget),
+                      const SizedBox(height: 16),
+                      Expanded(child: legendWidget),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(flex: 2, child: pieWidget),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 3, child: legendWidget),
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 }
-
 
 class _ModelData {
   _ModelData(
@@ -1003,4 +1107,129 @@ class _ModelData {
   final double? selectedDayCost;
   final int? selectedDayTokens;
   final int? selectedDaySessions;
+}
+
+class _HourTarget extends StatelessWidget {
+  const _HourTarget({
+    required this.index,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final int index;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Semantics(
+        selected: isSelected,
+        value: formatHourLabel(index),
+        button: true,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            key: Key('metrics-hour-test-$index'),
+            onTap: onTap,
+            hoverColor: dashboardPrimaryTextColor.withValues(alpha: 0.05),
+            focusColor: dashboardPrimaryTextColor.withValues(alpha: 0.1),
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProvidersUsageChart extends StatelessWidget {
+  const ProvidersUsageChart({super.key, required this.providerBreakdowns});
+
+  final Map<String, MonetizedUsageBreakdown> providerBreakdowns;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+
+    final usageByProvider = <String, int>{};
+    for (final entry in providerBreakdowns.entries) {
+      final base = entry.value.baseMetrics;
+      final tokens = totalTokens(base.inputTokens, base.outputTokens);
+      if (tokens > 0) {
+        usageByProvider[entry.key] = tokens;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.providersUsageChartTitle, style: textTheme.bodyMedium),
+        const SizedBox(height: 12),
+        ModelUsagePieChart(
+          usageByModel: usageByProvider,
+          chartKey: const Key('metrics-providers-usage-pie'),
+          expanded: true,
+        ),
+      ],
+    );
+  }
+}
+
+class ProvidersPriceChart extends StatelessWidget {
+  const ProvidersPriceChart({
+    super.key,
+    required this.providerBreakdowns,
+    required this.displayCurrency,
+  });
+
+  final Map<String, MonetizedUsageBreakdown> providerBreakdowns;
+  final String displayCurrency;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+
+    final validCostsByProvider = <String, double>{};
+    final missingProviders = <String>[];
+
+    for (final entry in providerBreakdowns.entries) {
+      final cost = entry.value.displayTotalCost;
+      if (cost != null) {
+        if (cost > 0) {
+          validCostsByProvider[entry.key] = cost;
+        }
+      } else {
+        missingProviders.add(entry.key);
+      }
+    }
+
+    final usageByCostInt = <String, int>{};
+    for (final entry in validCostsByProvider.entries) {
+      usageByCostInt[entry.key] = (entry.value * 100).round();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.providersPriceChartTitle, style: textTheme.bodyMedium),
+        const SizedBox(height: 12),
+        if (usageByCostInt.isNotEmpty)
+          ModelUsagePieChart(
+            usageByModel: usageByCostInt,
+            chartKey: const Key('metrics-providers-price-pie'),
+            expanded: true,
+          ),
+        if (missingProviders.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          for (final provider in missingProviders)
+            Text(
+              l10n.providersPriceUnavailable(provider),
+              style: textTheme.bodyLarge,
+            ),
+        ],
+      ],
+    );
+  }
 }

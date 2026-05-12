@@ -64,6 +64,34 @@ flutter run -d macos
 
 The website package contains the Jaspr static app for the marketing site, complete with Tailwind, static EN/CS localization, and a production Dockerfile.
 
+## Combined Web Container
+
+The repo root now includes a combined web deployment container that builds both web apps and serves them from a single nginx document root:
+
+- marketing site at `/`
+- dashboard web app at `/demo/`
+
+Build the combined image from the repository root:
+
+```bash
+docker build -t openspent-web .
+```
+
+Run it locally:
+
+```bash
+docker run --rm -p 8080:80 openspent-web
+```
+
+Then open:
+
+- `http://localhost:8080/` for the marketing site
+- `http://localhost:8080/demo/` for the dashboard
+
+This root Dockerfile builds the Jaspr website and the Flutter dashboard web app, including `flutter build web --release --base-href /demo/`, and copies the dashboard output into a real `demo/` subdirectory under nginx's web root.
+
+If you enable browser-origin CORS for the OpenCode server, allow the page origin only. Do not include `/demo` in the `--cors` origin value. For local use, allow `http://localhost:8080`, not `http://localhost:8080/demo/`.
+
 ## Troubleshooting
 
 - If the dashboard shows `Disconnected` during development, make sure the OpenCode API server is running locally.

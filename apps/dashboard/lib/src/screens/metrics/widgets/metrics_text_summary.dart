@@ -5,6 +5,56 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../theme/dashboard_colors.dart';
 import 'metrics_chart_widgets.dart';
 import '../metrics_utils.dart';
+import '../../dashboard/widgets/dashboard_surface.dart';
+
+class _InlineActionText extends StatefulWidget {
+  const _InlineActionText({
+    super.key,
+    required this.text,
+    required this.style,
+    required this.onTap,
+  });
+
+  final String text;
+  final TextStyle? style;
+  final VoidCallback onTap;
+
+  @override
+  State<_InlineActionText> createState() => _InlineActionTextState();
+}
+
+class _InlineActionTextState extends State<_InlineActionText> {
+  bool _isFocused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      enabled: true,
+      child: FocusableActionDetector(
+        onShowFocusHighlight: (v) => setState(() => _isFocused = v),
+        mouseCursor: SystemMouseCursors.click,
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) => widget.onTap(),
+          ),
+        },
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: _isFocused
+                  ? dashboardPrimaryTextColor.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(widget.text, style: widget.style),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class MetricsTextSummary extends StatelessWidget {
   const MetricsTextSummary({
@@ -147,309 +197,318 @@ class MetricsTextSummary extends StatelessWidget {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.overallSection, style: textTheme.bodyMedium),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6, top: 6),
-          child: Text(
-            l10n.lineTotalCost(
-              displayCurrency,
-              metrics.displayTotalCost.toStringAsFixed(2),
-            ),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineRollingAvgCost(
-              displayCurrency,
-              rollingAvgCost.toStringAsFixed(2),
-            ),
-            key: const Key('metrics-rolling-cost-line'),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineRollingAvgTokens(rollingAvgTokens.toString()),
-            key: const Key('metrics-rolling-tokens-line'),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.linePaceForecast(
-              displayCurrency,
-              paceForecast.toStringAsFixed(2),
-            ),
-            key: const Key('metrics-pace-line'),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineSessions(base.totalSessionCount),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineInputTokens(base.totalInputTokens),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineOutputTokens(base.totalOutputTokens),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineTotalTokens(totalTokensValue),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            l10n.lineAvgTokensPerSession(
-              formatAverageTokensPerSession(
-                totalTokensValue: totalTokensValue,
-                sessionCount: base.totalSessionCount,
-              ),
-            ),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Text(
-            l10n.lineCostPerMillionTokens(
-              displayCurrency,
-              formatCostPerMillion(
-                totalCost: metrics.displayTotalCost,
-                totalTokensValue: totalTokensValue,
-              ),
-            ),
-            style: textTheme.bodyLarge,
-          ),
-        ),
-        if (topMoverName.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: GestureDetector(
-              key: const Key('metrics-top-mover-line'),
-              onTap: () => onModelSelected(
-                selectedModelFilter == topMoverName ? null : topMoverName,
-              ),
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Text(
-                  l10n.lineTopMover(
-                    topMoverName,
-                    topMoverDelta >= 0 ? '+' : '',
-                    displayCurrency,
-                    topMoverDelta.abs().toStringAsFixed(2),
-                  ),
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: selectedModelFilter == topMoverName
-                        ? dashboardBorderColor
-                        : null,
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 600;
+            return Flex(
+              direction: isNarrow ? Axis.vertical : Axis.horizontal,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: isNarrow ? 0 : 1,
+                  child: DashboardSurface(
+                    key: const Key('metrics-summary-overview-surface'),
+                    padding: const EdgeInsets.all(
+                      DashboardSpacing.primaryPanelPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.overallSection, style: textTheme.bodyMedium),
+                        const SizedBox(height: DashboardSpacing.controlGap),
+                        Text(
+                          l10n.lineTotalCost(
+                            displayCurrency,
+                            metrics.displayTotalCost.toStringAsFixed(2),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineRollingAvgCost(
+                            displayCurrency,
+                            rollingAvgCost.toStringAsFixed(2),
+                          ),
+                          key: const Key('metrics-rolling-cost-line'),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineRollingAvgTokens(
+                            compactNumber(rollingAvgTokens.toDouble()),
+                          ),
+                          key: const Key('metrics-rolling-tokens-line'),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.linePaceForecast(
+                            displayCurrency,
+                            paceForecast.toStringAsFixed(2),
+                          ),
+                          key: const Key('metrics-pace-line'),
+                          style: textTheme.bodyLarge,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          )
-        else
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Text(
-              l10n.lineTopMoverEmpty,
-              key: const Key('metrics-top-mover-line-empty'),
-              style: textTheme.bodyLarge,
-            ),
-          ),
+                if (!isNarrow)
+                  const SizedBox(width: DashboardSpacing.nestedPanelPadding),
+                if (isNarrow)
+                  const SizedBox(height: DashboardSpacing.nestedPanelPadding),
+                Expanded(
+                  flex: isNarrow ? 0 : 1,
+                  child: DashboardSurface(
+                    padding: const EdgeInsets.all(
+                      DashboardSpacing.primaryPanelPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.lineSessions(base.totalSessionCount),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineInputTokens(
+                            compactNumber(base.totalInputTokens.toDouble()),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineOutputTokens(
+                            compactNumber(base.totalOutputTokens.toDouble()),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineTotalTokens(
+                            compactNumber(totalTokensValue.toDouble()),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineAvgTokensPerSession(
+                            formatAverageTokensPerSession(
+                              totalTokensValue: totalTokensValue,
+                              sessionCount: base.totalSessionCount,
+                            ),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineCostPerMillionTokens(
+                            displayCurrency,
+                            formatCostPerMillion(
+                              totalCost: metrics.displayTotalCost,
+                              totalTokensValue: totalTokensValue,
+                            ),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 16),
+                        if (topMoverName.isNotEmpty)
+                          _InlineActionText(
+                            key: const Key('metrics-top-mover-line'),
+                            onTap: () => onModelSelected(
+                              selectedModelFilter == topMoverName
+                                  ? null
+                                  : topMoverName,
+                            ),
+                            text: l10n.lineTopMover(
+                              topMoverName,
+                              topMoverDelta >= 0 ? '+' : '',
+                              displayCurrency,
+                              topMoverDelta.abs().toStringAsFixed(2),
+                            ),
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: selectedModelFilter == topMoverName
+                                  ? dashboardBorderColor
+                                  : dashboardAccentColor,
+                            ),
+                          )
+                        else
+                          Text(
+                            l10n.lineTopMoverEmpty,
+                            key: const Key('metrics-top-mover-line-empty'),
+                            style: textTheme.bodyLarge,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
         if (usageByModel.isNotEmpty) ...[
+          const SizedBox(height: DashboardSpacing.majorSectionGap),
           Text(l10n.modelsTab, style: textTheme.bodyMedium),
-          const SizedBox(height: 12),
+          const SizedBox(height: DashboardSpacing.controlGap),
           ModelUsagePieChart(
+            expanded: true,
             usageByModel: usageByModel,
             chartKey: const Key('metrics-summary-model-pie'),
           ),
-          const SizedBox(height: 16),
         ],
         if (from != null && to != null) ...[
-          if (priorMetrics != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                l10n.comparePriorWindow(
-                  '${formatDateKey(from!.subtract(Duration(days: to!.difference(from!).inDays + 1)))} - ${formatDateKey(from!.subtract(const Duration(days: 1)))}',
-                ),
-                key: const Key('metrics-compare-prior-window'),
-                style: textTheme.bodyLarge,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                l10n.compareSummary(
-                  (metrics.displayTotalCost - priorMetrics!.displayTotalCost) >=
-                          0
-                      ? '+'
-                      : '-',
-                  displayCurrency,
-                  (metrics.displayTotalCost - priorMetrics!.displayTotalCost)
-                      .abs()
-                      .toStringAsFixed(2),
-                ),
-                key: const Key('metrics-compare-total-line'),
-                style: textTheme.bodyLarge,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                l10n.compareDeltaSessions(
-                  (metrics.baseMetrics.totalSessionCount -
-                              priorMetrics!.baseMetrics.totalSessionCount) >=
-                          0
-                      ? '+'
-                      : '-',
-                  (metrics.baseMetrics.totalSessionCount -
-                          priorMetrics!.baseMetrics.totalSessionCount)
-                      .abs(),
-                ),
-                key: const Key('metrics-compare-sessions-line'),
-                style: textTheme.bodyLarge,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                l10n.compareDeltaTokens(
-                  (totalTokensValue -
+          const SizedBox(height: DashboardSpacing.majorSectionGap),
+          DashboardSurface(
+            key: const Key('metrics-summary-compare-surface'),
+            padding: const EdgeInsets.all(DashboardSpacing.primaryPanelPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (priorMetrics != null) ...[
+                  Text(
+                    l10n.comparePriorWindow(
+                      '${formatDateKey(from!.subtract(Duration(days: to!.difference(from!).inDays + 1)))} - ${formatDateKey(from!.subtract(const Duration(days: 1)))}',
+                    ),
+                    key: const Key('metrics-compare-prior-window'),
+                    style: textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: DashboardSpacing.controlGap),
+                  Text(
+                    l10n.compareSummary(
+                      (metrics.displayTotalCost -
+                                  priorMetrics!.displayTotalCost) >=
+                              0
+                          ? '+'
+                          : '-',
+                      displayCurrency,
+                      (metrics.displayTotalCost -
+                              priorMetrics!.displayTotalCost)
+                          .abs()
+                          .toStringAsFixed(2),
+                    ),
+                    key: const Key('metrics-compare-total-line'),
+                    style: textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.compareDeltaSessions(
+                      (metrics.baseMetrics.totalSessionCount -
+                                  priorMetrics!
+                                      .baseMetrics
+                                      .totalSessionCount) >=
+                              0
+                          ? '+'
+                          : '-',
+                      (metrics.baseMetrics.totalSessionCount -
+                              priorMetrics!.baseMetrics.totalSessionCount)
+                          .abs(),
+                    ),
+                    key: const Key('metrics-compare-sessions-line'),
+                    style: textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.compareDeltaTokens(
+                      (totalTokensValue -
+                                  totalTokens(
+                                    priorMetrics!.baseMetrics.totalInputTokens,
+                                    priorMetrics!.baseMetrics.totalOutputTokens,
+                                  )) >=
+                              0
+                          ? '+'
+                          : '-',
+                      (totalTokensValue -
                               totalTokens(
                                 priorMetrics!.baseMetrics.totalInputTokens,
                                 priorMetrics!.baseMetrics.totalOutputTokens,
-                              )) >=
-                          0
-                      ? '+'
-                      : '-',
-                  (totalTokensValue -
-                          totalTokens(
-                            priorMetrics!.baseMetrics.totalInputTokens,
-                            priorMetrics!.baseMetrics.totalOutputTokens,
-                          ))
-                      .abs(),
-                ),
-                key: const Key('metrics-compare-tokens-line'),
-                style: textTheme.bodyLarge,
-              ),
-            ),
-            Builder(
-              builder: (context) {
-                final priorTokens = totalTokens(
-                  priorMetrics!.baseMetrics.totalInputTokens,
-                  priorMetrics!.baseMetrics.totalOutputTokens,
-                );
-                final decomp = decomposeCompareDelta(
-                  currentSessions: metrics.baseMetrics.totalSessionCount,
-                  currentTokens: totalTokensValue,
-                  currentCost: metrics.displayTotalCost,
-                  priorSessions: priorMetrics!.baseMetrics.totalSessionCount,
-                  priorTokens: priorTokens,
-                  priorCost: priorMetrics!.displayTotalCost,
-                );
-
-                if (decomp == null) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(
-                      l10n.compareSplitUnavailable,
-                      key: const Key('metrics-compare-split-unavailable'),
-                      style: textTheme.bodyLarge,
+                              ))
+                          .abs(),
                     ),
-                  );
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        l10n.compareSplitSessions(
-                          decomp.splitSessions >= 0 ? '+' : '-',
-                          displayCurrency,
-                          decomp.splitSessions.abs().toStringAsFixed(2),
-                        ),
-                        key: const Key('metrics-compare-split-sessions-line'),
-                        style: textTheme.bodyLarge,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        l10n.compareSplitAvg(
-                          decomp.splitAvg >= 0 ? '+' : '-',
-                          displayCurrency,
-                          decomp.splitAvg.abs().toStringAsFixed(2),
-                        ),
-                        key: const Key('metrics-compare-split-avg-line'),
-                        style: textTheme.bodyLarge,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        l10n.compareSplitCost(
-                          decomp.splitCost >= 0 ? '+' : '-',
-                          displayCurrency,
-                          decomp.splitCost.abs().toStringAsFixed(2),
-                        ),
-                        key: const Key('metrics-compare-split-cost-line'),
-                        style: textTheme.bodyLarge,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-            if (compareDriverName.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: GestureDetector(
-                  key: const Key('metrics-compare-driver-line'),
-                  onTap: () {
-                    if (metrics.perModelDailyBreakdown.containsKey(
-                      compareDriverName,
-                    )) {
-                      onModelSelected(
-                        selectedModelFilter == compareDriverName
-                            ? null
-                            : compareDriverName,
+                    key: const Key('metrics-compare-tokens-line'),
+                    style: textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Builder(
+                    builder: (context) {
+                      final priorTokens = totalTokens(
+                        priorMetrics!.baseMetrics.totalInputTokens,
+                        priorMetrics!.baseMetrics.totalOutputTokens,
                       );
-                    }
-                  },
-                  child: MouseRegion(
-                    cursor:
-                        metrics.perModelDailyBreakdown.containsKey(
+                      final decomp = decomposeCompareDelta(
+                        currentSessions: metrics.baseMetrics.totalSessionCount,
+                        currentTokens: totalTokensValue,
+                        currentCost: metrics.displayTotalCost,
+                        priorSessions:
+                            priorMetrics!.baseMetrics.totalSessionCount,
+                        priorTokens: priorTokens,
+                        priorCost: priorMetrics!.displayTotalCost,
+                      );
+
+                      if (decomp == null) {
+                        return Text(
+                          l10n.compareSplitUnavailable,
+                          key: const Key('metrics-compare-split-unavailable'),
+                          style: textTheme.bodyLarge,
+                        );
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.compareSplitSessions(
+                              decomp.splitSessions >= 0 ? '+' : '-',
+                              displayCurrency,
+                              decomp.splitSessions.abs().toStringAsFixed(2),
+                            ),
+                            key: const Key(
+                              'metrics-compare-split-sessions-line',
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.compareSplitAvg(
+                              decomp.splitAvg >= 0 ? '+' : '-',
+                              displayCurrency,
+                              decomp.splitAvg.abs().toStringAsFixed(2),
+                            ),
+                            key: const Key('metrics-compare-split-avg-line'),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.compareSplitCost(
+                              decomp.splitCost >= 0 ? '+' : '-',
+                              displayCurrency,
+                              decomp.splitCost.abs().toStringAsFixed(2),
+                            ),
+                            key: const Key('metrics-compare-split-cost-line'),
+                            style: textTheme.bodyLarge,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  if (compareDriverName.isNotEmpty)
+                    _InlineActionText(
+                      key: const Key('metrics-compare-driver-line'),
+                      onTap: () {
+                        if (metrics.perModelDailyBreakdown.containsKey(
                           compareDriverName,
-                        )
-                        ? SystemMouseCursors.click
-                        : SystemMouseCursors.basic,
-                    child: Text(
-                      l10n.compareSummaryDriver(
+                        )) {
+                          onModelSelected(
+                            selectedModelFilter == compareDriverName
+                                ? null
+                                : compareDriverName,
+                          );
+                        }
+                      },
+                      text: l10n.compareSummaryDriver(
                         compareDriverName,
                         compareDriverDelta >= 0 ? '+' : '-',
                         displayCurrency,
@@ -461,118 +520,161 @@ class MetricsTextSummary extends StatelessWidget {
                             : (metrics.perModelDailyBreakdown.containsKey(
                                     compareDriverName,
                                   )
-                                  ? null
+                                  ? dashboardAccentColor
                                   : textTheme.bodyLarge?.color?.withValues(
                                       alpha: 0.5,
                                     )),
                       ),
+                    )
+                  else
+                    Text(
+                      l10n.compareSummaryNoDriver,
+                      key: const Key('metrics-compare-driver-line-empty'),
+                      style: textTheme.bodyLarge,
                     ),
+                ] else ...[
+                  Text(
+                    l10n.compareUnavailableHelper,
+                    key: const Key('metrics-compare-unavailable'),
+                    style: textTheme.bodyLarge,
                   ),
-                ),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  l10n.compareSummaryNoDriver,
-                  key: const Key('metrics-compare-driver-line-empty'),
-                  style: textTheme.bodyLarge,
-                ),
-              ),
-          ] else ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                l10n.compareUnavailableHelper,
-                key: const Key('metrics-compare-unavailable'),
-                style: textTheme.bodyLarge,
-              ),
+                ],
+              ],
             ),
-          ],
+          ),
         ],
         if (selectedDay != null) ...[
-          Text(
-            l10n.selectedDaySection(formatDateKey(selectedDay!)),
-            style: textTheme.bodyMedium,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6, top: 6),
-            child: Text(
-              l10n.lineTotalCost(
-                displayCurrency,
-                selectedDaily?.displayTotalCost.toStringAsFixed(2) ?? '0.00',
-              ),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              l10n.lineSessions(selectedDaily?.baseMetrics.sessionCount ?? 0),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              l10n.lineInputTokens(selectedInputTokens),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              l10n.lineOutputTokens(selectedOutputTokens),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Text(
-              l10n.lineTotalTokens(selectedTotalTokens),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-        ],
-        if (peakHour != null) ...[
-          Text(
-            l10n.peakHourSection(
-              formatHourLabel(peakHour.baseMetrics.hour.hour),
-            ),
-            style: textTheme.bodyMedium,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6, top: 6),
-            child: Text(
-              l10n.linePeakCost(
-                displayCurrency,
-                peakHour.displayTotalCost.toStringAsFixed(2),
-              ),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              l10n.lineSessions(peakHour.baseMetrics.sessionCount),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text(
-              l10n.linePeakTokensInOut(
-                peakHour.baseMetrics.inputTokens,
-                peakHour.baseMetrics.outputTokens,
-              ),
-              style: textTheme.bodyLarge,
-            ),
-          ),
-        ] else if (selectedDay != null) ...[
-          Text(l10n.peakHourEmptySection, style: textTheme.bodyMedium),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6, top: 6),
-            child: Text(l10n.lineNoActivity, style: textTheme.bodyLarge),
+          const SizedBox(height: DashboardSpacing.majorSectionGap),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 600;
+              return Flex(
+                direction: isNarrow ? Axis.vertical : Axis.horizontal,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: isNarrow ? 0 : 1,
+                    child: DashboardSurface(
+                      padding: const EdgeInsets.all(
+                        DashboardSpacing.primaryPanelPadding,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.selectedDaySection(
+                              formatDateKey(selectedDay!),
+                            ),
+                            style: textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: DashboardSpacing.controlGap),
+                          Text(
+                            l10n.lineTotalCost(
+                              displayCurrency,
+                              selectedDaily?.displayTotalCost.toStringAsFixed(
+                                    2,
+                                  ) ??
+                                  '0.00',
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.lineSessions(
+                              selectedDaily?.baseMetrics.sessionCount ?? 0,
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.lineInputTokens(
+                              compactNumber(selectedInputTokens.toDouble()),
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.lineOutputTokens(
+                              compactNumber(selectedOutputTokens.toDouble()),
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.lineTotalTokens(
+                              compactNumber(selectedTotalTokens.toDouble()),
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (!isNarrow)
+                    const SizedBox(width: DashboardSpacing.nestedPanelPadding),
+                  if (isNarrow)
+                    const SizedBox(height: DashboardSpacing.nestedPanelPadding),
+                  Expanded(
+                    flex: isNarrow ? 0 : 1,
+                    child: DashboardSurface(
+                      padding: const EdgeInsets.all(
+                        DashboardSpacing.primaryPanelPadding,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (peakHour != null) ...[
+                            Text(
+                              l10n.peakHourSection(
+                                formatHourLabel(peakHour.baseMetrics.hour.hour),
+                              ),
+                              style: textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: DashboardSpacing.controlGap),
+                            Text(
+                              l10n.linePeakCost(
+                                displayCurrency,
+                                peakHour.displayTotalCost.toStringAsFixed(2),
+                              ),
+                              style: textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.lineSessions(
+                                peakHour.baseMetrics.sessionCount,
+                              ),
+                              style: textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.linePeakTokensInOut(
+                                compactNumber(
+                                  peakHour.baseMetrics.inputTokens.toDouble(),
+                                ),
+                                compactNumber(
+                                  peakHour.baseMetrics.outputTokens.toDouble(),
+                                ),
+                              ),
+                              style: textTheme.bodyLarge,
+                            ),
+                          ] else ...[
+                            Text(
+                              l10n.peakHourEmptySection,
+                              style: textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: DashboardSpacing.controlGap),
+                            Text(
+                              l10n.lineNoActivity,
+                              style: textTheme.bodyLarge,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ],
@@ -656,32 +758,30 @@ class MetricsTokensTopDrivers extends StatelessWidget {
           );
           final isSelected = selectedModelFilter == modelName;
 
-          return GestureDetector(
-            key: Key('token-driver-model-$modelName'),
-            onTap: () {
-              if (selectedModelFilter == modelName) {
-                onModelSelected(null);
-              } else {
-                onModelSelected(modelName);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                l10n.modelDriverRow(
-                  modelName,
-                  ''.padRight((16 - modelName.length).clamp(0, 16), '.'),
-                  displayCurrency,
-                  daily.displayTotalCost.toStringAsFixed(2),
-                  tokenCount,
-                  daily.baseMetrics.sessionCount,
-                ),
-                style: textTheme.bodyLarge?.copyWith(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected
-                      ? dashboardPrimaryTextColor
-                      : dashboardSecondaryTextColor,
-                ),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: _InlineActionText(
+              key: Key('token-driver-model-$modelName'),
+              onTap: () {
+                if (selectedModelFilter == modelName) {
+                  onModelSelected(null);
+                } else {
+                  onModelSelected(modelName);
+                }
+              },
+              text: l10n.modelDriverRow(
+                modelName,
+                ''.padRight((16 - modelName.length).clamp(0, 16), '.'),
+                displayCurrency,
+                daily.displayTotalCost.toStringAsFixed(2),
+                compactNumber(tokenCount.toDouble()),
+                compactNumber(daily.baseMetrics.sessionCount.toDouble()),
+              ),
+              style: textTheme.bodyLarge?.copyWith(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? dashboardPrimaryTextColor
+                    : dashboardSecondaryTextColor,
               ),
             ),
           );

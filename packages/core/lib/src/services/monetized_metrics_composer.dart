@@ -4,6 +4,7 @@ import '../models/exchange_rate.dart';
 import '../models/hourly_metrics.dart';
 import '../models/monetized_metrics.dart';
 import '../models/supported_currency.dart';
+import '../models/usage_breakdown.dart';
 import '../repositories/exchange_rate_repository.dart';
 
 final class MonetizedMetricsComposer {
@@ -23,15 +24,34 @@ final class MonetizedMetricsComposer {
         dailyBreakdown: _createUsdDailyBreakdown(metrics.dailyBreakdown),
         hourlyBreakdown: _createUsdHourlyBreakdown(metrics.hourlyBreakdown),
         perModelDailyBreakdown: metrics.perModelDailyBreakdown.map(
-          (modelName, dailyBreakdown) => MapEntry(
-            modelName,
-            _createUsdDailyBreakdown(dailyBreakdown),
-          ),
+          (modelName, dailyBreakdown) =>
+              MapEntry(modelName, _createUsdDailyBreakdown(dailyBreakdown)),
         ),
         perModelHourlyBreakdown: metrics.perModelHourlyBreakdown.map(
-          (modelName, hourlyBreakdown) => MapEntry(
-            modelName,
-            _createUsdHourlyBreakdown(hourlyBreakdown),
+          (modelName, hourlyBreakdown) =>
+              MapEntry(modelName, _createUsdHourlyBreakdown(hourlyBreakdown)),
+        ),
+        providerBreakdowns: metrics.providerBreakdowns.map(
+          (provider, breakdown) => MapEntry(
+            provider,
+            MonetizedUsageBreakdown(
+              baseMetrics: breakdown,
+              displayTotalCost: breakdown.totalCostUsd,
+            ),
+          ),
+        ),
+        providerModelBreakdowns: metrics.providerModelBreakdowns.map(
+          (provider, breakdowns) => MapEntry(
+            provider,
+            breakdowns.map(
+              (modelName, breakdown) => MapEntry(
+                modelName,
+                MonetizedUsageBreakdown(
+                  baseMetrics: breakdown,
+                  displayTotalCost: breakdown.totalCostUsd,
+                ),
+              ),
+            ),
           ),
         ),
       );
@@ -53,10 +73,10 @@ final class MonetizedMetricsComposer {
     for (final entry in metrics.perModelDailyBreakdown.entries) {
       perModelDailyBreakdown[entry.key] =
           await _createDisplayCurrencyDailyBreakdown(
-        dailyBreakdown: entry.value,
-        displayCurrency: selectedCurrency,
-        exchangeRateCache: exchangeRateCache,
-      );
+            dailyBreakdown: entry.value,
+            displayCurrency: selectedCurrency,
+            exchangeRateCache: exchangeRateCache,
+          );
     }
 
     final perModelHourlyBreakdown = <String, List<MonetizedHourlyMetrics>>{};
@@ -64,10 +84,35 @@ final class MonetizedMetricsComposer {
     for (final entry in metrics.perModelHourlyBreakdown.entries) {
       perModelHourlyBreakdown[entry.key] =
           await _createDisplayCurrencyHourlyBreakdown(
-        hourlyBreakdown: entry.value,
-        displayCurrency: selectedCurrency,
-        exchangeRateCache: exchangeRateCache,
-      );
+            hourlyBreakdown: entry.value,
+            displayCurrency: selectedCurrency,
+            exchangeRateCache: exchangeRateCache,
+          );
+    }
+
+    final providerBreakdowns = <String, MonetizedUsageBreakdown>{};
+    for (final entry in metrics.providerBreakdowns.entries) {
+      providerBreakdowns[entry.key] =
+          await _createDisplayCurrencyUsageBreakdown(
+            breakdown: entry.value,
+            displayCurrency: selectedCurrency,
+            exchangeRateCache: exchangeRateCache,
+          );
+    }
+
+    final providerModelBreakdowns =
+        <String, Map<String, MonetizedUsageBreakdown>>{};
+    for (final providerEntry in metrics.providerModelBreakdowns.entries) {
+      final monetizedBreakdowns = <String, MonetizedUsageBreakdown>{};
+      for (final modelEntry in providerEntry.value.entries) {
+        monetizedBreakdowns[modelEntry.key] =
+            await _createDisplayCurrencyUsageBreakdown(
+              breakdown: modelEntry.value,
+              displayCurrency: selectedCurrency,
+              exchangeRateCache: exchangeRateCache,
+            );
+      }
+      providerModelBreakdowns[providerEntry.key] = monetizedBreakdowns;
     }
 
     var displayTotalCost = 0.0;
@@ -83,6 +128,26 @@ final class MonetizedMetricsComposer {
       hourlyBreakdown: hourlyBreakdown,
       perModelDailyBreakdown: perModelDailyBreakdown,
       perModelHourlyBreakdown: perModelHourlyBreakdown,
+      providerBreakdowns: providerBreakdowns,
+      providerModelBreakdowns: providerModelBreakdowns,
+    );
+  }
+
+  Future<MonetizedUsageBreakdown> _createDisplayCurrencyUsageBreakdown({
+    required UsageBreakdown breakdown,
+    required SupportedCurrency displayCurrency,
+    required Map<DateTime, List<ExchangeRate>> exchangeRateCache,
+  }) async {
+    if (displayCurrency != SupportedCurrency.usd) {
+      return MonetizedUsageBreakdown(
+        baseMetrics: breakdown,
+        displayTotalCost: null,
+      );
+    }
+
+    return MonetizedUsageBreakdown(
+      baseMetrics: breakdown,
+      displayTotalCost: breakdown.totalCostUsd,
     );
   }
 
@@ -210,8 +275,9 @@ final class MonetizedMetricsComposer {
       return cachedRates;
     }
 
-    final rates =
-        await exchangeRateRepository.readExchangeRatesForDate(normalizedDate);
+    final rates = await exchangeRateRepository.readExchangeRatesForDate(
+      normalizedDate,
+    );
     exchangeRateCache[normalizedDate] = rates;
     return rates;
   }
@@ -230,11 +296,7 @@ final class MonetizedMetricsComposer {
       return 1.0;
     }
 
-    return _findRateToCzk(
-      rates: rates,
-      currency: displayCurrency,
-      date: date,
-    );
+    return _findRateToCzk(rates: rates, currency: displayCurrency, date: date);
   }
 
   double _findRateToCzk({

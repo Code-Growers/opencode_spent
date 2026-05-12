@@ -10,7 +10,25 @@ void main() {
   runApp(
     Document(
       title: 'OpenSpent',
-      head: [link(href: 'styles.css', rel: 'stylesheet')],
+      head: [
+        link(href: 'styles.css', rel: 'stylesheet'),
+        link(href: 'favicon.svg', rel: 'icon', type: 'image/svg+xml'),
+        meta(
+          name: 'description',
+          content:
+              'Privacy-first, local-only dashboard for tracking OpenCode AI usage and cost data.',
+        ),
+        meta(attributes: {'property': 'og:title', 'content': 'OpenSpent'}),
+        meta(
+          attributes: {
+            'property': 'og:description',
+            'content':
+                'Privacy-first, local-only dashboard for tracking OpenCode AI usage and cost data.',
+          },
+        ),
+        meta(attributes: {'property': 'og:image', 'content': 'cover.jpg'}),
+        meta(attributes: {'property': 'og:type', 'content': 'website'}),
+      ],
       body: const App(),
     ),
   );

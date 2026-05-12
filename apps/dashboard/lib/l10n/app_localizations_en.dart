@@ -18,7 +18,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get heroTitle => 'Monitor OpenCode. Locally.';
 
   @override
-  String get heroDescription => 'A privacy-first local dashboard with cached metrics and terminal-style drilldowns.';
+  String get heroDescription =>
+      'A privacy-first local dashboard with cached metrics and terminal-style drilldowns.';
 
   @override
   String get statusPaneTitle => 'STATUS';
@@ -100,7 +101,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricsUnavailable => '> metrics unavailable';
 
   @override
-  String get metricsMissingExchangeRatesHelper => '> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.';
+  String get metricsMissingExchangeRatesHelper =>
+      '> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.';
 
   @override
   String get textTab => '[ TEXT ]';
@@ -141,7 +143,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String lineTopMover(String model, String sign, String currency, String value) {
+  String lineTopMover(
+    String model,
+    String sign,
+    String currency,
+    String value,
+  ) {
     return '> Top mover .......... $model ($sign$currency$value)';
   }
 
@@ -154,7 +161,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String compareSummaryDriver(String model, String sign, String currency, String value) {
+  String compareSummaryDriver(
+    String model,
+    String sign,
+    String currency,
+    String value,
+  ) {
     return '> Delta driver ....... $model $sign$currency $value';
   }
 
@@ -162,17 +174,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compareSummaryNoDriver => '> Delta driver ....... NONE';
 
   @override
-  String lineInputTokens(int value) {
+  String lineInputTokens(String value) {
     return '> Input tokens ....... $value';
   }
 
   @override
-  String lineOutputTokens(int value) {
+  String lineOutputTokens(String value) {
     return '> Output tokens ...... $value';
   }
 
   @override
-  String lineTotalTokens(int value) {
+  String lineTotalTokens(String value) {
     return '> Total tokens ....... $value';
   }
 
@@ -192,7 +204,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String linePeakTokensInOut(int input, int output) {
+  String linePeakTokensInOut(String input, String output) {
     return '> Tokens (In/Out) .... $input / $output';
   }
 
@@ -205,12 +217,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String modelCostShareTrend(String currency, String totalCost, int share, String trend) {
+  String modelCostShareTrend(
+    String currency,
+    String totalCost,
+    int share,
+    String trend,
+  ) {
     return '$currency $totalCost [$share%] • $trend';
   }
 
   @override
-  String modelTokensSessions(int tokens, int sessions) {
+  String modelTokensSessions(String tokens, String sessions) {
     return 'TOK $tokens | SES $sessions';
   }
 
@@ -248,6 +265,58 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get metricsProvidersTab => '[ PROVIDERS ]';
+
+  @override
+  String metricsKpiTotalPrice(String currency, String value) {
+    return '> TOTAL PRICE ....... $currency $value';
+  }
+
+  @override
+  String metricsKpiTotalRequests(String value) {
+    return '> TOTAL REQUESTS .... $value';
+  }
+
+  @override
+  String metricsKpiTotalToolCalls(String value) {
+    return '> TOTAL TOOL CALLS .. $value';
+  }
+
+  @override
+  String metricsKpiAvgResponseTime(String value) {
+    return '> AVG RESPONSE TIME . $value';
+  }
+
+  @override
+  String metricsKpiTotalTokens(String value) {
+    return '> TOTAL TOKENS ...... $value';
+  }
+
+  @override
+  String get metricsKpiNotAvailable => '--';
+
+  @override
+  String metricsKpiPartial(String value) {
+    return '$value (partial)';
+  }
+
+  @override
+  String get providersUsageChartTitle => '-- USAGE PER PROVIDER --';
+
+  @override
+  String get providersPriceChartTitle => '-- PRICE PER PROVIDER --';
+
+  @override
+  String providersPriceUnavailable(String provider) {
+    return '> $provider price unavailable';
+  }
+
+  @override
+  String helpRemoteLineCors(String origin) {
+    return '> When using the dashboard in a browser against a local server, start OpenCode with --cors=\"$origin\" so it allows this browser origin. The value must be origin only — not /demo or any other path.';
+  }
+
+  @override
   String get settingsTitle => '[ SETTINGS ]';
 
   @override
@@ -275,10 +344,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsServerPassword => 'Server password:';
 
   @override
-  String get settingsServerAuthHint => 'Optional Basic Auth. If a password is set and the username is blank, OpenSpent uses `opencode`.';
+  String get settingsServerAuthHint =>
+      'Optional Basic Auth. If a password is set and the username is blank, OpenSpent uses `opencode`.';
 
   @override
-  String get settingsServerUrlInvalid => 'Enter a valid http:// or https:// server URL.';
+  String get settingsServerUrlInvalid =>
+      'Enter a valid http:// or https:// server URL.';
 
   @override
   String get settingsSave => '[ SAVE ]';
@@ -296,40 +367,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTabRemote => 'Remote';
 
   @override
-  String get helpLocalLineImport => '> Import JSON or SQLite files directly into OpenSpent from the sessions panel.';
+  String get helpLocalLineImport =>
+      '> Import JSON or SQLite files directly into OpenSpent from the sessions panel.';
 
   @override
-  String get helpLocalLinePaths => '> OpenCode usually stores its main DB at ~/.local/share/opencode/opencode.db on macOS/Linux and under %USERPROFILE%\\.local\\share\\opencode\\opencode.db on Windows.';
+  String get helpLocalLinePaths =>
+      '> OpenCode usually stores its main DB at ~/.local/share/opencode/opencode.db on macOS/Linux and under %USERPROFILE%\\.local\\share\\opencode\\opencode.db on Windows.';
 
   @override
   String get helpLocalLineCommandDbPath => '> Useful command: opencode db path';
 
   @override
-  String get helpLocalLineCommandExport => '> Useful commands: opencode export, opencode import';
+  String get helpLocalLineCommandExport =>
+      '> Useful commands: opencode export, opencode import';
 
   @override
-  String get helpLocalLineCommandSessionList => '> Useful command: opencode session list';
+  String get helpLocalLineCommandSessionList =>
+      '> Useful command: opencode session list';
 
   @override
   String get helpLocalLineCommandStats => '> Useful command: opencode stats';
 
   @override
-  String get helpLocalLineBackup => '> Back up exported files and local DB copies carefully. Keep the workflow privacy-first and local-first.';
+  String get helpLocalLineBackup =>
+      '> Back up exported files and local DB copies carefully. Keep the workflow privacy-first and local-first.';
 
   @override
-  String get helpRemoteLineServe => '> Start the API server with: opencode serve';
+  String get helpRemoteLineServe =>
+      '> Start the API server with: opencode serve';
 
   @override
-  String get helpRemoteLineDefaultUrl => '> Default server URL: http://localhost:4096';
+  String get helpRemoteLineDefaultUrl =>
+      '> Default server URL: http://localhost:4096';
 
   @override
-  String get helpRemoteLineHostUse => '> Use localhost on the same machine. Use a remote host URL only when OpenCode is served from another machine.';
+  String get helpRemoteLineHostUse =>
+      '> Use localhost on the same machine. Use a remote host URL only when OpenCode is served from another machine.';
 
   @override
-  String get helpRemoteLineAuthEnv => '> Basic Auth uses OPENCODE_SERVER_USERNAME and OPENCODE_SERVER_PASSWORD.';
+  String get helpRemoteLineAuthEnv =>
+      '> Basic Auth uses OPENCODE_SERVER_USERNAME and OPENCODE_SERVER_PASSWORD.';
 
   @override
-  String get helpRemoteLineAuthDefaultUsername => '> When password protection is enabled and no username is set, the default username is `opencode`.';
+  String get helpRemoteLineAuthDefaultUsername =>
+      '> When password protection is enabled and no username is set, the default username is `opencode`.';
 
   @override
   String get exchangeRatesTitle => '[ EXCHANGE RATES ]';
@@ -360,7 +441,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get exchangeRatesCurrencyChangeError => '> Failed to update display currency.';
+  String get exchangeRatesCurrencyChangeError =>
+      '> Failed to update display currency.';
 
   @override
   String exchangeRatesSyncSuccess(int count) {
@@ -401,7 +483,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sessionsSpotlightEmptyScope => '> No ranked evidence in current scope.';
+  String get sessionsSpotlightEmptyScope =>
+      '> No ranked evidence in current scope.';
 
   @override
   String get sessionsSpotlightEmpty => '> Ranked evidence unavailable.';
@@ -419,10 +502,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionsExplorerLoading => '> Loading cached sessions...';
 
   @override
-  String get sessionsExplorerEmptyConnected => '> No cached sessions found. Sync or import to begin.';
+  String get sessionsExplorerEmptyConnected =>
+      '> No cached sessions found. Sync or import to begin.';
 
   @override
-  String get sessionsExplorerEmptyDisconnected => '> No cached sessions found. Connect to the local server or import data to begin.';
+  String get sessionsExplorerEmptyDisconnected =>
+      '> No cached sessions found. Connect to the local server or import data to begin.';
 
   @override
   String activeModelFilter(String model) {
@@ -443,7 +528,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearFilterAction => '[ CLEAR ]';
 
   @override
-  String get sessionsExplorerFilteredEmpty => '> No sessions match the active filters.';
+  String get sessionsExplorerFilteredEmpty =>
+      '> No sessions match the active filters.';
 
   @override
   String get sessionsExplorerSyncSuccess => '> Sync completed successfully.';
@@ -452,10 +538,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionsExplorerSyncError => '> Sync failed.';
 
   @override
-  String get sessionsExplorerImportSuccess => '> Import completed successfully.';
+  String get sessionsExplorerImportSuccess =>
+      '> Import completed successfully.';
 
   @override
-  String get sessionsExplorerImportError => '> Import failed: invalid format or error.';
+  String get sessionsExplorerImportWalModeError =>
+      '> Browser import requires a standalone SQLite file. WAL-mode OpenCode databases are not supported for single-file uploads yet.';
+
+  @override
+  String get sessionsExplorerImportError =>
+      '> Import failed: invalid format or error.';
 
   @override
   String get sessionsExplorerImportNoFile => '> Import cancelled.';
@@ -469,10 +561,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sessionsExplorerError => '> Error ............. operation failed. Check source data or server status.';
+  String get sessionsExplorerError =>
+      '> Error ............. operation failed. Check source data or server status.';
 
   @override
-  String sessionRowData(String date, String model, String tokens, String currency, String cost, String id) {
+  String sessionRowData(
+    String date,
+    String model,
+    String tokens,
+    String currency,
+    String cost,
+    String id,
+  ) {
     return '> $date • $model • $tokens TOK • $currency $cost • ID: $id';
   }
 
@@ -490,7 +590,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricsTokensTopDrivers => '-- TOP DRIVERS --';
 
   @override
-  String modelDriverRow(String modelName, String padding, String currency, String cost, int tokens, int sessions) {
+  String modelDriverRow(
+    String modelName,
+    String padding,
+    String currency,
+    String cost,
+    String tokens,
+    String sessions,
+  ) {
     return '> $modelName $padding $currency $cost | $tokens TOK | $sessions SES';
   }
 
@@ -501,7 +608,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricsModelHourlyTokens => '-- HOURLY TOKENS --';
 
   @override
-  String modelSelectedDayMetrics(String currency, String cost, int tokens, int sessions) {
+  String modelSelectedDayMetrics(
+    String currency,
+    String cost,
+    String tokens,
+    String sessions,
+  ) {
     return '> Day ............... $currency $cost | $tokens TOK | $sessions SES';
   }
 
@@ -669,5 +781,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compareSplitUnavailable => '> Split breakdown .... math undefined';
 
   @override
-  String get compareUnavailableHelper => '> Prior-window compare unavailable due to missing exchange rates.';
+  String get compareUnavailableHelper =>
+      '> Prior-window compare unavailable due to missing exchange rates.';
+
+  @override
+  String get sessionsSearchPlaceholder => 'Search metadata...';
+
+  @override
+  String get sessionsSearchClear => '[ CLEAR ]';
+
+  @override
+  String sessionsSearchResultsCount(int count) {
+    return '> Results ........... $count';
+  }
+
+  @override
+  String get sessionsListHeader => '-- SESSION LOG --';
+
+  @override
+  String pieLegendOverflow(int count) {
+    return '+$count more';
+  }
 }

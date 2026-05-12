@@ -3,14 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:openspent_core/openspent_core.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../screens/dashboard/widgets/dashboard_chip_button.dart';
+import '../screens/dashboard/widgets/dashboard_surface.dart';
 import '../screens/exchange_rates/cubit/exchange_rates_cubit.dart';
-
-const _backgroundColor = Color(0xFF000000);
-const _surfaceColor = Color(0xFF0A0A0A);
-const _borderColor = Color(0xFF333333);
-const _primaryTextColor = Color(0xFFFFFFFF);
-const _secondaryTextColor = Color(0xFFA1A1AA);
-const _statusColor = Color(0xFF22C55E);
+import '../theme/dashboard_colors.dart';
 
 class ExchangeRatesPanel extends StatefulWidget {
   const ExchangeRatesPanel({
@@ -133,14 +129,8 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
             ? l10n.exchangeRatesMissingDaysNone
             : state.missingDates.map(_formatDateKey).join(', ');
 
-        return Container(
+        return DashboardSurface(
           key: const Key('exchange-rates-panel'),
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: _surfaceColor,
-            border: Border.all(color: _borderColor),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -155,60 +145,80 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
                     spacing: 12,
                     runSpacing: 8,
                     children: [
-                      _ActionText(
+                      DashboardChipButton(
                         key: const Key('exchange-rates-currency-usd'),
-                        label: '[ USD ]',
-                        isEnabled: !state.isLoading,
+                        label: 'USD',
                         isSelected:
                             state.selectedCurrency == SupportedCurrency.usd,
-                        onTap: () => _handleCurrencyTap(SupportedCurrency.usd),
+                        onTap: !state.isLoading
+                            ? () => _handleCurrencyTap(SupportedCurrency.usd)
+                            : null,
                       ),
-                      _ActionText(
+                      DashboardChipButton(
                         key: const Key('exchange-rates-currency-czk'),
-                        label: '[ CZK ]',
-                        isEnabled: !state.isLoading,
+                        label: 'CZK',
                         isSelected:
                             state.selectedCurrency == SupportedCurrency.czk,
-                        onTap: () => _handleCurrencyTap(SupportedCurrency.czk),
+                        onTap: !state.isLoading
+                            ? () => _handleCurrencyTap(SupportedCurrency.czk)
+                            : null,
                       ),
-                      _ActionText(
+                      DashboardChipButton(
                         key: const Key('exchange-rates-sync-button'),
                         label: l10n.exchangeRatesActionSync,
-                        isEnabled: canSync,
                         isSelected: false,
-                        onTap: _handleSync,
+                        onTap: canSync ? _handleSync : null,
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              if (_statusMessage != null)
-                Text(
-                  _statusMessage!,
-                  key: const Key('exchange-rates-status-message'),
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: state.isError ? _secondaryTextColor : _statusColor,
+              const SizedBox(height: 16),
+              if (_statusMessage != null || state.isError)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: DashboardSurface(
+                    key: const Key('exchange-rates-status-surface'),
+                    backgroundColor: dashboardBackgroundColor,
+                    borderColor: state.isError
+                        ? dashboardErrorColor
+                        : dashboardStatusColor,
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_statusMessage != null)
+                            Text(
+                              _statusMessage!,
+                              key: const Key('exchange-rates-status-message'),
+                              style: textTheme.bodyLarge?.copyWith(
+                                color: state.isError
+                                    ? dashboardErrorColor
+                                    : dashboardStatusColor,
+                              ),
+                            ),
+                          if (state.isError && state.errorMessage != null) ...[
+                            if (_statusMessage != null)
+                              const SizedBox(height: 8),
+                            Text(
+                              l10n.exchangeRatesError(state.errorMessage!),
+                              key: const Key('exchange-rates-error-message'),
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: dashboardSecondaryTextColor,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              if (state.isError && state.errorMessage != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  l10n.exchangeRatesError(state.errorMessage!),
-                  key: const Key('exchange-rates-error-message'),
-                  style: textTheme.bodyMedium,
-                ),
-              ],
-              if (_statusMessage != null || state.isError)
-                const SizedBox(height: 16),
-              Container(
+              DashboardSurface(
                 key: const Key('exchange-rates-summary'),
-                width: double.infinity,
+                backgroundColor: dashboardBackgroundColor,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: _backgroundColor,
-                  border: Border.all(color: _borderColor),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -217,13 +227,13 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
                       key: const Key('exchange-rates-status-line'),
                       style: textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       l10n.exchangeRatesLineWindow(widget.windowLabel),
                       key: const Key('exchange-rates-window-line'),
                       style: textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       l10n.exchangeRatesLineDisplay(
                         state.selectedCurrency.code,
@@ -231,7 +241,7 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
                       key: const Key('exchange-rates-display-line'),
                       style: textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       l10n.exchangeRatesLineSpendDays(
                         state.requiredDates.length,
@@ -239,7 +249,7 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
                       key: const Key('exchange-rates-spend-days-line'),
                       style: textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       l10n.exchangeRatesLineCoverage(
                         state.coveredDateCount,
@@ -248,7 +258,7 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
                       key: const Key('exchange-rates-coverage-line'),
                       style: textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
                       l10n.exchangeRatesLineMissingDays(missingDaysText),
                       key: const Key('exchange-rates-missing-days-line'),
@@ -261,40 +271,6 @@ class _ExchangeRatesPanelState extends State<ExchangeRatesPanel> {
           ),
         );
       },
-    );
-  }
-}
-
-class _ActionText extends StatelessWidget {
-  const _ActionText({
-    super.key,
-    required this.label,
-    required this.isEnabled,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isEnabled;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return GestureDetector(
-      onTap: isEnabled ? onTap : null,
-      child: Text(
-        label,
-        style: textTheme.bodyLarge?.copyWith(
-          color: isEnabled
-              ? (isSelected ? _statusColor : _primaryTextColor)
-              : _secondaryTextColor,
-          fontWeight: isSelected || isEnabled
-              ? FontWeight.bold
-              : FontWeight.normal,
-        ),
-      ),
     );
   }
 }

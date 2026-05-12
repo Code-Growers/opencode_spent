@@ -11,6 +11,8 @@ dependencies:
   auto_route: 11.1.0
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   flutter_bloc: 9.1.1
   flutter_localizations:
     sdk: flutter

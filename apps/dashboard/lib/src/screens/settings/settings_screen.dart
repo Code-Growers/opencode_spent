@@ -3,6 +3,8 @@ import 'package:openspent_core/openspent_core.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../theme/dashboard_colors.dart';
+import '../dashboard/widgets/dashboard_chip_button.dart';
+import '../dashboard/widgets/dashboard_surface.dart';
 
 const defaultOpenCodeServerUrl = 'http://localhost:4096';
 
@@ -132,29 +134,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  InputDecoration _inputDecoration({String? errorText}) {
-    return InputDecoration(
-      isDense: true,
-      filled: true,
-      fillColor: dashboardBackgroundColor,
-      errorText: errorText,
-      enabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: dashboardBorderColor),
-        borderRadius: BorderRadius.zero,
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: dashboardStatusColor),
-        borderRadius: BorderRadius.zero,
-      ),
-      errorBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: dashboardBorderColor),
-        borderRadius: BorderRadius.zero,
-      ),
-      focusedErrorBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: dashboardStatusColor),
-        borderRadius: BorderRadius.zero,
-      ),
-    );
+  InputDecoration _inputDecoration(BuildContext context, {String? errorText}) {
+    return const InputDecoration()
+        .applyDefaults(Theme.of(context).inputDecorationTheme)
+        .copyWith(
+          errorText: errorText,
+          errorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: dashboardErrorColor),
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: dashboardErrorColor),
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+        );
   }
 
   @override
@@ -162,130 +155,164 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
+    return DashboardSurface(
       key: const Key('settings-dialog'),
-      constraints: const BoxConstraints(maxWidth: 480),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: dashboardSurfaceColor,
-        border: Border.all(color: dashboardBorderColor),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l10n.settingsTitle, style: textTheme.titleMedium),
-          const SizedBox(height: 24),
-          Text(l10n.settingsServerUrl, style: textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('settings-server-url-field'),
-            controller: _serverUrlController,
-            style: textTheme.bodyLarge,
-            decoration: _inputDecoration(errorText: _serverUrlError),
-          ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsServerUsername, style: textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('settings-server-username-field'),
-            controller: _serverUsernameController,
-            style: textTheme.bodyLarge,
-            decoration: _inputDecoration(),
-          ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsServerPassword, style: textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          TextField(
-            key: const Key('settings-server-password-field'),
-            controller: _serverPasswordController,
-            style: textTheme.bodyLarge,
-            obscureText: true,
-            decoration: _inputDecoration(),
-          ),
-          const SizedBox(height: 8),
-          Text(l10n.settingsServerAuthHint, style: textTheme.bodyMedium),
-          const SizedBox(height: 24),
-          Text(l10n.settingsCurrency, style: textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: dashboardBackgroundColor,
-              border: Border.all(color: dashboardBorderColor),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.settingsTitle, style: textTheme.titleMedium),
+            const SizedBox(height: 24),
+            ExcludeSemantics(
+              child: Text(l10n.settingsServerUrl, style: textTheme.bodyMedium),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<SupportedCurrency>(
-                value: _currency,
-                isExpanded: true,
-                dropdownColor: dashboardBackgroundColor,
+            const SizedBox(height: 12),
+            Semantics(
+              label: l10n.settingsServerUrl,
+              textField: true,
+              child: TextField(
+                key: const Key('settings-server-url-field'),
+                controller: _serverUrlController,
                 style: textTheme.bodyLarge,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _currency = value;
-                    });
-                  }
-                },
-                items: SupportedCurrency.values.map((currency) {
-                  return DropdownMenuItem<SupportedCurrency>(
-                    value: currency,
-                    child: Text(currency.code),
-                  );
-                }).toList(),
+                decoration: _inputDecoration(
+                  context,
+                  errorText: _serverUrlError,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsLanguage, style: textTheme.bodyMedium),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: dashboardBackgroundColor,
-              border: Border.all(color: dashboardBorderColor),
+            const SizedBox(height: 24),
+            ExcludeSemantics(
+              child: Text(
+                l10n.settingsServerUsername,
+                style: textTheme.bodyMedium,
+              ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<_SettingsLanguageOption>(
-                key: const Key('settings-language-dropdown'),
-                value: _language,
-                isExpanded: true,
-                dropdownColor: dashboardBackgroundColor,
+            const SizedBox(height: 12),
+            Semantics(
+              label: l10n.settingsServerUsername,
+              textField: true,
+              child: TextField(
+                key: const Key('settings-server-username-field'),
+                controller: _serverUsernameController,
                 style: textTheme.bodyLarge,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _language = value;
-                    });
-                  }
-                },
-                items: <DropdownMenuItem<_SettingsLanguageOption>>[
-                  DropdownMenuItem<_SettingsLanguageOption>(
-                    value: _SettingsLanguageOption.system,
-                    child: Text(l10n.settingsLanguageSystem),
-                  ),
-                  DropdownMenuItem<_SettingsLanguageOption>(
-                    value: _SettingsLanguageOption.english,
-                    child: Text(l10n.settingsLanguageEnglish),
-                  ),
-                  DropdownMenuItem<_SettingsLanguageOption>(
-                    value: _SettingsLanguageOption.czech,
-                    child: Text(l10n.settingsLanguageCzech),
+                decoration: _inputDecoration(context),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ExcludeSemantics(
+              child: Text(
+                l10n.settingsServerPassword,
+                style: textTheme.bodyMedium,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Semantics(
+              label: l10n.settingsServerPassword,
+              textField: true,
+              child: TextField(
+                key: const Key('settings-server-password-field'),
+                controller: _serverPasswordController,
+                style: textTheme.bodyLarge,
+                obscureText: true,
+                decoration: _inputDecoration(context),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(l10n.settingsServerAuthHint, style: textTheme.bodyMedium),
+            const SizedBox(height: 24),
+            MergeSemantics(
+              key: const Key('settings-currency-semantics'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.settingsCurrency, style: textTheme.bodyMedium),
+                  const SizedBox(height: 12),
+                  DashboardSurface(
+                    backgroundColor: dashboardBackgroundColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<SupportedCurrency>(
+                        key: const Key('settings-currency-dropdown'),
+                        value: _currency,
+                        isExpanded: true,
+                        dropdownColor: dashboardBackgroundColor,
+                        style: textTheme.bodyLarge,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _currency = value;
+                            });
+                          }
+                        },
+                        items: SupportedCurrency.values.map((currency) {
+                          return DropdownMenuItem<SupportedCurrency>(
+                            value: currency,
+                            child: Text(currency.code),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 32),
-          OverflowBar(
-            alignment: MainAxisAlignment.end,
-            spacing: 16,
-            overflowAlignment: OverflowBarAlignment.end,
-            children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
+            const SizedBox(height: 24),
+            MergeSemantics(
+              key: const Key('settings-language-semantics'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.settingsLanguage, style: textTheme.bodyMedium),
+                  const SizedBox(height: 12),
+                  DashboardSurface(
+                    backgroundColor: dashboardBackgroundColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<_SettingsLanguageOption>(
+                        key: const Key('settings-language-dropdown'),
+                        value: _language,
+                        isExpanded: true,
+                        dropdownColor: dashboardBackgroundColor,
+                        style: textTheme.bodyLarge,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _language = value;
+                            });
+                          }
+                        },
+                        items: <DropdownMenuItem<_SettingsLanguageOption>>[
+                          DropdownMenuItem<_SettingsLanguageOption>(
+                            value: _SettingsLanguageOption.system,
+                            child: Text(l10n.settingsLanguageSystem),
+                          ),
+                          DropdownMenuItem<_SettingsLanguageOption>(
+                            value: _SettingsLanguageOption.english,
+                            child: Text(l10n.settingsLanguageEnglish),
+                          ),
+                          DropdownMenuItem<_SettingsLanguageOption>(
+                            value: _SettingsLanguageOption.czech,
+                            child: Text(l10n.settingsLanguageCzech),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            OverflowBar(
+              alignment: MainAxisAlignment.end,
+              spacing: 16,
+              overflowAlignment: OverflowBarAlignment.end,
+              children: [
+                DashboardChipButton(
                   key: const Key('settings-close-button'),
+                  label: l10n.settingsClose,
                   onTap: () {
                     final onCloseRequested = widget.onCloseRequested;
                     if (onCloseRequested != null) {
@@ -294,30 +321,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: Text(
-                    l10n.settingsClose,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: dashboardSecondaryTextColor,
-                    ),
-                  ),
                 ),
-              ),
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
+                DashboardChipButton(
                   key: const Key('settings-save-button'),
+                  label: l10n.settingsSave,
                   onTap: _saveSettings,
-                  child: Text(
-                    l10n.settingsSave,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: dashboardStatusColor,
-                    ),
-                  ),
+                  isEmphasized: true,
+                  activeColor: dashboardStatusColor,
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

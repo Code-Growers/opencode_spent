@@ -68,9 +68,12 @@ class _FakeExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     for (final rate in rates) {
-      final key = _normalize(rate.date);
+      final key = _normalize(effectiveDate ?? rate.date);
       final nextRates = List<ExchangeRate>.from(_ratesByDate[key] ?? const []);
       nextRates.removeWhere((existing) => existing.currency == rate.currency);
       nextRates.add(rate);
@@ -99,7 +102,10 @@ class _FakeRemoteExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {}
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {}
 
   static DateTime _normalize(DateTime value) {
     final utc = value.toUtc();

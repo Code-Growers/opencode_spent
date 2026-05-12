@@ -11,6 +11,6 @@ final class ExchangeRateSyncService {
 
   Future<void> syncExchangeRatesForDate(DateTime date) async {
     final rates = await remoteRepository.readExchangeRatesForDate(date);
-    await localRepository.writeExchangeRates(rates);
+    await localRepository.writeExchangeRates(rates, effectiveDate: date);
   }
 }

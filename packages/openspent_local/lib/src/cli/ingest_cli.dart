@@ -107,7 +107,7 @@ final class IngestCliRunner {
     OpenSpentLocalDatabase? database;
 
     try {
-      database = OpenSpentLocalDatabase.file(io.File(databasePath));
+      database = OpenSpentLocalDatabase.filePath(databasePath);
       final repository = LocalOpenCodeSessionRepository(database);
       await repository.writeSessions(sessions);
       return IngestCliResult.success(sessions.length);

@@ -59,7 +59,7 @@ melos:
 
     build:website:
       description: Build the Jaspr website package.
-      run: dart run build_runner build --release
+      run: dart pub global activate jaspr_cli 0.23.1 && dart pub global run jaspr_cli:jaspr build
       exec:
         concurrency: 1
       packageFilters:

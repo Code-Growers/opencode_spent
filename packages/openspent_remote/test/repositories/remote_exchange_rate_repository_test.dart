@@ -7,35 +7,139 @@ void main() {
     test('parses ČNB rates for the normalized UTC day', () async {
       final apiClient = _FakeCnbExchangeRateApiClient(
         response:
-            '03.05.2026 #84\n'
+            '04.05.2026 #84\n'
             'země|měna|množství|kód|kurz\n'
             'USA|dollar|1|USD|21,930\n',
       );
       final repository = RemoteExchangeRateRepository(apiClient: apiClient);
 
       final rates = await repository.readExchangeRatesForDate(
-        DateTime.parse('2026-05-02T23:30:00-07:00'),
+        DateTime.parse('2026-05-03T23:30:00-07:00'),
       );
 
-      expect(apiClient.requestedDate, '03.05.2026');
+      expect(apiClient.requestedDate, '04.05.2026');
       expect(rates, <ExchangeRate>[
         ExchangeRate(
           currency: SupportedCurrency.usd,
-          date: DateTime.utc(2026, 5, 3),
+          date: DateTime.utc(2026, 5, 4),
           rateToCzk: 21.93,
         ),
         ExchangeRate(
           currency: SupportedCurrency.czk,
-          date: DateTime.utc(2026, 5, 3),
+          date: DateTime.utc(2026, 5, 4),
           rateToCzk: 1.0,
         ),
       ]);
     });
 
-    test('rejects parsed date mismatches clearly', () async {
+    test(
+      'accepts prior working-day ČNB fixings for requested weekends',
+      () async {
+        final apiClient = _FakeCnbExchangeRateApiClient(
+          response:
+              '15.05.2026 #84\n'
+              'země|měna|množství|kód|kurz\n'
+              'USA|dollar|1|USD|21,930\n',
+        );
+        final repository = RemoteExchangeRateRepository(apiClient: apiClient);
+
+        final rates = await repository.readExchangeRatesForDate(
+          DateTime.utc(2026, 5, 16),
+        );
+
+        expect(apiClient.requestedDate, '16.05.2026');
+        expect(rates, <ExchangeRate>[
+          ExchangeRate(
+            currency: SupportedCurrency.usd,
+            date: DateTime.utc(2026, 5, 15),
+            rateToCzk: 21.93,
+          ),
+          ExchangeRate(
+            currency: SupportedCurrency.czk,
+            date: DateTime.utc(2026, 5, 15),
+            rateToCzk: 1.0,
+          ),
+        ]);
+      },
+    );
+
+    test(
+      'accepts prior working-day ČNB fixings across holiday chains',
+      () async {
+        final apiClient = _FakeCnbExchangeRateApiClient(
+          response:
+              '23.12.2026 #84\n'
+              'země|měna|množství|kód|kurz\n'
+              'USA|dollar|1|USD|21,930\n',
+        );
+        final repository = RemoteExchangeRateRepository(apiClient: apiClient);
+
+        final rates = await repository.readExchangeRatesForDate(
+          DateTime.utc(2026, 12, 27),
+        );
+
+        expect(apiClient.requestedDate, '27.12.2026');
+        expect(rates, <ExchangeRate>[
+          ExchangeRate(
+            currency: SupportedCurrency.usd,
+            date: DateTime.utc(2026, 12, 23),
+            rateToCzk: 21.93,
+          ),
+          ExchangeRate(
+            currency: SupportedCurrency.czk,
+            date: DateTime.utc(2026, 12, 23),
+            rateToCzk: 1.0,
+          ),
+        ]);
+      },
+    );
+
+    test('rejects stale parsed dates after a working day gap', () async {
       final apiClient = _FakeCnbExchangeRateApiClient(
         response:
-            '02.05.2026 #84\n'
+            '15.05.2026 #84\n'
+            'země|měna|množství|kód|kurz\n'
+            'USA|dollar|1|USD|21,930\n',
+      );
+      final repository = RemoteExchangeRateRepository(apiClient: apiClient);
+
+      await expectLater(
+        () => repository.readExchangeRatesForDate(DateTime.utc(2026, 5, 19)),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'ČNB returned rates for 15.05.2026 when 19.05.2026 was requested.',
+          ),
+        ),
+      );
+    });
+
+    test('rejects parsed dates that are not Czech working days', () async {
+      final apiClient = _FakeCnbExchangeRateApiClient(
+        response:
+            '16.05.2026 #84\n'
+            'země|měna|množství|kód|kurz\n'
+            'USA|dollar|1|USD|21,930\n',
+      );
+      final repository = RemoteExchangeRateRepository(apiClient: apiClient);
+
+      await expectLater(
+        () => repository.readExchangeRatesForDate(DateTime.utc(2026, 5, 17)),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'ČNB returned rates for 16.05.2026 when 17.05.2026 was requested.',
+          ),
+        ),
+      );
+    });
+
+    test('rejects future parsed date mismatches clearly', () async {
+      final apiClient = _FakeCnbExchangeRateApiClient(
+        response:
+            '04.05.2026 #84\n'
             'země|měna|množství|kód|kurz\n'
             'USA|dollar|1|USD|21,930\n',
       );
@@ -47,7 +151,7 @@ void main() {
           isA<StateError>().having(
             (error) => error.message,
             'message',
-            'ČNB returned rates for 02.05.2026 when 03.05.2026 was requested.',
+            'ČNB returned rates for 04.05.2026 when 03.05.2026 was requested.',
           ),
         ),
       );
@@ -56,26 +160,26 @@ void main() {
     test('normalizes positive-offset instants by UTC day', () async {
       final apiClient = _FakeCnbExchangeRateApiClient(
         response:
-            '02.05.2026 #84\n'
+            '04.05.2026 #84\n'
             'země|měna|množství|kód|kurz\n'
             'USA|dollar|1|USD|21,930\n',
       );
       final repository = RemoteExchangeRateRepository(apiClient: apiClient);
 
       final rates = await repository.readExchangeRatesForDate(
-        DateTime.parse('2026-05-03T00:30:00+02:00'),
+        DateTime.parse('2026-05-05T00:30:00+02:00'),
       );
 
-      expect(apiClient.requestedDate, '02.05.2026');
+      expect(apiClient.requestedDate, '04.05.2026');
       expect(rates, <ExchangeRate>[
         ExchangeRate(
           currency: SupportedCurrency.usd,
-          date: DateTime.utc(2026, 5, 2),
+          date: DateTime.utc(2026, 5, 4),
           rateToCzk: 21.93,
         ),
         ExchangeRate(
           currency: SupportedCurrency.czk,
-          date: DateTime.utc(2026, 5, 2),
+          date: DateTime.utc(2026, 5, 4),
           rateToCzk: 1.0,
         ),
       ]);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/dashboard_colors.dart';
+import 'dashboard_surface.dart';
 
 class TerminalPane extends StatelessWidget {
   const TerminalPane({
@@ -18,27 +19,39 @@ class TerminalPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
+    return DashboardSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: dashboardSurfaceColor,
-        border: Border.all(color: dashboardBorderColor),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: textTheme.titleMedium),
-          const SizedBox(height: 12),
-          for (var index = 0; index < lines.length; index++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                lines[index],
-                style: textTheme.bodyLarge?.merge(
-                  index < (lineStyles?.length ?? 0) ? lineStyles![index] : null,
-                ),
+          const SizedBox(height: 16),
+          DashboardSurface(
+            backgroundColor: dashboardBackgroundColor,
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var index = 0; index < lines.length; index++)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index == lines.length - 1 ? 0 : 6,
+                      ),
+                      child: Text(
+                        lines[index],
+                        style: textTheme.bodyLarge?.merge(
+                          index < (lineStyles?.length ?? 0)
+                              ? lineStyles![index]
+                              : null,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
+          ),
         ],
       ),
     );

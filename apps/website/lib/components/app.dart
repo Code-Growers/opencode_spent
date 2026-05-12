@@ -49,7 +49,7 @@ class _AppState extends State<App> {
           'p-6 border-b border-[#222] flex justify-between items-center sticky top-0 bg-black/80 backdrop-blur-md z-10',
       [
         div(classes: 'flex items-center gap-3', [
-          div(classes: 'w-3 h-3 bg-white', []), // Simple logo square
+          img(src: 'favicon.svg', classes: 'w-4 h-4'), // Simple logo
           h1(classes: 'm-0 tracking-[0.15em] uppercase text-lg font-bold', [
             Component.text(loc.title),
           ]),
@@ -84,14 +84,29 @@ class _AppState extends State<App> {
         p(classes: 'text-lg md:text-xl text-[#a1a1aa] max-w-[600px] mb-10', [
           Component.text(loc.heroSubtitle),
         ]),
-        a(
-          href: 'https://github.com/Code-Growers/opencode_spent',
-          target: Target.blank,
+        div(
           classes:
-              'inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-[#ccc] transition-colors',
+              'flex flex-col sm:flex-row gap-4 items-center justify-center',
           [
-            span([Component.text('↗')]),
-            Component.text(loc.linkGithub),
+            a(
+              href: '/demo/',
+              classes:
+                  'inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-[#ccc] transition-colors w-full sm:w-auto',
+              [
+                span([Component.text('→')]),
+                Component.text(loc.linkDemo),
+              ],
+            ),
+            a(
+              href: 'https://github.com/Code-Growers/opencode_spent',
+              target: Target.blank,
+              classes:
+                  'inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#444] text-white font-bold uppercase tracking-widest hover:bg-[#111] hover:border-[#666] transition-colors w-full sm:w-auto',
+              [
+                span([Component.text('↗')]),
+                Component.text(loc.linkGithub),
+              ],
+            ),
           ],
         ),
       ],
@@ -267,7 +282,7 @@ class _AppState extends State<App> {
             Component.text(loc.companyBody),
           ]),
           a(
-            href: 'https://www.linkedin.com/company/69684475',
+            href: 'https://www.linkedin.com/company/code-growers-s-r-o/',
             target: Target.blank,
             classes:
                 'inline-flex items-center gap-2 text-white border-b border-[#444] pb-1 hover:border-white transition-colors',
@@ -277,29 +292,27 @@ class _AppState extends State<App> {
             ],
           ),
         ]),
-        div(
+        a(
+          href: 'https://codegrowers.com/',
+          target: Target.blank,
           classes:
-              'border border-[#222] p-8 flex flex-col items-center justify-center text-center bg-[#050505] relative overflow-hidden group',
+              'border border-[#222] p-8 flex flex-col items-center justify-center text-center bg-[#050505] relative overflow-hidden group no-underline',
           [
             div(
               classes:
                   'absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500',
               [],
             ),
-            div(
+            img(
+              src: 'logo.svg',
               classes:
-                  'w-16 h-16 border border-[#444] flex items-center justify-center mb-6 rotate-45 group-hover:rotate-90 transition-transform duration-700',
-              [
-                div(
-                  classes:
-                      'w-6 h-6 bg-white -rotate-45 group-hover:-rotate-90 transition-transform duration-700',
-                  [],
-                ),
-              ],
+                  'w-16 h-16 mb-6 group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100',
             ),
-            p(classes: 'text-sm text-[#888] tracking-widest uppercase m-0', [
-              Component.text('Code Growers'),
-            ]),
+            p(
+              classes:
+                  'text-sm text-[#888] tracking-widest uppercase m-0 group-hover:text-white transition-colors',
+              [Component.text('Code Growers')],
+            ),
           ],
         ),
       ],
@@ -320,7 +333,7 @@ class _AppState extends State<App> {
             [Component.text('GitHub')],
           ),
           a(
-            href: 'https://www.linkedin.com/company/69684475',
+            href: 'https://www.linkedin.com/company/code-growers-s-r-o/',
             target: Target.blank,
             classes: 'hover:text-white transition-colors',
             [Component.text('LinkedIn')],

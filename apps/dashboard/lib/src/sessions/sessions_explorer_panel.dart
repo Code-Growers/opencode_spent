@@ -4,22 +4,24 @@ import 'package:openspent_core/openspent_core.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../screens/metrics/widgets/metrics_chart_widgets.dart';
+import '../screens/metrics/metrics_utils.dart';
 import '../screens/sessions/cubit/sessions_cubit.dart';
+import '../theme/dashboard_colors.dart';
+import '../screens/dashboard/widgets/dashboard_chip_button.dart';
+import '../screens/dashboard/widgets/dashboard_surface.dart';
 import 'import_selection.dart';
 
-const _backgroundColor = Color(0xFF000000);
-const _surfaceColor = Color(0xFF0A0A0A);
-const _borderColor = Color(0xFF333333);
-const _primaryTextColor = Color(0xFFFFFFFF);
-const _secondaryTextColor = Color(0xFFA1A1AA);
-const _statusColor = Color(0xFF22C55E);
+const _backgroundColor = dashboardBackgroundColor;
+const _borderColor = dashboardBorderColor;
+const _secondaryTextColor = dashboardSecondaryTextColor;
+const _statusColor = dashboardStatusColor;
+const _errorColor = dashboardErrorColor;
 
 String? _normalizeModelName(String? modelName) {
   final normalized = modelName?.trim();
   if (normalized == null || normalized.isEmpty) {
     return null;
   }
-
   return normalized.toLowerCase();
 }
 
@@ -28,7 +30,6 @@ String? _displayModelName(String? modelName) {
   if (normalized == null || normalized.isEmpty) {
     return null;
   }
-
   return normalized;
 }
 
@@ -62,6 +63,30 @@ String _formatDateKey(DateTime value) {
 }
 
 enum _SessionSort { latest, cost, tokens }
+
+class _Callout extends StatelessWidget {
+  final Widget child;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final EdgeInsetsGeometry? padding;
+
+  const _Callout({
+    required this.child,
+    this.backgroundColor,
+    this.borderColor,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DashboardSurface(
+      padding: padding ?? const EdgeInsets.all(16),
+      backgroundColor: backgroundColor ?? dashboardBackgroundColor,
+      borderColor: borderColor ?? dashboardBorderColor,
+      child: child,
+    );
+  }
+}
 
 class SessionsExplorerPanel extends StatefulWidget {
   const SessionsExplorerPanel({
@@ -99,6 +124,27 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
   String? _statusMessage;
   _SessionSort _sortMode = _SessionSort.latest;
 
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  String _searchQuery = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleSync() async {
     if (!widget.isConnected) {
       return;
@@ -116,13 +162,6 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
     if (!mounted) {
       return;
     }
-
-    final l10n = AppLocalizations.of(context)!;
-    setState(() {
-      _statusMessage = success
-          ? l10n.sessionsExplorerSyncSuccess
-          : l10n.sessionsExplorerSyncError;
-    });
 
     if (success) {
       widget.onDataChanged();
@@ -151,9 +190,14 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
         source.jsonContent!,
         sourceLabel: source.sourceLabel,
       );
-    } else if (source.sqliteFile != null) {
-      success = await cubit.importSqlite(
-        source.sqliteFile!,
+    } else if (source.sqlitePath != null) {
+      success = await cubit.importSqlitePath(
+        source.sqlitePath!,
+        sourceLabel: source.sourceLabel,
+      );
+    } else if (source.sqliteBytes != null) {
+      success = await cubit.importSqliteBytes(
+        source.sqliteBytes!,
         sourceLabel: source.sourceLabel,
       );
     }
@@ -162,15 +206,29 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
       return;
     }
 
-    setState(() {
-      _statusMessage = success
-          ? l10n.sessionsExplorerImportSuccess
-          : l10n.sessionsExplorerImportError;
-    });
-
     if (success) {
       widget.onDataChanged();
     }
+  }
+
+  String? _statusMessageForState(AppLocalizations l10n, SessionsState state) {
+    if (_statusMessage != null) {
+      return _statusMessage;
+    }
+
+    return switch (state.lastOperationType) {
+      'sync' =>
+        state.lastOperationSuccess == true
+            ? l10n.sessionsExplorerSyncSuccess
+            : l10n.sessionsExplorerSyncError,
+      'import-json' || 'import-sqlite' =>
+        state.lastOperationSuccess == true
+            ? l10n.sessionsExplorerImportSuccess
+            : (state.isWalModeImportError
+                  ? l10n.sessionsExplorerImportWalModeError
+                  : l10n.sessionsExplorerImportError),
+      _ => null,
+    };
   }
 
   @override
@@ -178,8 +236,20 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
     final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
 
-    return BlocBuilder<SessionsCubit, SessionsState>(
+    return BlocConsumer<SessionsCubit, SessionsState>(
+      listener: (context, state) {
+        if (state.isLoading ||
+            state.lastOperationType != null ||
+            state.isError) {
+          if (_statusMessage != null) {
+            setState(() {
+              _statusMessage = null;
+            });
+          }
+        }
+      },
       builder: (context, state) {
+        final effectiveStatusMessage = _statusMessageForState(l10n, state);
         final canSync = widget.isConnected && !state.isLoading;
         final selectedModelFilterLabel = _displayModelName(
           widget.selectedModelFilter,
@@ -218,6 +288,26 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
         if (hasActiveHourFilter) {
           sessions = sessions.where((s) {
             return s.createdAt.toUtc().hour == widget.selectedUtcHour;
+          }).toList();
+        }
+
+        if (_searchQuery.isNotEmpty) {
+          final query = _searchQuery.toLowerCase();
+          sessions = sessions.where((s) {
+            final tokens = (s.inputTokens ?? 0) + (s.outputTokens ?? 0);
+            return s.id.toLowerCase().contains(query) ||
+                s.createdAt.toIso8601String().toLowerCase().contains(query) ||
+                (s.provider?.toLowerCase().contains(query) ?? false) ||
+                (s.modelName?.toLowerCase().contains(query) ?? false) ||
+                (s.subagentCategory?.toLowerCase().contains(query) ?? false) ||
+                (s.inputTokens?.toString().contains(query) ?? false) ||
+                (s.outputTokens?.toString().contains(query) ?? false) ||
+                tokens.toString().contains(query) ||
+                (s.totalCostUsd?.toString().contains(query) ?? false) ||
+                (s.requestCount?.toString().contains(query) ?? false) ||
+                (s.toolCallCount?.toString().contains(query) ?? false) ||
+                (s.responseCount?.toString().contains(query) ?? false) ||
+                (s.totalResponseTimeMs?.toString().contains(query) ?? false);
           }).toList();
         }
 
@@ -281,23 +371,55 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.sessionRowData(
-                    session.createdAt.toIso8601String(),
-                    modelName,
-                    tokens.toString(),
-                    "USD",
-                    (session.totalCostUsd ?? 0).toStringAsFixed(4),
-                    sessionId,
-                  ),
-                  style: textTheme.bodyLarge,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '$modelName • ${compactNumber(tokens.toDouble())} TOK',
+                        style: textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      'USD ${(session.totalCostUsd ?? 0).toStringAsFixed(4)}',
+                      style: textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'ID: $sessionId',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: _secondaryTextColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      session.createdAt.toIso8601String(),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: _secondaryTextColor,
+                      ),
+                    ),
+                  ],
                 ),
                 if (session.subagentCategory != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       l10n.sessionsExplorerSubagent(session.subagentCategory!),
-                      style: textTheme.bodyMedium,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: _secondaryTextColor,
+                      ),
                     ),
                   ),
               ],
@@ -308,20 +430,19 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
         return LayoutBuilder(
           builder: (context, constraints) {
             final isBounded = constraints.hasBoundedHeight;
+            final isDesktop = constraints.maxWidth >= 1100;
 
-            Widget listContent = Container(
-              decoration: BoxDecoration(
-                color: _backgroundColor,
-                border: Border.all(color: _borderColor),
-              ),
+            Widget listContent = DashboardSurface(
+              backgroundColor: _backgroundColor,
               child: sessions.isEmpty && !state.isLoading
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
+                  ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: _Callout(
                         child: Text(
                           (selectedModelFilterLabel != null ||
                                   widget.selectedDay != null ||
-                                  hasActiveHourFilter)
+                                  hasActiveHourFilter ||
+                                  _searchQuery.isNotEmpty)
                               ? l10n.sessionsExplorerFilteredEmpty
                               : widget.isConnected
                               ? l10n.sessionsExplorerEmptyConnected
@@ -344,14 +465,99 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                     ),
             );
 
-            return Container(
-              key: const Key("sessions-panel"),
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: _surfaceColor,
-                border: Border.all(color: _borderColor),
+            Widget listToolbar = DashboardSurface(
+              padding: const EdgeInsets.all(12),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l10n.sessionsListHeader,
+                    key: const Key("sessions-list-header"),
+                    style: textTheme.titleMedium,
+                  ),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 16,
+                    children: [
+                      SizedBox(
+                        width: constraints.maxWidth < 600 ? 200 : 300,
+                        child: TextField(
+                          key: const Key("sessions-search-field"),
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          style: textTheme.bodyLarge,
+                          decoration: const InputDecoration()
+                              .applyDefaults(
+                                Theme.of(context).inputDecorationTheme,
+                              )
+                              .copyWith(
+                                hintText: l10n.sessionsSearchPlaceholder,
+                                isDense: true,
+                                filled: true,
+                                fillColor: _backgroundColor,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                    color: _borderColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                    color: dashboardAccentColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                suffixIcon: _searchQuery.isNotEmpty
+                                    ? IconButton(
+                                        key: const Key(
+                                          "sessions-search-clear-button",
+                                        ),
+                                        icon: const Icon(Icons.close, size: 18),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          _searchFocusNode.unfocus();
+                                        },
+                                        tooltip: l10n.sessionsSearchClear,
+                                      )
+                                    : null,
+                              ),
+                        ),
+                      ),
+                      Text(
+                        l10n.sessionsSearchResultsCount(sessions.length),
+                        key: const Key("sessions-search-results-count"),
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: _secondaryTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            );
+
+            Widget listColumn = Column(
+              key: const Key("sessions-list-column"),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                listToolbar,
+                const SizedBox(height: 8),
+                if (isBounded)
+                  Expanded(child: listContent)
+                else
+                  SizedBox(height: 500, child: listContent),
+              ],
+            );
+
+            Widget sidebarSummary = DashboardSurface(
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -369,77 +575,66 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                         spacing: 12,
                         runSpacing: 8,
                         children: [
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key("sessions-sync-button"),
+                            label: l10n.sessionsExplorerActionSync,
+                            isSelected: false,
                             onTap: canSync ? _handleSync : null,
-                            child: Text(
-                              l10n.sessionsExplorerActionSync,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: canSync
-                                    ? _primaryTextColor
-                                    : _secondaryTextColor,
-                                fontWeight: canSync
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
                           ),
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key("sessions-import-button"),
+                            label: l10n.sessionsExplorerActionImport,
+                            isSelected: false,
                             onTap: state.isLoading ? null : _handleImport,
-                            child: Text(
-                              l10n.sessionsExplorerActionImport,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: state.isLoading
-                                    ? _secondaryTextColor
-                                    : _primaryTextColor,
-                                fontWeight: state.isLoading
-                                    ? FontWeight.normal
-                                    : FontWeight.bold,
-                              ),
-                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  if (state.isLoading)
-                    Text(
-                      l10n.sessionsExplorerLoading,
-                      style: textTheme.bodyLarge,
-                    )
-                  else if (_statusMessage != null)
-                    Text(
-                      _statusMessage!,
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: state.isError
-                            ? _secondaryTextColor
-                            : _statusColor,
+                  if (state.isLoading ||
+                      effectiveStatusMessage != null ||
+                      (state.isError && state.message != null)) ...[
+                    const SizedBox(height: 12),
+                    _Callout(
+                      borderColor: state.isError
+                          ? _errorColor
+                          : (state.isLoading ? _borderColor : _statusColor),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (state.isLoading)
+                            Text(
+                              l10n.sessionsExplorerLoading,
+                              style: textTheme.bodyLarge,
+                            )
+                          else if (effectiveStatusMessage != null)
+                            Text(
+                              effectiveStatusMessage,
+                              style: textTheme.bodyLarge?.copyWith(
+                                color: state.isError
+                                    ? _errorColor
+                                    : _statusColor,
+                              ),
+                            ),
+                          if (!state.isLoading &&
+                              state.isError &&
+                              state.message != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              l10n.sessionsExplorerError,
+                              style: textTheme.bodyMedium,
+                            ),
+                          ],
+                        ],
                       ),
-                    ),
-                  if (!state.isLoading &&
-                      state.isError &&
-                      state.message != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      l10n.sessionsExplorerError,
-                      style: textTheme.bodyMedium,
                     ),
                   ],
                   if (selectedModelFilterLabel != null ||
                       widget.selectedDay != null ||
                       hasActiveHourFilter) ...[
                     const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _backgroundColor,
-                        border: Border.all(color: _borderColor),
-                      ),
+                    _Callout(
+                      backgroundColor: _backgroundColor,
                       child: Row(
                         children: [
                           Expanded(
@@ -480,237 +675,183 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                           ),
                           if (selectedModelFilterLabel != null) ...[
                             const SizedBox(width: 12),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                key: const Key("sessions-clear-filter"),
-                                onTap: widget.onClearModelFilter,
-                                child: Text(
-                                  l10n.clearFilterAction,
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: _secondaryTextColor,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
+                            DashboardChipButton(
+                              key: const Key("sessions-clear-filter"),
+                              label: l10n.clearFilterAction,
+                              onTap: widget.onClearModelFilter,
                             ),
                           ],
                         ],
                       ),
                     ),
                   ],
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      Container(
-                        width: 300,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: _borderColor),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.sessionsExplorerCachedHistoryTitle,
-                              style: textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            if (rawSessions.isEmpty)
-                              Text(
-                                l10n.sessionsExplorerCachedEmpty,
-                                style: textTheme.bodyLarge,
-                              )
-                            else ...[
-                              Text(
-                                l10n.sessionsExplorerCachedCount(
-                                  rawSessions.length,
-                                ),
-                                style: textTheme.bodyLarge,
-                              ),
-                              Text(
-                                l10n.sessionsExplorerCachedNewest(
-                                  rawSessions.first.createdAt
-                                      .toIso8601String()
-                                      .split("T")
-                                      .first,
-                                ),
-                                style: textTheme.bodyLarge,
-                              ),
-                              Text(
-                                l10n.sessionsExplorerCachedOldest(
-                                  rawSessions.last.createdAt
-                                      .toIso8601String()
-                                      .split("T")
-                                      .first,
-                                ),
-                                style: textTheme.bodyLarge,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 300,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: _borderColor),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.sessionsExplorerLastOpTitle,
-                              style: textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            if (state.lastOperationType == null)
-                              Text(
-                                l10n.sessionsExplorerLastOpNone,
-                                style: textTheme.bodyLarge,
-                              )
-                            else ...[
-                              Text(
-                                l10n.sessionsExplorerLastOpType(
-                                  _getOpTypeLabel(
-                                    l10n,
-                                    state.lastOperationType!,
-                                  ),
-                                ),
-                                style: textTheme.bodyLarge,
-                              ),
-                              Text(
-                                l10n.sessionsExplorerLastOpStatus(
-                                  state.lastOperationSuccess == true
-                                      ? l10n.opStatusSuccess
-                                      : l10n.opStatusFailure,
-                                ),
-                                style: textTheme.bodyLarge?.copyWith(
-                                  color: state.lastOperationSuccess == true
-                                      ? _statusColor
-                                      : _secondaryTextColor,
-                                ),
-                              ),
-                              if (state.lastOperationSourceLabel != null)
-                                Text(
-                                  l10n.sessionsExplorerLastOpSource(
-                                    state.lastOperationSourceLabel!,
-                                  ),
-                                  style: textTheme.bodyLarge,
-                                ),
-                              if (state.lastOperationCachedCount != null)
-                                Text(
-                                  l10n.sessionsExplorerLastOpCount(
-                                    state.lastOperationCachedCount!,
-                                  ),
-                                  style: textTheme.bodyLarge,
-                                ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
+                ],
+              ),
+            );
+
+            Widget sidebarHistory = _Callout(
+              backgroundColor: Colors.transparent,
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.sessionsExplorerCachedHistoryTitle,
+                    style: textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 8),
-                  Container(
-                    key: const Key("sessions-spotlight-panel"),
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: _borderColor),
+                  const SizedBox(height: 4),
+                  if (rawSessions.isEmpty)
+                    Text(
+                      l10n.sessionsExplorerCachedEmpty,
+                      style: textTheme.bodyLarge,
+                    )
+                  else ...[
+                    Text(
+                      l10n.sessionsExplorerCachedCount(rawSessions.length),
+                      style: textTheme.bodyLarge,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Text(
+                      l10n.sessionsExplorerCachedNewest(
+                        rawSessions.first.createdAt
+                            .toIso8601String()
+                            .split("T")
+                            .first,
+                      ),
+                      style: textTheme.bodyLarge,
+                    ),
+                    Text(
+                      l10n.sessionsExplorerCachedOldest(
+                        rawSessions.last.createdAt
+                            .toIso8601String()
+                            .split("T")
+                            .first,
+                      ),
+                      style: textTheme.bodyLarge,
+                    ),
+                  ],
+                ],
+              ),
+            );
+
+            Widget sidebarLastOp = _Callout(
+              backgroundColor: Colors.transparent,
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.sessionsExplorerLastOpTitle,
+                    style: textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  if (state.lastOperationType == null)
+                    Text(
+                      l10n.sessionsExplorerLastOpNone,
+                      style: textTheme.bodyLarge,
+                    )
+                  else ...[
+                    Text(
+                      l10n.sessionsExplorerLastOpType(
+                        _getOpTypeLabel(l10n, state.lastOperationType!),
+                      ),
+                      style: textTheme.bodyLarge,
+                    ),
+                    Text(
+                      l10n.sessionsExplorerLastOpStatus(
+                        state.lastOperationSuccess == true
+                            ? l10n.opStatusSuccess
+                            : l10n.opStatusFailure,
+                      ),
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: state.lastOperationSuccess == true
+                            ? _statusColor
+                            : _errorColor,
+                      ),
+                    ),
+                    if (state.lastOperationSourceLabel != null)
+                      Text(
+                        l10n.sessionsExplorerLastOpSource(
+                          state.lastOperationSourceLabel!,
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                    if (state.lastOperationCachedCount != null)
+                      Text(
+                        l10n.sessionsExplorerLastOpCount(
+                          state.lastOperationCachedCount!,
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                  ],
+                ],
+              ),
+            );
+
+            Widget sidebarSpotlight = Container(
+              key: const Key("sessions-spotlight-panel"),
+              child: _Callout(
+                backgroundColor: Colors.transparent,
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+                        Text("-- TOP SESSIONS --", style: textTheme.bodyMedium),
                         Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
                           children: [
-                            Text(
-                              "-- TOP SESSIONS --",
-                              style: textTheme.bodyMedium,
+                            DashboardChipButton(
+                              key: const Key("sessions-sort-latest"),
+                              label: "[ LATEST ]",
+                              isSelected: _sortMode == _SessionSort.latest,
+                              onTap: () => setState(
+                                () => _sortMode = _SessionSort.latest,
+                              ),
                             ),
-                            Wrap(
-                              spacing: 8,
-                              children: [
-                                GestureDetector(
-                                  key: const Key("sessions-sort-latest"),
-                                  onTap: () => setState(
-                                    () => _sortMode = _SessionSort.latest,
-                                  ),
-                                  child: Text(
-                                    "[ LATEST ]",
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      color: _sortMode == _SessionSort.latest
-                                          ? _primaryTextColor
-                                          : _secondaryTextColor,
-                                      fontWeight:
-                                          _sortMode == _SessionSort.latest
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  key: const Key("sessions-sort-cost"),
-                                  onTap: () => setState(
-                                    () => _sortMode = _SessionSort.cost,
-                                  ),
-                                  child: Text(
-                                    "[ COST ]",
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      color: _sortMode == _SessionSort.cost
-                                          ? _primaryTextColor
-                                          : _secondaryTextColor,
-                                      fontWeight: _sortMode == _SessionSort.cost
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  key: const Key("sessions-sort-tokens"),
-                                  onTap: () => setState(
-                                    () => _sortMode = _SessionSort.tokens,
-                                  ),
-                                  child: Text(
-                                    "[ TOKENS ]",
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      color: _sortMode == _SessionSort.tokens
-                                          ? _primaryTextColor
-                                          : _secondaryTextColor,
-                                      fontWeight:
-                                          _sortMode == _SessionSort.tokens
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            DashboardChipButton(
+                              key: const Key("sessions-sort-cost"),
+                              label: "[ COST ]",
+                              isSelected: _sortMode == _SessionSort.cost,
+                              onTap: () =>
+                                  setState(() => _sortMode = _SessionSort.cost),
+                            ),
+                            DashboardChipButton(
+                              key: const Key("sessions-sort-tokens"),
+                              label: "[ TOKENS ]",
+                              isSelected: _sortMode == _SessionSort.tokens,
+                              onTap: () => setState(
+                                () => _sortMode = _SessionSort.tokens,
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Column(
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    !isDesktop
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (rawSessions.isNotEmpty &&
                                       topSessions.isEmpty)
-                                    Text(
-                                      l10n.sessionsSpotlightEmptyScope,
-                                      style: textTheme.bodyLarge,
+                                    _Callout(
+                                      child: Text(
+                                        l10n.sessionsSpotlightEmptyScope,
+                                        style: textTheme.bodyLarge,
+                                      ),
                                     )
                                   else if (topSessions.isEmpty)
-                                    Text(
-                                      l10n.sessionsSpotlightEmpty,
-                                      style: textTheme.bodyLarge,
+                                    _Callout(
+                                      child: Text(
+                                        l10n.sessionsSpotlightEmpty,
+                                        style: textTheme.bodyLarge,
+                                      ),
                                     )
                                   else
                                     ...List.generate(topSessions.length, (
@@ -724,25 +865,91 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                                     }),
                                 ],
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              flex: 1,
-                              child: ModelUsagePieChart(
+                              const SizedBox(height: 16, width: 16),
+                              ModelUsagePieChart(
                                 usageByModel: usageByModel,
                                 chartKey: const Key("sessions-top-model-pie"),
+                                expanded: true,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (isBounded)
-                    Expanded(child: listContent)
-                  else
-                    SizedBox(height: 300, child: listContent),
+                            ],
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (rawSessions.isNotEmpty &&
+                                        topSessions.isEmpty)
+                                      _Callout(
+                                        child: Text(
+                                          l10n.sessionsSpotlightEmptyScope,
+                                          style: textTheme.bodyLarge,
+                                        ),
+                                      )
+                                    else if (topSessions.isEmpty)
+                                      _Callout(
+                                        child: Text(
+                                          l10n.sessionsSpotlightEmpty,
+                                          style: textTheme.bodyLarge,
+                                        ),
+                                      )
+                                    else
+                                      ...List.generate(topSessions.length, (
+                                        index,
+                                      ) {
+                                        return buildSessionRow(
+                                          topSessions[index],
+                                          index,
+                                          isSpotlight: true,
+                                        );
+                                      }),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                flex: 1,
+                                child: ModelUsagePieChart(
+                                  usageByModel: usageByModel,
+                                  chartKey: const Key("sessions-top-model-pie"),
+                                  expanded: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ],
+                ),
+              ),
+            );
+
+            Widget sidebarColumn = Column(
+              key: const Key("sessions-sidebar-column"),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                sidebarSummary,
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [sidebarHistory, sidebarLastOp],
+                ),
+                const SizedBox(height: 8),
+                sidebarSpotlight,
+              ],
+            );
+
+            return Container(
+              key: const Key("sessions-panel"),
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  sidebarColumn,
+                  const SizedBox(height: 16),
+                  if (isBounded) Expanded(child: listColumn) else listColumn,
                 ],
               ),
             );

@@ -11,12 +11,18 @@ void main() {
       expect(
         OpenSpentInfo.persistedMetadataAllowlist,
         unorderedEquals(<String>[
+          'provider',
           'modelName',
           'inputTokens',
           'outputTokens',
           'totalCostUsd',
+          'requestCount',
+          'toolCallCount',
+          'responseCount',
+          'totalResponseTimeMs',
           'createdAt',
           'subagentCategory',
+          'usageSlices',
         ]),
       );
       expect(
@@ -32,12 +38,18 @@ void main() {
         OpenSpentInfo.ingestedSessionFieldAllowlist,
         unorderedEquals(<String>[
           'id',
+          'provider',
           'modelName',
           'inputTokens',
           'outputTokens',
           'totalCostUsd',
+          'requestCount',
+          'toolCallCount',
+          'responseCount',
+          'totalResponseTimeMs',
           'createdAt',
           'subagentCategory',
+          'usageSlices',
         ]),
       );
       expect(

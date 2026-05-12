@@ -69,9 +69,12 @@ class _FakeExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     for (final rate in rates) {
-      final key = _normalize(rate.date);
+      final key = _normalize(effectiveDate ?? rate.date);
       final nextRates = List<ExchangeRate>.from(_ratesByDate[key] ?? const []);
       nextRates.removeWhere((existing) => existing.currency == rate.currency);
       nextRates.add(rate);
@@ -248,11 +251,19 @@ void main() {
 
     await tester.tap(find.byKey(const Key('exchange-rates-currency-czk')));
     await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('exchange-rates-status-surface')),
+      findsOneWidget,
+    );
     expect(find.text('> Display currency set to CZK.'), findsOneWidget);
 
     await cubit.load();
     await tester.pumpAndSettle();
 
+    expect(
+      find.byKey(const Key('exchange-rates-status-surface')),
+      findsNothing,
+    );
     expect(
       find.byKey(const Key('exchange-rates-status-message')),
       findsNothing,
@@ -316,4 +327,55 @@ void main() {
       expect(find.text('> Coverage .......... 1/2'), findsOneWidget);
     },
   );
+
+  testWidgets('sync failure shows error surface with dashboard error color', (
+    WidgetTester tester,
+  ) async {
+    final metricsRepository = _FakeMetricsRepository(
+      allDailyBreakdown: [
+        DailyMetrics(
+          date: DateTime.utc(2026, 5, 8),
+          sessionCount: 1,
+          inputTokens: 10,
+          outputTokens: 4,
+          totalCostUsd: 1,
+        ),
+      ],
+    );
+    final localRepository = _FakeExchangeRateRepository();
+
+    final cubit = ExchangeRatesCubit(
+      dependencies: _buildDependencies(
+        metricsRepository: metricsRepository,
+        localRepository: localRepository,
+      ),
+    );
+    addTearDown(cubit.close);
+    await cubit.load();
+
+    // Emulate a failed state manually to test the UI presentation
+    cubit.emit(
+      cubit.state.copyWith(isError: true, errorMessage: 'Network timeout'),
+    );
+
+    await _pumpPanel(tester, cubit: cubit);
+
+    final statusSurface = tester.widget<Container>(
+      find
+          .descendant(
+            of: find.byKey(const Key('exchange-rates-status-surface')),
+            matching: find.byType(Container),
+          )
+          .first,
+    );
+    final decoration = statusSurface.decoration as BoxDecoration;
+    final border = decoration.border as Border;
+    expect(border.top.color, const Color(0xFFEF4444)); // dashboardErrorColor
+
+    expect(
+      find.byKey(const Key('exchange-rates-error-message')),
+      findsOneWidget,
+    );
+    expect(find.text('> Error ............. Network timeout'), findsOneWidget);
+  });
 }

@@ -40,8 +40,9 @@ void main() {
         },
       );
       final settingsRepository = _SpySettingsRepository();
-      final metricsRepository =
-          _SpyMetricsRepository(readMetricsResult: metrics);
+      final metricsRepository = _SpyMetricsRepository(
+        readMetricsResult: metrics,
+      );
       final exchangeRateRepository = _SpyExchangeRateRepository();
       final service = MonetizedMetricsService(
         settingsRepository: settingsRepository,
@@ -165,8 +166,9 @@ void main() {
           openCodeServerUrl: Uri.parse('http://localhost:4096'),
         ),
       );
-      final metricsRepository =
-          _SpyMetricsRepository(readMetricsResult: metrics);
+      final metricsRepository = _SpyMetricsRepository(
+        readMetricsResult: metrics,
+      );
       final exchangeRateRepository = _SpyExchangeRateRepository(
         ratesByDate: <DateTime, List<ExchangeRate>>{
           firstDate: <ExchangeRate>[
@@ -199,31 +201,49 @@ void main() {
       expect(metricsRepository.readMetricsCallCount, 1);
       expect(metricsRepository.lastReadFrom, from);
       expect(metricsRepository.lastReadTo, to);
-      expect(
-          exchangeRateRepository.readDates, <DateTime>[firstDate, secondDate]);
+      expect(exchangeRateRepository.readDates, <DateTime>[
+        firstDate,
+        secondDate,
+      ]);
       expect(result.displayCurrency, SupportedCurrency.czk);
       expect(result.displayTotalCost, closeTo(28.0, 0.000001));
       expect(result.dailyBreakdown, hasLength(2));
-      expect(result.dailyBreakdown.first.displayTotalCost,
-          closeTo(16.5, 0.000001));
       expect(
-          result.dailyBreakdown.last.displayTotalCost, closeTo(11.5, 0.000001));
+        result.dailyBreakdown.first.displayTotalCost,
+        closeTo(16.5, 0.000001),
+      );
+      expect(
+        result.dailyBreakdown.last.displayTotalCost,
+        closeTo(11.5, 0.000001),
+      );
       expect(
         result.hourlyBreakdown.map((hourly) => hourly.displayTotalCost),
         <double>[5.5, 11.0, 11.5],
       );
+      expect(result.perModelDailyBreakdown.keys, <String>[
+        'gpt-5.4',
+        'o4-mini',
+      ]);
       expect(
-          result.perModelDailyBreakdown.keys, <String>['gpt-5.4', 'o4-mini']);
-      expect(result.perModelDailyBreakdown['gpt-5.4']!.single.displayTotalCost,
-          closeTo(16.5, 0.000001));
-      expect(result.perModelDailyBreakdown['o4-mini']!.single.displayTotalCost,
-          closeTo(11.5, 0.000001));
+        result.perModelDailyBreakdown['gpt-5.4']!.single.displayTotalCost,
+        closeTo(16.5, 0.000001),
+      );
       expect(
-          result.perModelHourlyBreakdown.keys, <String>['gpt-5.4', 'o4-mini']);
-      expect(result.perModelHourlyBreakdown['gpt-5.4']!.single.displayTotalCost,
-          closeTo(5.5, 0.000001));
-      expect(result.perModelHourlyBreakdown['o4-mini']!.single.displayTotalCost,
-          closeTo(11.5, 0.000001));
+        result.perModelDailyBreakdown['o4-mini']!.single.displayTotalCost,
+        closeTo(11.5, 0.000001),
+      );
+      expect(result.perModelHourlyBreakdown.keys, <String>[
+        'gpt-5.4',
+        'o4-mini',
+      ]);
+      expect(
+        result.perModelHourlyBreakdown['gpt-5.4']!.single.displayTotalCost,
+        closeTo(5.5, 0.000001),
+      );
+      expect(
+        result.perModelHourlyBreakdown['o4-mini']!.single.displayTotalCost,
+        closeTo(11.5, 0.000001),
+      );
     });
 
     test('bubbles settings read failures and skips metrics reads', () async {
@@ -333,7 +353,7 @@ final class _SpyMetricsRepository implements MetricsRepository {
 
 final class _SpyExchangeRateRepository implements ExchangeRateRepository {
   _SpyExchangeRateRepository({Map<DateTime, List<ExchangeRate>>? ratesByDate})
-      : _ratesByDate = ratesByDate ?? <DateTime, List<ExchangeRate>>{};
+    : _ratesByDate = ratesByDate ?? <DateTime, List<ExchangeRate>>{};
 
   final Map<DateTime, List<ExchangeRate>> _ratesByDate;
 
@@ -346,7 +366,10 @@ final class _SpyExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) {
     throw UnimplementedError();
   }
 }

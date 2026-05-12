@@ -62,6 +62,7 @@ class Loc {
   String get companyBody => this == cs
       ? 'Jsme vývojářské studio, které věří v lokální nástroje a ochranu soukromí. Vytvořili jsme OpenSpent jako open-source (MIT).'
       : 'We are a development studio that believes in local-first tools and privacy. We built OpenSpent as open-source (MIT).';
+  String get linkDemo => this == cs ? 'Vyzkoušet Demo' : 'Try the Demo';
   String get linkGithub => 'GitHub Repository';
   String get linkLinkedin => 'LinkedIn';
 

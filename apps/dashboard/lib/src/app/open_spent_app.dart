@@ -82,11 +82,38 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
           scaffoldBackgroundColor: dashboardBackgroundColor,
           dividerColor: dashboardBorderColor,
           colorScheme: const ColorScheme.dark(
-            primary: dashboardPrimaryTextColor,
+            primary: dashboardAccentColor,
+            onPrimary: dashboardPrimaryTextColor,
             surface: dashboardSurfaceColor,
-            outline: dashboardBorderColor,
-            secondary: dashboardStatusColor,
             onSurface: dashboardPrimaryTextColor,
+            surfaceContainerHighest: dashboardSurfaceHighlightColor,
+            outline: dashboardBorderColor,
+            secondary: dashboardSecondaryTextColor,
+            onSecondary: dashboardBackgroundColor,
+            error: dashboardErrorColor,
+            tertiary: dashboardStatusColor,
+            onTertiary: dashboardBackgroundColor,
+          ),
+          inputDecorationTheme: const InputDecorationTheme(
+            isDense: true,
+            filled: true,
+            fillColor: dashboardBackgroundColor,
+            hintStyle: TextStyle(color: dashboardSecondaryTextColor),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: dashboardBorderColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: dashboardBorderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: dashboardAccentColor),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: dashboardErrorColor),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: dashboardErrorColor),
+            ),
           ),
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
@@ -99,6 +126,18 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
               color: dashboardPrimaryTextColor,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.4,
+              fontFamilyFallback: <String>['Menlo', 'Courier'],
+            ),
+            titleLarge: TextStyle(
+              color: dashboardPrimaryTextColor,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+              fontFamilyFallback: <String>['Menlo', 'Courier'],
+            ),
+            labelLarge: TextStyle(
+              color: dashboardPrimaryTextColor,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
               fontFamilyFallback: <String>['Menlo', 'Courier'],
             ),
             bodyLarge: TextStyle(

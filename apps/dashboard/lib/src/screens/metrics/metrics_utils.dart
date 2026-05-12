@@ -283,9 +283,11 @@ bool isMissingExchangeRateError(Object? error) {
 
 String compactNumber(double value) {
   if (value >= 1000000) {
-    return '${(value / 1000000).toStringAsFixed(1)}M';
+    final str = (value / 1000000).toStringAsFixed(1);
+    return '${str.endsWith('.0') ? str.substring(0, str.length - 2) : str}M';
   } else if (value >= 1000) {
-    return '${(value / 1000).toStringAsFixed(1)}K';
+    final str = (value / 1000).toStringAsFixed(1);
+    return '${str.endsWith('.0') ? str.substring(0, str.length - 2) : str}K';
   }
   return value.toInt().toString();
 }

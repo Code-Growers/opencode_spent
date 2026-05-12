@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../info/openspent_info.dart';
 import '../models/open_code_session.dart';
+import '../models/session_usage_slice.dart';
 
 final class OpenCodeSessionJsonParser {
   const OpenCodeSessionJsonParser();
@@ -55,15 +56,77 @@ final class OpenCodeSessionJsonParser {
 
     return OpenCodeSession(
       id: id,
+      provider: _readString(node, metadata, 'provider'),
       modelName: _readString(node, metadata, 'modelName'),
       inputTokens: _readInt(node, metadata, 'inputTokens'),
       outputTokens: _readInt(node, metadata, 'outputTokens'),
       totalCostUsd: _readDouble(node, metadata, 'totalCostUsd'),
+      requestCount: _readInt(node, metadata, 'requestCount'),
+      toolCallCount: _readInt(node, metadata, 'toolCallCount'),
+      responseCount: _readInt(node, metadata, 'responseCount'),
+      totalResponseTimeMs: _readInt(node, metadata, 'totalResponseTimeMs'),
       createdAt: _parseCreatedAt(createdAtValue),
       subagentCategory: _sanitizeSubagentCategory(
         _readString(node, metadata, 'subagentCategory'),
       ),
+      usageSlices: _readUsageSlices(node, metadata),
     );
+  }
+
+  List<SessionUsageSlice> _readUsageSlices(
+    Map<String, Object?> node,
+    Map<String, Object?> metadata,
+  ) {
+    final value = node['usageSlices'] ?? metadata['usageSlices'];
+    if (value == null) {
+      return const <SessionUsageSlice>[];
+    }
+
+    if (value is! List<Object?>) {
+      throw const FormatException('Expected usageSlices to be a JSON list.');
+    }
+
+    return value.map(_parseUsageSlice).toList(growable: false);
+  }
+
+  SessionUsageSlice _parseUsageSlice(Object? node) {
+    if (node is! Map<String, Object?>) {
+      throw const FormatException(
+        'Each usage slice entry must be a JSON object.',
+      );
+    }
+
+    final provider = _readRequiredString(node, 'provider');
+    final modelName = _readRequiredString(node, 'modelName');
+
+    return SessionUsageSlice(
+      provider: provider,
+      modelName: modelName,
+      inputTokens: _readInt(node, const <String, Object?>{}, 'inputTokens'),
+      outputTokens: _readInt(node, const <String, Object?>{}, 'outputTokens'),
+      totalCostUsd: _readDouble(
+        node,
+        const <String, Object?>{},
+        'totalCostUsd',
+      ),
+      requestCount: _readInt(node, const <String, Object?>{}, 'requestCount'),
+      toolCallCount: _readInt(node, const <String, Object?>{}, 'toolCallCount'),
+      responseCount: _readInt(node, const <String, Object?>{}, 'responseCount'),
+      totalResponseTimeMs: _readInt(
+        node,
+        const <String, Object?>{},
+        'totalResponseTimeMs',
+      ),
+    );
+  }
+
+  String _readRequiredString(Map<String, Object?> node, String key) {
+    final value = node[key];
+    if (value is! String || value.isEmpty) {
+      throw FormatException('Expected $key to be a non-empty string.');
+    }
+
+    return value;
   }
 
   Map<String, Object?> _extractMetadata(Map<String, Object?> node) {
@@ -126,7 +189,8 @@ final class OpenCodeSessionJsonParser {
     }
 
     if (value is String) {
-      final parsed = int.tryParse(value) ??
+      final parsed =
+          int.tryParse(value) ??
           (throw FormatException('Expected $key to be an integer.'));
       if (parsed < 0) {
         throw FormatException('Expected $key to be a non-negative integer.');
@@ -158,7 +222,8 @@ final class OpenCodeSessionJsonParser {
     }
 
     if (value is String) {
-      final parsed = double.tryParse(value) ??
+      final parsed =
+          double.tryParse(value) ??
           (throw FormatException('Expected $key to be numeric.'));
       if (!parsed.isFinite || parsed < 0) {
         throw FormatException('Expected $key to be a non-negative number.');
@@ -205,8 +270,9 @@ final class OpenCodeSessionJsonParser {
 
     final offset = match.group(8);
     if (offset != null && offset != 'Z') {
-      final offsetMatch =
-          RegExp(r'^([+-])(\d{2}):?(\d{2})$').firstMatch(offset);
+      final offsetMatch = RegExp(
+        r'^([+-])(\d{2}):?(\d{2})$',
+      ).firstMatch(offset);
       if (offsetMatch == null) {
         throw FormatException('Invalid createdAt value: $value');
       }

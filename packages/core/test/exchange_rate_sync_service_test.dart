@@ -27,6 +27,7 @@ void main() {
       expect(remoteRepository.lastReadDate, date);
       expect(localRepository.writeExchangeRatesCallCount, 1);
       expect(localRepository.writtenExchangeRates, same(rates));
+      expect(localRepository.lastWriteEffectiveDate, date);
     });
 
     test('does not call local write when remote read fails', () async {
@@ -78,6 +79,7 @@ void main() {
       expect(remoteRepository.lastReadDate, date);
       expect(localRepository.writeExchangeRatesCallCount, 1);
       expect(localRepository.writtenExchangeRates, same(rates));
+      expect(localRepository.lastWriteEffectiveDate, date);
     });
   });
 }
@@ -96,6 +98,7 @@ final class _SpyExchangeRateRepository implements ExchangeRateRepository {
   int readExchangeRatesCallCount = 0;
   int writeExchangeRatesCallCount = 0;
   DateTime? lastReadDate;
+  DateTime? lastWriteEffectiveDate;
   Iterable<ExchangeRate>? writtenExchangeRates;
 
   @override
@@ -111,8 +114,12 @@ final class _SpyExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     writeExchangeRatesCallCount += 1;
+    lastWriteEffectiveDate = effectiveDate;
     writtenExchangeRates = rates;
 
     if (writeError != null) {

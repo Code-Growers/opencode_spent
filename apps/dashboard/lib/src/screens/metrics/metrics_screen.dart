@@ -7,6 +7,10 @@ import '../../theme/dashboard_colors.dart';
 import 'cubit/metrics_cubit.dart';
 import 'metrics_utils.dart';
 import 'widgets/metrics_chart_widgets.dart';
+import 'widgets/metrics_kpi_cards.dart';
+import '../dashboard/widgets/dashboard_chip_button.dart';
+import '../dashboard/widgets/dashboard_surface.dart';
+
 import 'widgets/metrics_text_summary.dart';
 
 class MetricsScreen extends StatefulWidget {
@@ -47,7 +51,7 @@ class MetricsScreen extends StatefulWidget {
   State<MetricsScreen> createState() => _MetricsScreenState();
 }
 
-enum _MetricsView { text, spend, tokens, models }
+enum _MetricsView { text, spend, tokens, models, providers }
 
 class _MetricsScreenState extends State<MetricsScreen> {
   late MetricsCubit _metricsCubit;
@@ -109,433 +113,409 @@ class _MetricsScreenState extends State<MetricsScreen> {
 
     return BlocProvider<MetricsCubit>.value(
       value: _metricsCubit,
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 160),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: dashboardSurfaceColor,
-          border: Border.all(color: dashboardBorderColor),
-        ),
-        child: BlocBuilder<MetricsCubit, MetricsState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(l10n.metricsLoad, style: textTheme.bodyMedium),
-              );
-            } else if (state.hasError) {
-              final errorText =
-                  widget.selectedCurrency == SupportedCurrency.czk &&
-                      isMissingExchangeRateError(state.error)
-                  ? l10n.metricsMissingExchangeRatesHelper
-                  : l10n.metricsUnavailable;
-              return Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  errorText,
-                  key: const Key('metrics-error-text'),
-                  style: textTheme.bodyMedium,
-                ),
-              );
-            } else if (!state.hasData) {
-              return const SizedBox.shrink();
-            }
-
-            final metrics = state.data!.currentMetrics;
-            final priorMetrics = state.data!.priorMetrics;
-            final hasMissingSelectedModel =
-                widget.selectedModelFilter != null &&
-                !metrics.perModelDailyBreakdown.containsKey(
-                  widget.selectedModelFilter,
+      child: DashboardSurface(
+        child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 160),
+          child: BlocBuilder<MetricsCubit, MetricsState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: DashboardSurface(
+                    backgroundColor: dashboardBackgroundColor,
+                    borderColor: dashboardBorderColor,
+                    child: Text(l10n.metricsLoad, style: textTheme.bodyLarge),
+                  ),
                 );
+              } else if (state.hasError) {
+                final errorText =
+                    widget.selectedCurrency == SupportedCurrency.czk &&
+                        isMissingExchangeRateError(state.error)
+                    ? l10n.metricsMissingExchangeRatesHelper
+                    : l10n.metricsUnavailable;
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: DashboardSurface(
+                    backgroundColor: dashboardBackgroundColor,
+                    borderColor: dashboardErrorColor,
+                    child: Text(
+                      errorText,
+                      key: const Key('metrics-error-text'),
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: dashboardErrorColor,
+                      ),
+                    ),
+                  ),
+                );
+              } else if (!state.hasData) {
+                return const SizedBox.shrink();
+              }
 
-            if (hasMissingSelectedModel) {
-              if (!_pendingMissingModelFilterClear) {
-                _pendingMissingModelFilterClear = true;
+              final metrics = state.data!.currentMetrics;
+              final priorMetrics = state.data!.priorMetrics;
+              final hasMissingSelectedModel =
+                  widget.selectedModelFilter != null &&
+                  !metrics.perModelDailyBreakdown.containsKey(
+                    widget.selectedModelFilter,
+                  );
+
+              if (hasMissingSelectedModel) {
+                if (!_pendingMissingModelFilterClear) {
+                  _pendingMissingModelFilterClear = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) {
+                      return;
+                    }
+
+                    _pendingMissingModelFilterClear = false;
+                    if (widget.selectedModelFilter != null) {
+                      widget.onModelSelected(null);
+                    }
+                  });
+                }
+              } else {
+                _pendingMissingModelFilterClear = false;
+              }
+
+              final displayCurrency = metrics.displayCurrency.code;
+              final visibleDays = buildVisibleWindowDays(
+                metrics.dailyBreakdown,
+                widget.selectedWindow,
+                widget.from,
+                widget.to,
+              );
+              final hasPersistedSelectedDay = widget.selectedDay != null;
+              final persistedSelectedDayVisible =
+                  hasPersistedSelectedDay &&
+                  containsUtcDay(visibleDays, widget.selectedDay!);
+              final safeSelectedDay = persistedSelectedDayVisible
+                  ? widget.selectedDay
+                  : null;
+              if (hasPersistedSelectedDay && !persistedSelectedDayVisible) {
+                final nextSelectedDay = visibleDays.isNotEmpty
+                    ? visibleDays.last
+                    : null;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (!mounted) {
                     return;
                   }
 
-                  _pendingMissingModelFilterClear = false;
-                  if (widget.selectedModelFilter != null) {
-                    widget.onModelSelected(null);
+                  final currentSelectedDay = widget.selectedDay;
+                  if (currentSelectedDay == null ||
+                      containsUtcDay(visibleDays, currentSelectedDay)) {
+                    return;
                   }
+
+                  widget.onDaySelected(nextSelectedDay);
                 });
               }
-            } else {
-              _pendingMissingModelFilterClear = false;
-            }
 
-            final displayCurrency = metrics.displayCurrency.code;
-            final visibleDays = buildVisibleWindowDays(
-              metrics.dailyBreakdown,
-              widget.selectedWindow,
-              widget.from,
-              widget.to,
-            );
-            final hasPersistedSelectedDay = widget.selectedDay != null;
-            final persistedSelectedDayVisible =
-                hasPersistedSelectedDay &&
-                containsUtcDay(visibleDays, widget.selectedDay!);
-            final safeSelectedDay = persistedSelectedDayVisible
-                ? widget.selectedDay
-                : null;
-            if (hasPersistedSelectedDay && !persistedSelectedDayVisible) {
-              final nextSelectedDay = visibleDays.isNotEmpty
-                  ? visibleDays.last
-                  : null;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) {
+              final selectedDay =
+                  safeSelectedDay ??
+                  (visibleDays.isNotEmpty ? visibleDays.last : null);
+
+              void handleHourSelected(int hour) {
+                if (selectedDay == null) {
                   return;
                 }
 
-                final currentSelectedDay = widget.selectedDay;
-                if (currentSelectedDay == null ||
-                    containsUtcDay(visibleDays, currentSelectedDay)) {
-                  return;
+                final persistedDay = widget.selectedDay;
+                if (persistedDay == null ||
+                    !isSameUtcDay(persistedDay, selectedDay)) {
+                  widget.onDaySelected(selectedDay);
                 }
 
-                widget.onDaySelected(nextSelectedDay);
-              });
-            }
-
-            final selectedDay =
-                safeSelectedDay ??
-                (visibleDays.isNotEmpty ? visibleDays.last : null);
-
-            void handleHourSelected(int hour) {
-              if (selectedDay == null) {
-                return;
+                widget.onHourSelected(hour);
               }
 
-              final persistedDay = widget.selectedDay;
-              if (persistedDay == null ||
-                  !isSameUtcDay(persistedDay, selectedDay)) {
-                widget.onDaySelected(selectedDay);
-              }
-
-              widget.onHourSelected(hour);
-            }
-
-            Widget daySelector = const SizedBox.shrink();
-            if (selectedDay != null && visibleDays.isNotEmpty) {
-              final firstDate = visibleDays.first;
-              final lastDate = visibleDays.last;
-              daySelector = Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 8),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    key: const Key('metrics-day-picker-button'),
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDay,
-                        firstDate: firstDate,
-                        lastDate: lastDate,
-                      );
-                      if (picked != null && mounted) {
-                        final utcDay = DateTime.utc(
-                          picked.year,
-                          picked.month,
-                          picked.day,
+              Widget daySelector = const SizedBox.shrink();
+              if (selectedDay != null && visibleDays.isNotEmpty) {
+                final firstDate = visibleDays.first;
+                final lastDate = visibleDays.last;
+                daySelector = Semantics(
+                  button: true,
+                  value: formatDayChipLabel(selectedDay),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      key: const Key('metrics-day-picker-button'),
+                      borderRadius: BorderRadius.circular(4.0),
+                      hoverColor: dashboardPrimaryTextColor.withValues(
+                        alpha: 0.05,
+                      ),
+                      focusColor: dashboardPrimaryTextColor.withValues(
+                        alpha: 0.1,
+                      ),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDay,
+                          firstDate: firstDate,
+                          lastDate: lastDate,
                         );
-                        if (containsUtcDay(visibleDays, utcDay)) {
-                          widget.onDaySelected(utcDay);
+                        if (picked != null && mounted) {
+                          final utcDay = DateTime.utc(
+                            picked.year,
+                            picked.month,
+                            picked.day,
+                          );
+                          if (containsUtcDay(visibleDays, utcDay)) {
+                            widget.onDaySelected(utcDay);
+                          }
                         }
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: dashboardBorderColor),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: dashboardSecondaryTextColor,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '[ ${formatDayChipLabel(selectedDay)} ]',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: dashboardPrimaryTextColor,
-                              fontWeight: FontWeight.bold,
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: dashboardBorderColor),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: dashboardSecondaryTextColor,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              '[ ${formatDayChipLabel(selectedDay)} ]',
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: dashboardPrimaryTextColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }
+                );
+              }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.metricsTitle, style: textTheme.titleMedium),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Wrap(
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: DashboardSpacing.controlGap,
+                    runSpacing: DashboardSpacing.controlGap,
+                    children: [
+                      Text(l10n.metricsTitle, style: textTheme.titleMedium),
+                      Wrap(
                         alignment: WrapAlignment.end,
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: DashboardSpacing.controlGap,
+                        runSpacing: DashboardSpacing.controlGap,
                         children: [
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key('metrics-window-7d'),
+                            label: l10n.windowAction7d,
+                            isSelected: widget.selectedWindow == TimeWindow.days7,
                             onTap: () =>
                                 widget.onWindowSelected(TimeWindow.days7),
-                            child: Text(
-                              l10n.windowAction7d,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: widget.selectedWindow == TimeWindow.days7
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight:
-                                    widget.selectedWindow == TimeWindow.days7
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
                           ),
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key('metrics-window-30d'),
+                            label: l10n.windowAction30d,
+                            isSelected:
+                                widget.selectedWindow == TimeWindow.days30,
                             onTap: () =>
                                 widget.onWindowSelected(TimeWindow.days30),
-                            child: Text(
-                              l10n.windowAction30d,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color:
-                                    widget.selectedWindow == TimeWindow.days30
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight:
-                                    widget.selectedWindow == TimeWindow.days30
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
                           ),
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key('metrics-window-90d'),
+                            label: l10n.windowAction90d,
+                            isSelected:
+                                widget.selectedWindow == TimeWindow.days90,
                             onTap: () =>
                                 widget.onWindowSelected(TimeWindow.days90),
-                            child: Text(
-                              l10n.windowAction90d,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color:
-                                    widget.selectedWindow == TimeWindow.days90
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight:
-                                    widget.selectedWindow == TimeWindow.days90
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
                           ),
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key('metrics-window-all'),
+                            label: l10n.windowActionAll,
+                            isSelected: widget.selectedWindow == TimeWindow.all,
                             onTap: () =>
                                 widget.onWindowSelected(TimeWindow.all),
-                            child: Text(
-                              l10n.windowActionAll,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: widget.selectedWindow == TimeWindow.all
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight:
-                                    widget.selectedWindow == TimeWindow.all
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
                           ),
-                          GestureDetector(
+                          DashboardChipButton(
                             key: const Key('metrics-window-custom'),
+                            label: l10n.windowActionCustom,
+                            isSelected:
+                                widget.selectedWindow == TimeWindow.custom,
                             onTap: widget.onCustomWindowRequested,
-                            child: Text(
-                              l10n.windowActionCustom,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color:
-                                    widget.selectedWindow == TimeWindow.custom
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight:
-                                    widget.selectedWindow == TimeWindow.custom
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            key: const Key('metrics-tab-text'),
-                            onTap: () =>
-                                setState(() => _view = _MetricsView.text),
-                            child: Text(
-                              l10n.textTab,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: _view == _MetricsView.text
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight: _view == _MetricsView.text
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            key: const Key('metrics-tab-spend'),
-                            onTap: () =>
-                                setState(() => _view = _MetricsView.spend),
-                            child: Text(
-                              l10n.spendTab,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: _view == _MetricsView.spend
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight: _view == _MetricsView.spend
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            key: const Key('metrics-tab-tokens'),
-                            onTap: () =>
-                                setState(() => _view = _MetricsView.tokens),
-                            child: Text(
-                              l10n.tokensTab,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: _view == _MetricsView.tokens
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight: _view == _MetricsView.tokens
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            key: const Key('metrics-tab-models'),
-                            onTap: () =>
-                                setState(() => _view = _MetricsView.models),
-                            child: Text(
-                              l10n.modelsTab,
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: _view == _MetricsView.models
-                                    ? dashboardPrimaryTextColor
-                                    : dashboardSecondaryTextColor,
-                                fontWeight: _view == _MetricsView.models
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: DashboardSpacing.nestedPanelPadding,
                     ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 4),
-                  child: Text(
-                    l10n.lineVisibleWindow(
-                      formatWindowLabel(
-                        context,
-                        widget.selectedWindow,
-                        widget.from,
-                        widget.to,
+                    child: Text(
+                      l10n.lineVisibleWindow(
+                        formatWindowLabel(
+                          context,
+                          widget.selectedWindow,
+                          widget.from,
+                          widget.to,
+                        ),
                       ),
+                      key: const Key('metrics-window-line'),
+                      style: textTheme.bodyLarge,
                     ),
-                    key: const Key('metrics-window-line'),
-                    style: textTheme.bodyLarge,
                   ),
-                ),
-                daySelector,
-                if (_view == _MetricsView.text) ...[
-                  const SizedBox(height: 12),
-                  MetricsTextSummary(
-                    visibleDays: visibleDays,
-                    metrics: metrics,
-                    priorMetrics: priorMetrics,
-                    displayCurrency: displayCurrency,
-                    selectedDay: selectedDay,
-                    selectedModelFilter: widget.selectedModelFilter,
-                    onModelSelected: widget.onModelSelected,
-                    from: widget.from,
-                    to: widget.to,
-                  ),
-                ] else if (_view == _MetricsView.spend) ...[
-                  const SizedBox(height: 12),
-                  SpendTrendChart(
-                    dailyBreakdown: metrics.dailyBreakdown,
-                    visibleDays: visibleDays,
-                    displayCurrency: displayCurrency,
-                  ),
-                  const SizedBox(height: 24),
-                  if (selectedDay != null)
-                    HourlySpendChart(
-                      hourlyBreakdown: metrics.hourlyBreakdown,
-                      selectedDay: selectedDay,
-                      selectedUtcHour: widget.selectedUtcHour,
-                      onHourSelected: handleHourSelected,
-                      displayCurrency: displayCurrency,
-                    ),
-                ] else if (_view == _MetricsView.tokens) ...[
-                  const SizedBox(height: 12),
-                  TokenTrendChart(
-                    dailyBreakdown: metrics.dailyBreakdown,
-                    visibleDays: visibleDays,
-                  ),
-                  const SizedBox(height: 24),
-                  if (selectedDay != null) ...[
-                    HourlyTokenChart(
-                      hourlyBreakdown: metrics.hourlyBreakdown,
-                      selectedDay: selectedDay,
-                      selectedUtcHour: widget.selectedUtcHour,
-                      onHourSelected: handleHourSelected,
-                    ),
-                    const SizedBox(height: 16),
-                    MetricsTokensTopDrivers(
+                  KeyedSubtree(
+                    key: const Key('metrics-kpi-section'),
+                    child: MetricsKpiCards(
                       metrics: metrics,
-                      selectedDay: selectedDay,
                       displayCurrency: displayCurrency,
-                      selectedModelFilter: widget.selectedModelFilter,
-                      onModelSelected: widget.onModelSelected,
                     ),
-                  ],
-                ] else if (_view == _MetricsView.models) ...[
-                  const SizedBox(height: 12),
-                  ModelSpendChart(
-                    perModelDailyBreakdown: metrics.perModelDailyBreakdown,
-                    perModelHourlyBreakdown: metrics.perModelHourlyBreakdown,
-                    currencyCode: displayCurrency,
-                    grandTotalCost: metrics.displayTotalCost,
-                    selectedModelFilter: widget.selectedModelFilter,
-                    onModelSelected: widget.onModelSelected,
-                    visibleDays: visibleDays,
-                    selectedDay: selectedDay,
+                  ),
+                  const SizedBox(height: 24),
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: DashboardSpacing.controlGap,
+                    runSpacing: DashboardSpacing.controlGap,
+                    children: [
+                      daySelector,
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: DashboardSpacing.controlGap,
+                        runSpacing: DashboardSpacing.controlGap,
+                        children: [
+                          DashboardChipButton(
+                            key: const Key('metrics-tab-text'),
+                            label: l10n.textTab,
+                            isSelected: _view == _MetricsView.text,
+                            onTap: () =>
+                                setState(() => _view = _MetricsView.text),
+                          ),
+                          DashboardChipButton(
+                            key: const Key('metrics-tab-spend'),
+                            label: l10n.spendTab,
+                            isSelected: _view == _MetricsView.spend,
+                            onTap: () =>
+                                setState(() => _view = _MetricsView.spend),
+                          ),
+                          DashboardChipButton(
+                            key: const Key('metrics-tab-tokens'),
+                            label: l10n.tokensTab,
+                            isSelected: _view == _MetricsView.tokens,
+                            onTap: () =>
+                                setState(() => _view = _MetricsView.tokens),
+                          ),
+                          DashboardChipButton(
+                            key: const Key('metrics-tab-models'),
+                            label: l10n.modelsTab,
+                            isSelected: _view == _MetricsView.models,
+                            onTap: () =>
+                                setState(() => _view = _MetricsView.models),
+                          ),
+                          DashboardChipButton(
+                            key: const Key('metrics-tab-providers'),
+                            label: l10n.metricsProvidersTab,
+                            isSelected: _view == _MetricsView.providers,
+                            onTap: () =>
+                                setState(() => _view = _MetricsView.providers),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  KeyedSubtree(
+                    key: const Key('metrics-view-section'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (_view == _MetricsView.text) ...[
+                          MetricsTextSummary(
+                            visibleDays: visibleDays,
+                            metrics: metrics,
+                            priorMetrics: priorMetrics,
+                            displayCurrency: displayCurrency,
+                            selectedDay: selectedDay,
+                            selectedModelFilter: widget.selectedModelFilter,
+                            onModelSelected: widget.onModelSelected,
+                            from: widget.from,
+                            to: widget.to,
+                          ),
+                        ] else if (_view == _MetricsView.spend) ...[
+                          SpendTrendChart(
+                            dailyBreakdown: metrics.dailyBreakdown,
+                            visibleDays: visibleDays,
+                            displayCurrency: displayCurrency,
+                          ),
+                          const SizedBox(height: 24),
+                          if (selectedDay != null)
+                            HourlySpendChart(
+                              hourlyBreakdown: metrics.hourlyBreakdown,
+                              selectedDay: selectedDay,
+                              selectedUtcHour: widget.selectedUtcHour,
+                              onHourSelected: handleHourSelected,
+                              displayCurrency: displayCurrency,
+                            ),
+                        ] else if (_view == _MetricsView.tokens) ...[
+                          TokenTrendChart(
+                            dailyBreakdown: metrics.dailyBreakdown,
+                            visibleDays: visibleDays,
+                          ),
+                          const SizedBox(height: 24),
+                          if (selectedDay != null) ...[
+                            HourlyTokenChart(
+                              hourlyBreakdown: metrics.hourlyBreakdown,
+                              selectedDay: selectedDay,
+                              selectedUtcHour: widget.selectedUtcHour,
+                              onHourSelected: handleHourSelected,
+                            ),
+                            const SizedBox(height: 16),
+                            MetricsTokensTopDrivers(
+                              metrics: metrics,
+                              selectedDay: selectedDay,
+                              displayCurrency: displayCurrency,
+                              selectedModelFilter: widget.selectedModelFilter,
+                              onModelSelected: widget.onModelSelected,
+                            ),
+                          ],
+                        ] else if (_view == _MetricsView.models) ...[
+                          ModelSpendChart(
+                            perModelDailyBreakdown:
+                                metrics.perModelDailyBreakdown,
+                            perModelHourlyBreakdown:
+                                metrics.perModelHourlyBreakdown,
+                            currencyCode: displayCurrency,
+                            grandTotalCost: metrics.displayTotalCost,
+                            selectedModelFilter: widget.selectedModelFilter,
+                            onModelSelected: widget.onModelSelected,
+                            visibleDays: visibleDays,
+                            selectedDay: selectedDay,
+                          ),
+                        ] else if (_view == _MetricsView.providers) ...[
+                          ProvidersUsageChart(
+                            providerBreakdowns: metrics.providerBreakdowns,
+                          ),
+                          const SizedBox(height: 24),
+                          ProvidersPriceChart(
+                            providerBreakdowns: metrics.providerBreakdowns,
+                            displayCurrency: displayCurrency,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ],
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

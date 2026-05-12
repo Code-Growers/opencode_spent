@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_core/openspent_core.dart';
 import 'package:openspent_dashboard/src/screens/sessions/cubit/sessions_cubit.dart';
+import 'package:openspent_local/openspent_local_native.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 class _FakeSessionRepository implements OpenCodeSessionRepository {
@@ -28,20 +30,32 @@ class _FakeSessionRepository implements OpenCodeSessionRepository {
 OpenCodeSession _session({
   required String id,
   required DateTime createdAt,
+  String? provider,
   String? modelName,
   int? inputTokens,
   int? outputTokens,
   double? totalCostUsd,
+  int? requestCount,
+  int? toolCallCount,
+  int? responseCount,
+  int? totalResponseTimeMs,
   String? subagentCategory,
+  List<SessionUsageSlice> usageSlices = const <SessionUsageSlice>[],
 }) {
   return OpenCodeSession(
     id: id,
     createdAt: createdAt,
+    provider: provider,
     modelName: modelName,
     inputTokens: inputTokens,
     outputTokens: outputTokens,
     totalCostUsd: totalCostUsd,
+    requestCount: requestCount,
+    toolCallCount: toolCallCount,
+    responseCount: responseCount,
+    totalResponseTimeMs: totalResponseTimeMs,
     subagentCategory: subagentCategory,
+    usageSlices: usageSlices,
   );
 }
 
@@ -49,6 +63,10 @@ SessionsCubit _buildCubit({
   required OpenCodeSessionRepository localRepository,
   OpenCodeSessionRepository Function(OpenCodeSettings settings)?
   remoteRepositoryFactory,
+  OpenCodeSessionRepository Function(String path)?
+  importedSqlitePathRepositoryFactory,
+  OpenCodeSessionRepository Function(Uint8List bytes)?
+  importedSqliteBytesRepositoryFactory,
 }) {
   return SessionsCubit(
     dependencies: SessionsCubitDependencies(
@@ -56,6 +74,11 @@ SessionsCubit _buildCubit({
       jsonParser: const OpenCodeSessionJsonParser(),
       remoteRepositoryFactory:
           remoteRepositoryFactory ?? (_) => _FakeSessionRepository(),
+      importedSqlitePathRepositoryFactory:
+          importedSqlitePathRepositoryFactory ??
+          (path) => OpenCodeSqliteSessionRepository(File(path)),
+      importedSqliteBytesRepositoryFactory:
+          importedSqliteBytesRepositoryFactory,
     ),
   );
 }
@@ -193,8 +216,8 @@ void main() {
     final cubit = _buildCubit(localRepository: _FakeSessionRepository());
     addTearDown(cubit.close);
 
-    final success = await cubit.importSqlite(
-      databaseFile,
+    final success = await cubit.importSqlitePath(
+      databaseFile.path,
       sourceLabel: 'local.db',
     );
 
@@ -207,10 +230,27 @@ void main() {
           1710001000000,
           isUtc: true,
         ),
+        provider: 'openai',
+        requestCount: 0,
+        toolCallCount: 0,
+        responseCount: 1,
         modelName: 'o4-mini',
         inputTokens: 11,
         outputTokens: 7,
         totalCostUsd: 0.42,
+        usageSlices: <SessionUsageSlice>[
+          SessionUsageSlice(
+            provider: 'openai',
+            modelName: 'o4-mini',
+            inputTokens: 11,
+            outputTokens: 7,
+            totalCostUsd: 0.42,
+            requestCount: 0,
+            toolCallCount: 0,
+            responseCount: 1,
+            totalResponseTimeMs: null,
+          ),
+        ],
       ),
     ]);
     expect(cubit.state.lastOperationType, 'import-sqlite');
@@ -223,12 +263,48 @@ void main() {
     final cubit = _buildCubit(localRepository: _FakeSessionRepository());
     addTearDown(cubit.close);
 
-    final success = await cubit.importSqlite(
-      File('/definitely-missing/opencode.db'),
+    final success = await cubit.importSqlitePath(
+      '/definitely-missing/opencode.db',
     );
 
     expect(success, isFalse);
     expect(cubit.state.isError, isTrue);
+  });
+
+  test('importSqliteBytes uses uploaded-byte repository path', () async {
+    final sqliteBytes = Uint8List.fromList(<int>[1, 2, 3, 4]);
+    Uint8List? capturedBytes;
+
+    final cubit = _buildCubit(
+      localRepository: _FakeSessionRepository(),
+      importedSqliteBytesRepositoryFactory: (bytes) {
+        capturedBytes = bytes;
+        return _FakeSessionRepository([
+          _session(
+            id: 'ses_sqlite_web',
+            createdAt: DateTime.utc(2026, 5, 8, 13),
+            modelName: 'o4-mini',
+            inputTokens: 5,
+            outputTokens: 3,
+            totalCostUsd: 0.11,
+          ),
+        ]);
+      },
+    );
+    addTearDown(cubit.close);
+
+    final success = await cubit.importSqliteBytes(
+      sqliteBytes,
+      sourceLabel: 'upload.db',
+    );
+
+    expect(success, isTrue);
+    expect(capturedBytes, same(sqliteBytes));
+    expect(cubit.state.sessions.single.id, 'ses_sqlite_web');
+    expect(cubit.state.lastOperationType, 'import-sqlite');
+    expect(cubit.state.lastOperationSuccess, isTrue);
+    expect(cubit.state.lastOperationSourceLabel, 'upload.db');
+    expect(cubit.state.lastOperationCachedCount, 1);
   });
 
   test('syncNow clears stale message and loads remote sessions', () async {

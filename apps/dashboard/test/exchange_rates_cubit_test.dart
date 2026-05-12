@@ -52,9 +52,12 @@ class _FakeExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {
     for (final rate in rates) {
-      final key = _normalize(rate.date);
+      final key = _normalize(effectiveDate ?? rate.date);
       final nextRates = List<ExchangeRate>.from(_ratesByDate[key] ?? const []);
       nextRates.removeWhere((existing) => existing.currency == rate.currency);
       nextRates.add(rate);
@@ -90,7 +93,10 @@ class _FakeRemoteExchangeRateRepository implements ExchangeRateRepository {
   }
 
   @override
-  Future<void> writeExchangeRates(Iterable<ExchangeRate> rates) async {}
+  Future<void> writeExchangeRates(
+    Iterable<ExchangeRate> rates, {
+    DateTime? effectiveDate,
+  }) async {}
 
   static DateTime _normalize(DateTime value) {
     final utc = value.toUtc();
@@ -259,6 +265,78 @@ void main() {
       expect(remoteRepository.requestedDates, [DateTime.utc(2026, 5, 6)]);
       expect(cubit.state.missingDates, isEmpty);
       expect(cubit.state.coveredDateCount, 2);
+    },
+  );
+
+  test(
+    'syncMissingRates marks a weekend day covered by the prior working-day fixing',
+    () async {
+      final weekendDate = DateTime.utc(2026, 5, 9);
+      final metricsRepository = _FakeMetricsRepository(
+        AggregatedMetrics(
+          totalSessionCount: 1,
+          totalInputTokens: 8,
+          totalOutputTokens: 4,
+          totalCostUsd: 1.0,
+          dailyBreakdown: [
+            DailyMetrics(
+              date: weekendDate,
+              sessionCount: 1,
+              inputTokens: 8,
+              outputTokens: 4,
+              totalCostUsd: 1.0,
+            ),
+          ],
+        ),
+      );
+      final settingsRepository = _FakeSettingsRepository(
+        OpenCodeSettings(
+          selectedCurrency: SupportedCurrency.czk,
+          openCodeServerUrl: Uri.parse('http://localhost:4096'),
+        ),
+      );
+      final localRepository = _FakeExchangeRateRepository();
+      final remoteRepository = _FakeRemoteExchangeRateRepository({
+        weekendDate: [
+          _usdRate(DateTime.utc(2026, 5, 8), 22.0),
+          ExchangeRate(
+            currency: SupportedCurrency.czk,
+            date: DateTime.utc(2026, 5, 8),
+            rateToCzk: 1,
+          ),
+        ],
+      });
+      final cubit = _buildCubit(
+        metricsRepository: metricsRepository,
+        settingsRepository: settingsRepository,
+        localRepository: localRepository,
+        remoteRepository: remoteRepository,
+      );
+      addTearDown(cubit.close);
+
+      await cubit.load();
+
+      expect(cubit.state.missingDates, [weekendDate]);
+
+      final success = await cubit.syncMissingRates();
+
+      expect(success, isTrue);
+      expect(remoteRepository.requestedDates, [weekendDate]);
+      expect(cubit.state.missingDates, isEmpty);
+      final storedRates = await localRepository.readExchangeRatesForDate(
+        weekendDate,
+      );
+      expect(
+        storedRates.map((rate) => rate.currency),
+        containsAll(<SupportedCurrency>[
+          SupportedCurrency.czk,
+          SupportedCurrency.usd,
+        ]),
+      );
+      expect(
+        storedRates.map((rate) => rate.date),
+        everyElement(DateTime.utc(2026, 5, 8)),
+      );
     },
   );
 

@@ -270,9 +270,7 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
       final rates = await _dependencies.localExchangeRateRepository
           .readExchangeRatesForDate(date);
       final hasUsdRate = rates.any(
-        (rate) =>
-            rate.currency == SupportedCurrency.usd &&
-            _normalizeUtcDay(rate.date) == date,
+        (rate) => rate.currency == SupportedCurrency.usd,
       );
       if (!hasUsdRate) {
         missingDates.add(date);
