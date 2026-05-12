@@ -6,6 +6,7 @@ import '../../../theme/dashboard_colors.dart';
 import 'metrics_chart_widgets.dart';
 import '../metrics_utils.dart';
 import '../../dashboard/widgets/dashboard_surface.dart';
+import '../../dashboard/widgets/dashboard_paired_row.dart';
 
 class _InlineActionText extends StatefulWidget {
   const _InlineActionText({
@@ -202,12 +203,147 @@ class MetricsTextSummary extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final isNarrow = constraints.maxWidth < 600;
+            if (!isNarrow) {
+              return DashboardPairedRow(
+                spacing: DashboardSpacing.nestedPanelPadding,
+                firstChild: DashboardSurface(
+                  key: const Key('metrics-summary-overview-surface'),
+                  padding: const EdgeInsets.all(
+                    DashboardSpacing.primaryPanelPadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.overallSection, style: textTheme.bodyMedium),
+                      const SizedBox(height: DashboardSpacing.controlGap),
+                      Text(
+                        l10n.lineTotalCost(
+                          displayCurrency,
+                          metrics.displayTotalCost.toStringAsFixed(2),
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineRollingAvgCost(
+                          displayCurrency,
+                          rollingAvgCost.toStringAsFixed(2),
+                        ),
+                        key: const Key('metrics-rolling-cost-line'),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineRollingAvgTokens(
+                          compactNumber(rollingAvgTokens.toDouble()),
+                        ),
+                        key: const Key('metrics-rolling-tokens-line'),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.linePaceForecast(
+                          displayCurrency,
+                          paceForecast.toStringAsFixed(2),
+                        ),
+                        key: const Key('metrics-pace-line'),
+                        style: textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
+                secondChild: DashboardSurface(
+                  key: const Key('metrics-summary-details-surface'),
+                  padding: const EdgeInsets.all(
+                    DashboardSpacing.primaryPanelPadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.lineSessions(base.totalSessionCount),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineInputTokens(
+                          compactNumber(base.totalInputTokens.toDouble()),
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineOutputTokens(
+                          compactNumber(base.totalOutputTokens.toDouble()),
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineTotalTokens(
+                          compactNumber(totalTokensValue.toDouble()),
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineAvgTokensPerSession(
+                          formatAverageTokensPerSession(
+                            totalTokensValue: totalTokensValue,
+                            sessionCount: base.totalSessionCount,
+                          ),
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.lineCostPerMillionTokens(
+                          displayCurrency,
+                          formatCostPerMillion(
+                            totalCost: metrics.displayTotalCost,
+                            totalTokensValue: totalTokensValue,
+                          ),
+                        ),
+                        style: textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      if (topMoverName.isNotEmpty)
+                        _InlineActionText(
+                          key: const Key('metrics-top-mover-line'),
+                          onTap: () => onModelSelected(
+                            selectedModelFilter == topMoverName
+                                ? null
+                                : topMoverName,
+                          ),
+                          text: l10n.lineTopMover(
+                            topMoverName,
+                            topMoverDelta >= 0 ? '+' : '',
+                            displayCurrency,
+                            topMoverDelta.abs().toStringAsFixed(2),
+                          ),
+                          style: textTheme.bodyLarge?.copyWith(
+                            color: selectedModelFilter == topMoverName
+                                ? dashboardBorderColor
+                                : dashboardAccentColor,
+                          ),
+                        )
+                      else
+                        Text(
+                          l10n.lineTopMoverEmpty,
+                          key: const Key('metrics-top-mover-line-empty'),
+                          style: textTheme.bodyLarge,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            }
             return Flex(
-              direction: isNarrow ? Axis.vertical : Axis.horizontal,
+              direction: Axis.vertical,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  flex: isNarrow ? 0 : 1,
+                  flex: 0,
                   child: DashboardSurface(
                     key: const Key('metrics-summary-overview-surface'),
                     padding: const EdgeInsets.all(
@@ -255,13 +391,11 @@ class MetricsTextSummary extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (!isNarrow)
-                  const SizedBox(width: DashboardSpacing.nestedPanelPadding),
-                if (isNarrow)
-                  const SizedBox(height: DashboardSpacing.nestedPanelPadding),
+                const SizedBox(height: DashboardSpacing.nestedPanelPadding),
                 Expanded(
-                  flex: isNarrow ? 0 : 1,
+                  flex: 0,
                   child: DashboardSurface(
+                    key: const Key('metrics-summary-details-surface'),
                     padding: const EdgeInsets.all(
                       DashboardSpacing.primaryPanelPadding,
                     ),
@@ -548,13 +682,128 @@ class MetricsTextSummary extends StatelessWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final isNarrow = constraints.maxWidth < 600;
+              if (!isNarrow) {
+                return DashboardPairedRow(
+                  spacing: DashboardSpacing.nestedPanelPadding,
+                  firstChild: DashboardSurface(
+                    key: const Key('metrics-summary-selected-day-surface'),
+                    padding: const EdgeInsets.all(
+                      DashboardSpacing.primaryPanelPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.selectedDaySection(
+                            formatDateKey(context, selectedDay!),
+                          ),
+                          style: textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: DashboardSpacing.controlGap),
+                        Text(
+                          l10n.lineTotalCost(
+                            displayCurrency,
+                            selectedDaily?.displayTotalCost.toStringAsFixed(
+                                  2,
+                                ) ??
+                                '0.00',
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineSessions(
+                            selectedDaily?.baseMetrics.sessionCount ?? 0,
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineInputTokens(
+                            compactNumber(selectedInputTokens.toDouble()),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineOutputTokens(
+                            compactNumber(selectedOutputTokens.toDouble()),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.lineTotalTokens(
+                            compactNumber(selectedTotalTokens.toDouble()),
+                          ),
+                          style: textTheme.bodyLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                  secondChild: DashboardSurface(
+                    key: const Key('metrics-summary-peak-hour-surface'),
+                    padding: const EdgeInsets.all(
+                      DashboardSpacing.primaryPanelPadding,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (peakHour != null) ...[
+                          Text(
+                            l10n.peakHourSection(
+                              formatHourLabel(peakHour.baseMetrics.hour.hour),
+                            ),
+                            style: textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: DashboardSpacing.controlGap),
+                          Text(
+                            l10n.linePeakCost(
+                              displayCurrency,
+                              peakHour.displayTotalCost.toStringAsFixed(2),
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.lineSessions(
+                              peakHour.baseMetrics.sessionCount,
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.linePeakTokensInOut(
+                              compactNumber(
+                                peakHour.baseMetrics.inputTokens.toDouble(),
+                              ),
+                              compactNumber(
+                                peakHour.baseMetrics.outputTokens.toDouble(),
+                              ),
+                            ),
+                            style: textTheme.bodyLarge,
+                          ),
+                        ] else ...[
+                          Text(
+                            l10n.peakHourEmptySection,
+                            style: textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: DashboardSpacing.controlGap),
+                          Text(l10n.lineNoActivity, style: textTheme.bodyLarge),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              }
               return Flex(
-                direction: isNarrow ? Axis.vertical : Axis.horizontal,
+                direction: Axis.vertical,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    flex: isNarrow ? 0 : 1,
+                    flex: 0,
                     child: DashboardSurface(
+                      key: const Key('metrics-summary-selected-day-surface'),
                       padding: const EdgeInsets.all(
                         DashboardSpacing.primaryPanelPadding,
                       ),
@@ -610,13 +859,11 @@ class MetricsTextSummary extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (!isNarrow)
-                    const SizedBox(width: DashboardSpacing.nestedPanelPadding),
-                  if (isNarrow)
-                    const SizedBox(height: DashboardSpacing.nestedPanelPadding),
+                  const SizedBox(height: DashboardSpacing.nestedPanelPadding),
                   Expanded(
-                    flex: isNarrow ? 0 : 1,
+                    flex: 0,
                     child: DashboardSurface(
+                      key: const Key('metrics-summary-peak-hour-surface'),
                       padding: const EdgeInsets.all(
                         DashboardSpacing.primaryPanelPadding,
                       ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:openspent_core/openspent_core.dart';
 
@@ -72,6 +73,12 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
       sessionsDependencies: widget.sessionsDependencies,
       pickImportSource: widget.pickImportSource,
       child: MaterialApp.router(
+        builder: (context, child) {
+          if (kIsWeb && child != null) {
+            return SelectionArea(child: child);
+          }
+          return child ?? const SizedBox.shrink();
+        },
         onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
         debugShowCheckedModeBanner: false,
         locale: _locale,

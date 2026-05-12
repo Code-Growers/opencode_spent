@@ -22,6 +22,7 @@ import '../settings/settings_screen.dart';
 import 'widgets/terminal_pane.dart';
 import 'widgets/dashboard_chip_button.dart';
 import 'widgets/dashboard_surface.dart';
+import 'widgets/dashboard_paired_row.dart';
 
 enum ServerProbeState { unknown, disconnected, connected, error }
 
@@ -815,53 +816,93 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-              Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  SizedBox(
-                    width: paneWidth,
-                    child: TerminalPane(
-                      title: l10n.statusPaneTitle,
-                      lines: [
-                        l10n.statusLineReady(
-                          _settingsLoaded
-                              ? l10n.statusReady
-                              : l10n.statusLoading,
-                        ),
-                        l10n.statusLineMode(
-                          isMockData
-                              ? '${l10n.statusModeLocalCache}${l10n.statusModeMockSuffix}'
-                              : l10n.statusModeLocalCache,
-                        ),
-                        l10n.statusLineServer(serverLabel),
-                        l10n.statusLineProbe(displayProbe),
-                      ],
-                      lineStyles: [
-                        null,
-                        null,
-                        null,
-                        _probeState == ServerProbeState.connected
-                            ? textTheme.bodyLarge?.copyWith(
-                                color: dashboardStatusColor,
-                              )
-                            : null,
-                      ],
-                    ),
+              if (wideLayout)
+                DashboardPairedRow(
+                  spacing: 16,
+                  firstChild: TerminalPane(
+                    key: const Key('dashboard-kpi-status'),
+                    title: l10n.statusPaneTitle,
+                    lines: [
+                      l10n.statusLineReady(
+                        _settingsLoaded ? l10n.statusReady : l10n.statusLoading,
+                      ),
+                      l10n.statusLineMode(
+                        isMockData
+                            ? '${l10n.statusModeLocalCache}${l10n.statusModeMockSuffix}'
+                            : l10n.statusModeLocalCache,
+                      ),
+                      l10n.statusLineServer(serverLabel),
+                      l10n.statusLineProbe(displayProbe),
+                    ],
+                    lineStyles: [
+                      null,
+                      null,
+                      null,
+                      _probeState == ServerProbeState.connected
+                          ? textTheme.bodyLarge?.copyWith(
+                              color: dashboardStatusColor,
+                            )
+                          : null,
+                    ],
                   ),
-                  SizedBox(
-                    width: paneWidth,
-                    child: TerminalPane(
-                      title: l10n.privacyPaneTitle,
-                      lines: [
-                        l10n.privacyLinePrompts,
-                        l10n.privacyLineToolOutput,
-                        l10n.privacyLineErrors,
-                      ],
-                    ),
+                  secondChild: TerminalPane(
+                    key: const Key('dashboard-kpi-privacy'),
+                    title: l10n.privacyPaneTitle,
+                    lines: [
+                      l10n.privacyLinePrompts,
+                      l10n.privacyLineToolOutput,
+                      l10n.privacyLineErrors,
+                    ],
                   ),
-                ],
-              ),
+                )
+              else
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    SizedBox(
+                      width: paneWidth,
+                      child: TerminalPane(
+                        title: l10n.statusPaneTitle,
+                        lines: [
+                          l10n.statusLineReady(
+                            _settingsLoaded
+                                ? l10n.statusReady
+                                : l10n.statusLoading,
+                          ),
+                          l10n.statusLineMode(
+                            isMockData
+                                ? '${l10n.statusModeLocalCache}${l10n.statusModeMockSuffix}'
+                                : l10n.statusModeLocalCache,
+                          ),
+                          l10n.statusLineServer(serverLabel),
+                          l10n.statusLineProbe(displayProbe),
+                        ],
+                        lineStyles: [
+                          null,
+                          null,
+                          null,
+                          _probeState == ServerProbeState.connected
+                              ? textTheme.bodyLarge?.copyWith(
+                                  color: dashboardStatusColor,
+                                )
+                              : null,
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: paneWidth,
+                      child: TerminalPane(
+                        title: l10n.privacyPaneTitle,
+                        lines: [
+                          l10n.privacyLinePrompts,
+                          l10n.privacyLineToolOutput,
+                          l10n.privacyLineErrors,
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: 16),
               DashboardSurface(
                 padding: const EdgeInsets.all(16),

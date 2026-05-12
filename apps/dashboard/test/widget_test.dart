@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_core/openspent_core.dart';
@@ -4105,6 +4106,93 @@ void main() {
     await tester.tap(find.byKey(const Key('settings-open-button')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('SelectionArea and Equal-Height Pairs', (tester) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await _pumpEnglishDashboard(
+      tester,
+      sessionsDependencies: SessionsCubitDependencies(
+        localRepository: _FakeSessionRepository(),
+        jsonParser: const OpenCodeSessionJsonParser(),
+        remoteRepositoryFactory: (_) => _FakeSessionRepository(),
+      ),
+      exchangeRatesDependencies: ExchangeRatesCubitDependencies(
+        metricsRepository: _FakeMetricsRepository(),
+        settingsRepository: _FakeSettingsRepository(),
+        localExchangeRateRepository: _FakeExchangeRateRepository(),
+        syncService: ExchangeRateSyncService(
+          remoteRepository: _FakeRemoteExchangeRateRepository({}),
+          localRepository: _FakeExchangeRateRepository(),
+        ),
+      ),
+      pickImportSource: () async => null,
+    );
+    await tester.pumpAndSettle();
+
+    // Verify SelectionArea matches kIsWeb
+    if (kIsWeb) {
+      expect(find.byType(SelectionArea), findsOneWidget);
+    } else {
+      expect(find.byType(SelectionArea), findsNothing);
+    }
+
+    // Verify Equal-Height Pairs in State tab (STATUS / PRIVACY)
+    await _openDashboardSection(tester, 'dashboard-nav-state');
+    await tester.pumpAndSettle();
+
+    final statusFinder = find.byKey(const Key('dashboard-kpi-status'));
+    final privacyFinder = find.byKey(const Key('dashboard-kpi-privacy'));
+
+    final statusSize = tester.getSize(statusFinder);
+    final privacySize = tester.getSize(privacyFinder);
+
+    expect(statusSize.height, privacySize.height);
+
+    // Verify Equal-Height Pairs in Metrics tab (OVERALL / SUMMARY)
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    await tester.pumpAndSettle();
+
+    final overallFinder = find.byKey(
+      const Key('metrics-summary-overview-surface'),
+    );
+    final detailsFinder = find.byKey(
+      const Key('metrics-summary-details-surface'),
+    );
+
+    final overallSize = tester.getSize(overallFinder);
+    final detailsSize = tester.getSize(detailsFinder);
+
+    expect(overallSize.height, detailsSize.height);
+
+    // Verify Equal-Height Pairs for Selected Day / Peak Hour
+    await tester.tap(find.byKey(const Key('metrics-day-picker-button')));
+    await tester.pumpAndSettle();
+
+    // Tap a specific day (like '8' if available, since mock data has May 8)
+    // Actually we can just tap the first day that says "OK" ? Wait, 'OK' is the confirm button. The text is the day number.
+    await tester.tap(find.text('8'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    final selectedDayFinder = find.byKey(
+      const Key('metrics-summary-selected-day-surface'),
+    );
+    final peakHourFinder = find.byKey(
+      const Key('metrics-summary-peak-hour-surface'),
+    );
+
+    // Wait until they are visible
+    await tester.ensureVisible(selectedDayFinder);
+    await tester.pumpAndSettle();
+
+    final selectedDaySize = tester.getSize(selectedDayFinder);
+    final peakHourSize = tester.getSize(peakHourFinder);
+
+    expect(selectedDaySize.height, peakHourSize.height);
   });
 
   testWidgets('KPI grid responsive wrap smoke test', (tester) async {
