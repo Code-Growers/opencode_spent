@@ -9,6 +9,7 @@ import 'package:openspent_core/openspent_core.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../app/app_router.dart';
 import '../../app/app_scope.dart';
+import '../../demo/dashboard_demo.dart';
 import '../../screens/exchange_rates/cubit/exchange_rates_cubit.dart';
 import '../../screens/exchange_rates/exchange_rates_screen.dart';
 import '../../screens/sessions/cubit/sessions_cubit.dart';
@@ -128,6 +129,11 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   ValueChanged<String?> get _onLocaleChanged =>
       OpenSpentAppScope.of(context).onLocaleChanged;
 
+  DemoModeController? _demoModeController;
+
+  bool get _isMockDataMode =>
+      _demoModeController?.value == DashboardDataMode.mock;
+
   @override
   void initState() {
     super.initState();
@@ -136,6 +142,14 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    final newDemoModeController = DemoModeScope.of(context);
+    if (_demoModeController != newDemoModeController) {
+      _demoModeController?.removeListener(_onDemoModeChanged);
+      _demoModeController = newDemoModeController;
+      _demoModeController?.addListener(_onDemoModeChanged);
+    }
+
     if (_didInitializeScopeState) {
       return;
     }
@@ -144,8 +158,30 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     _loadSettings();
   }
 
+  void _onDemoModeChanged() {
+    if (!mounted) {
+      return;
+    }
+
+    unawaited(_refreshProbeStateForCurrentMode());
+    _invalidateMetrics(reloadExchangeRates: true);
+    _refreshSessions();
+  }
+
+  Future<void> _refreshProbeStateForCurrentMode() async {
+    final probeState = await _probeServer(_effectiveSettings);
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _probeState = probeState;
+    });
+  }
+
   @override
   void dispose() {
+    _demoModeController?.removeListener(_onDemoModeChanged);
     _probeTimer?.cancel();
     super.dispose();
   }
@@ -374,6 +410,10 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   }
 
   Future<ServerProbeState> _probeServer(OpenCodeSettings settings) async {
+    if (_isMockDataMode) {
+      return ServerProbeState.connected;
+    }
+
     if (_serverProbe != null) {
       return _serverProbe!(settings);
     }
@@ -683,7 +723,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
         dependencies: sessionsDependencies,
         dataRevision: _sessionsRevision,
         serverSettings: _effectiveSettings,
-        isConnected: _probeState == ServerProbeState.connected,
+        isConnected:
+            _isMockDataMode || _probeState == ServerProbeState.connected,
         pickImportSource: pickImportSource,
         selectedModelFilter: _selectedModelFilter,
         selectedDay: _selectedDay,
@@ -729,6 +770,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   Widget _buildStateContent(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context)!;
+    final demoModeController = DemoModeScope.of(context);
+    final isMockData = _isMockDataMode;
     final serverLabel = _settingsLoaded
         ? _effectiveSettings.openCodeServerUrl.toString()
         : l10n.statusServerLoading;
@@ -752,6 +795,26 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (demoModeController != null) ...[
+                Row(
+                  children: [
+                    Text(l10n.dataModeLabel, style: textTheme.bodyLarge),
+                    const SizedBox(width: 16),
+                    DashboardChipButton(
+                      label: l10n.dataModeReal,
+                      isSelected: !isMockData,
+                      onTap: isMockData ? demoModeController.toggle : null,
+                    ),
+                    const SizedBox(width: 8),
+                    DashboardChipButton(
+                      label: l10n.dataModeMock,
+                      isSelected: isMockData,
+                      onTap: !isMockData ? demoModeController.toggle : null,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
               Wrap(
                 spacing: 16,
                 runSpacing: 16,
@@ -766,7 +829,11 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
                               ? l10n.statusReady
                               : l10n.statusLoading,
                         ),
-                        l10n.statusLineMode(l10n.statusModeLocalCache),
+                        l10n.statusLineMode(
+                          isMockData
+                              ? '${l10n.statusModeLocalCache}${l10n.statusModeMockSuffix}'
+                              : l10n.statusModeLocalCache,
+                        ),
                         l10n.statusLineServer(serverLabel),
                         l10n.statusLineProbe(displayProbe),
                       ],

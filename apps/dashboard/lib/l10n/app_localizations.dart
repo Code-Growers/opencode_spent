@@ -200,6 +200,30 @@ abstract class AppLocalizations {
   /// **'LOCAL CACHE'**
   String get statusModeLocalCache;
 
+  /// No description provided for @statusModeMockSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' (MOCK)'**
+  String get statusModeMockSuffix;
+
+  /// No description provided for @dataModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Mode:'**
+  String get dataModeLabel;
+
+  /// No description provided for @dataModeReal.
+  ///
+  /// In en, this message translates to:
+  /// **'REAL'**
+  String get dataModeReal;
+
+  /// No description provided for @dataModeMock.
+  ///
+  /// In en, this message translates to:
+  /// **'MOCK'**
+  String get dataModeMock;
+
   /// No description provided for @statusServerNotConfigured.
   ///
   /// In en, this message translates to:

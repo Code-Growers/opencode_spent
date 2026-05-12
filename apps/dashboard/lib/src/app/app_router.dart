@@ -18,13 +18,26 @@ class AppRouter extends RootStackRouter {
       page: DashboardShellRoute.page,
       initial: true,
       children: <AutoRoute>[
-        AutoRoute(path: '', page: DashboardMetricsRoute.page),
-        AutoRoute(path: 'sessions', page: DashboardSessionsRoute.page),
-        AutoRoute(
+        CustomRoute(
+          path: '',
+          page: DashboardMetricsRoute.page,
+          transitionsBuilder: TransitionsBuilders.noTransition,
+        ),
+        CustomRoute(
+          path: 'sessions',
+          page: DashboardSessionsRoute.page,
+          transitionsBuilder: TransitionsBuilders.noTransition,
+        ),
+        CustomRoute(
           path: 'exchange-rates',
           page: DashboardExchangeRatesRoute.page,
+          transitionsBuilder: TransitionsBuilders.noTransition,
         ),
-        AutoRoute(path: 'state', page: DashboardStateRoute.page),
+        CustomRoute(
+          path: 'state',
+          page: DashboardStateRoute.page,
+          transitionsBuilder: TransitionsBuilders.noTransition,
+        ),
       ],
     ),
   ];

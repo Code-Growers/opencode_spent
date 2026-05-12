@@ -94,6 +94,40 @@ void main() {
       },
     );
 
+    test(
+      'accepts the previous working-day fixing for the current requested day',
+      () async {
+        final apiClient = _FakeCnbExchangeRateApiClient(
+          response:
+              '11.05.2026 #84\n'
+              'země|měna|množství|kód|kurz\n'
+              'USA|dollar|1|USD|21,930\n',
+        );
+        final repository = RemoteExchangeRateRepository(
+          apiClient: apiClient,
+          now: () => DateTime.utc(2026, 5, 12, 8),
+        );
+
+        final rates = await repository.readExchangeRatesForDate(
+          DateTime.utc(2026, 5, 12),
+        );
+
+        expect(apiClient.requestedDate, '12.05.2026');
+        expect(rates, <ExchangeRate>[
+          ExchangeRate(
+            currency: SupportedCurrency.usd,
+            date: DateTime.utc(2026, 5, 11),
+            rateToCzk: 21.93,
+          ),
+          ExchangeRate(
+            currency: SupportedCurrency.czk,
+            date: DateTime.utc(2026, 5, 11),
+            rateToCzk: 1.0,
+          ),
+        ]);
+      },
+    );
+
     test('rejects stale parsed dates after a working day gap', () async {
       final apiClient = _FakeCnbExchangeRateApiClient(
         response:

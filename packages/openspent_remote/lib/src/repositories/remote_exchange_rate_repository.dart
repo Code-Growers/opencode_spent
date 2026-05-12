@@ -6,15 +6,19 @@ final class RemoteExchangeRateRepository implements ExchangeRateRepository {
   RemoteExchangeRateRepository({
     required CnbExchangeRateApiClient apiClient,
     CnbExchangeRateParser parser = const CnbExchangeRateParser(),
+    DateTime Function() now = DateTime.now,
   }) : _apiClient = apiClient,
-       _parser = parser;
+       _parser = parser,
+       _now = now;
 
   final CnbExchangeRateApiClient _apiClient;
   final CnbExchangeRateParser _parser;
+  final DateTime Function() _now;
 
   @override
   Future<List<ExchangeRate>> readExchangeRatesForDate(DateTime date) async {
     final normalizedDate = _normalizeDate(date);
+    final currentDate = _normalizeDate(_now());
     final rawResponse = await _apiClient.getDailyExchangeRateFile(
       date: _formatCnbDate(normalizedDate),
     );
@@ -22,7 +26,7 @@ final class RemoteExchangeRateRepository implements ExchangeRateRepository {
 
     for (final rate in rates) {
       final parsedDate = _normalizeDate(rate.date);
-      if (!_isAcceptedFixingDate(parsedDate, normalizedDate)) {
+      if (!_isAcceptedFixingDate(parsedDate, normalizedDate, currentDate)) {
         throw StateError(
           'ČNB returned rates for ${_formatCnbDate(parsedDate)} '
           'when ${_formatCnbDate(normalizedDate)} was requested.',
@@ -52,13 +56,20 @@ final class RemoteExchangeRateRepository implements ExchangeRateRepository {
   static bool _isAcceptedFixingDate(
     DateTime parsedDate,
     DateTime requestedDate,
+    DateTime currentDate,
   ) {
     if (parsedDate.isAfter(requestedDate) || !_isCzechWorkingDay(parsedDate)) {
       return false;
     }
 
+    if (parsedDate == requestedDate) {
+      return true;
+    }
+
     var date = parsedDate.add(const Duration(days: 1));
-    while (!date.isAfter(requestedDate)) {
+    while (requestedDate == currentDate
+        ? date.isBefore(requestedDate)
+        : !date.isAfter(requestedDate)) {
       if (_isCzechWorkingDay(date)) {
         return false;
       }

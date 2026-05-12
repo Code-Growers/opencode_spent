@@ -10,6 +10,7 @@ import 'package:openspent_dashboard/src/theme/dashboard_colors.dart';
 import 'package:openspent_dashboard/src/screens/exchange_rates/cubit/exchange_rates_cubit.dart';
 import 'package:openspent_dashboard/src/screens/sessions/cubit/sessions_cubit.dart';
 import 'package:openspent_dashboard/src/sessions/import_selection.dart';
+import 'package:openspent_dashboard/src/demo/dashboard_demo.dart';
 import 'package:openspent_local/openspent_local.dart';
 
 class _FakeSettingsRepository implements SettingsRepository {
@@ -570,6 +571,54 @@ void main() {
 
     expect(find.byKey(const Key('metrics-spend-daily-chart')), findsNothing);
     expect(find.text('USD --/1M TOK'), findsNothing);
+  });
+
+  testWidgets('Dashboard shell shows demo mode toggle and responds to it', (
+    WidgetTester tester,
+  ) async {
+    final demoController = DemoModeController(DashboardDataMode.real);
+
+    final repository = _FakeSettingsRepository();
+    final service = MonetizedMetricsService(
+      settingsRepository: repository,
+      metricsRepository: _EmptyMetricsRepository(),
+      composer: MonetizedMetricsComposer(
+        exchangeRateRepository: _UnusedExchangeRateRepository(),
+      ),
+    );
+
+    tester.view.physicalSize = const Size(1440, 2200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      DemoModeScope(
+        controller: demoController,
+        child: OpenSpentApp(
+          metricsService: service,
+          key: UniqueKey(),
+          settingsRepository: repository,
+          serverProbe: (_) async => ServerProbeState.connected,
+        ),
+      ),
+    );
+    await tester.binding.setLocale('en', 'US');
+    await tester.pumpAndSettle();
+
+    await _openDashboardSection(tester, 'dashboard-nav-state');
+
+    expect(find.text('Data Mode:'), findsOneWidget);
+    expect(find.text('REAL'), findsOneWidget);
+    expect(find.text('MOCK'), findsOneWidget);
+
+    await tester.tap(find.text('MOCK'));
+    await tester.pumpAndSettle();
+
+    expect(demoController.value, DashboardDataMode.mock);
+    expect(find.textContaining('(MOCK)'), findsWidgets);
   });
 
   testWidgets(

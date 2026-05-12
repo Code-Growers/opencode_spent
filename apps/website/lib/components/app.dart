@@ -306,7 +306,7 @@ class _AppState extends State<App> {
             img(
               src: 'logo.svg',
               classes:
-                  'w-16 h-16 mb-6 group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100',
+                  'h-12 w-auto mb-6 group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100',
             ),
             p(
               classes:

@@ -69,6 +69,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusModeLocalCache => 'LOCAL CACHE';
 
   @override
+  String get statusModeMockSuffix => ' (MOCK)';
+
+  @override
+  String get dataModeLabel => 'Data Mode:';
+
+  @override
+  String get dataModeReal => 'REAL';
+
+  @override
+  String get dataModeMock => 'MOCK';
+
+  @override
   String get statusServerNotConfigured => 'NOT CONFIGURED';
 
   @override

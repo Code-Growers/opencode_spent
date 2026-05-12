@@ -69,6 +69,18 @@ class AppLocalizationsCs extends AppLocalizations {
   String get statusModeLocalCache => 'LOKÁLNÍ CACHE';
 
   @override
+  String get statusModeMockSuffix => ' (MOCK)';
+
+  @override
+  String get dataModeLabel => 'Režim dat:';
+
+  @override
+  String get dataModeReal => 'REÁL';
+
+  @override
+  String get dataModeMock => 'MOCK';
+
+  @override
   String get statusServerNotConfigured => 'NENÍ NASTAVENO';
 
   @override
