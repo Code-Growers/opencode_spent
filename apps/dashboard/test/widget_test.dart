@@ -1164,16 +1164,25 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the edit icon to switch to text input mode by tooltip
+    await tester.tap(find.byKey(const Key('custom-range-start')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Switch to input'));
     await tester.pumpAndSettle();
-
-    // Input fields depend on locale. Our test uses English, so mm/dd/yyyy is standard.
-    final textFields = find.byType(TextField);
-    await tester.enterText(textFields.first, '05/06/2026');
-    await tester.enterText(textFields.last, '05/08/2026');
-
-    await tester.tap(find.byType(TextButton).last);
+    await tester.enterText(find.byType(TextField).first, '05/06/2026');
+    await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('custom-range-end')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Switch to input'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/08/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('custom-range-save')));
+    await tester.pumpAndSettle();
+
     await tester.ensureVisible(find.byKey(const Key('metrics-window-line')));
 
     expect(
@@ -1197,7 +1206,7 @@ void main() {
     await _openDashboardSection(tester, 'dashboard-nav-metrics');
     expect(
       find.text(
-        '> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.',
+        '> missing exchange rates for spend days. Sync rates in the exchange panel and retry.',
       ),
       findsOneWidget,
     );
@@ -1774,16 +1783,25 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the edit icon to switch to text input mode by tooltip
+    await tester.tap(find.byKey(const Key('custom-range-start')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Switch to input'));
     await tester.pumpAndSettle();
-
-    // Input fields depend on locale. Our test uses English, so mm/dd/yyyy is standard.
-    final textFields = find.byType(TextField);
-    await tester.enterText(textFields.first, '05/01/2026');
-    await tester.enterText(textFields.last, '05/08/2026');
-
-    await tester.tap(find.byType(TextButton).last);
+    await tester.enterText(find.byType(TextField).first, '05/01/2026');
+    await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('custom-range-end')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Switch to input'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/08/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('custom-range-save')));
+    await tester.pumpAndSettle();
+
     await tester.ensureVisible(find.byKey(const Key('metrics-window-line')));
 
     expect(
@@ -1985,15 +2003,23 @@ void main() {
       );
       await tester.tap(find.byKey(const Key('metrics-window-custom')));
       await tester.pumpAndSettle();
-
+      await tester.tap(find.byKey(const Key('custom-range-start')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Switch to input'));
       await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, '03/01/2026');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
 
-      final textFields = find.byType(TextField);
-      await tester.enterText(textFields.first, '03/01/2026');
-      await tester.enterText(textFields.last, '04/01/2026');
+      await tester.tap(find.byKey(const Key('custom-range-end')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Switch to input'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, '04/01/2026');
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(TextButton).last);
+      await tester.tap(find.byKey(const Key('custom-range-save')));
       await tester.pumpAndSettle();
 
       // gpt-5.4 left view, filter should be cleared
@@ -2060,15 +2086,23 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('metrics-window-custom')));
     await tester.tap(find.byKey(const Key('metrics-window-custom')));
     await tester.pumpAndSettle();
-
+    await tester.tap(find.byKey(const Key('custom-range-start')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Switch to input'));
     await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/01/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
 
-    final textFields = find.byType(TextField);
-    await tester.enterText(textFields.first, '05/01/2026');
-    await tester.enterText(textFields.last, '05/08/2026');
+    await tester.tap(find.byKey(const Key('custom-range-end')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Switch to input'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/08/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(TextButton).last);
+    await tester.tap(find.byKey(const Key('custom-range-save')));
     await tester.pumpAndSettle();
 
     // 05/06 is in range, so it is preserved
@@ -2078,15 +2112,23 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('metrics-window-custom')));
     await tester.tap(find.byKey(const Key('metrics-window-custom')));
     await tester.pumpAndSettle();
-
+    await tester.tap(find.byKey(const Key('custom-range-start')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Switch to input'));
     await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/07/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
 
-    final textFields2 = find.byType(TextField);
-    await tester.enterText(textFields2.first, '05/07/2026');
-    await tester.enterText(textFields2.last, '05/08/2026');
+    await tester.tap(find.byKey(const Key('custom-range-end')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Switch to input'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/08/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(TextButton).last);
+    await tester.tap(find.byKey(const Key('custom-range-save')));
     await tester.pumpAndSettle();
 
     // 05/06 is out of range, fallback to latest visible day (05/08)
@@ -3502,13 +3544,25 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('metrics-window-custom')));
     await tester.tap(find.byKey(const Key('metrics-window-custom')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('custom-range-start')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Switch to input'));
     await tester.pumpAndSettle();
-    final textFields = find.byType(TextField);
-    await tester.enterText(textFields.first, '05/06/2026');
-    await tester.enterText(textFields.last, '05/08/2026');
-    await tester.tap(find.byType(TextButton).last);
+    await tester.enterText(find.byType(TextField).first, '05/06/2026');
+    await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('custom-range-end')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Switch to input'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '05/08/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('custom-range-save')));
+    await tester.pumpAndSettle();
+
     expect(find.byKey(const Key('metrics-window-line')), findsOneWidget);
     expect(
       find.text('> Prior window ....... 03.05.2026 00:00 - 05.05.2026 00:00'),
@@ -3536,7 +3590,7 @@ void main() {
   });
 
   testWidgets(
-    'dashboard shows unavailable compare helper when missing CZK exchange rates',
+    'dashboard shows unavailable compare helper when missing exchange rates',
     (WidgetTester tester) async {
       final settingsRepo = _FakeSettingsRepository(
         OpenCodeSettings(
@@ -4264,6 +4318,70 @@ void main() {
       find.byKey(const Key('metrics-summary-compare-surface')),
       findsOneWidget,
     );
+
+    // Overview charts should be present
+    expect(find.byKey(const Key('metrics-overview-section')), findsOneWidget);
+    expect(
+      find.byKey(const Key('metrics-overview-sessions-chart')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('metrics-overview-avg-cost-chart')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('metrics-overview-avg-tokens-chart')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('metrics overview charts do not crash on zero-session days', (
+    tester,
+  ) async {
+    final settingsRepo = _FakeSettingsRepository(
+      OpenCodeSettings(
+        selectedCurrency: SupportedCurrency.usd,
+        openCodeServerUrl: Uri.parse('http://localhost'),
+        languageCode: 'en',
+      ),
+    );
+    final metricsService = MonetizedMetricsService(
+      settingsRepository: settingsRepo,
+      metricsRepository: _ZeroTokenMetricsRepository(),
+      composer: MonetizedMetricsComposer(
+        exchangeRateRepository: _FakeExchangeRateRepository(),
+      ),
+    );
+
+    await _pumpEnglishDashboard(
+      tester,
+      metricsService: metricsService,
+      settingsRepository: settingsRepo,
+      sessionsDependencies: SessionsCubitDependencies(
+        localRepository: _FakeSessionRepository(),
+        jsonParser: const OpenCodeSessionJsonParser(),
+        remoteRepositoryFactory: (_) => _FakeSessionRepository(),
+      ),
+      exchangeRatesDependencies: ExchangeRatesCubitDependencies(
+        metricsRepository: _ZeroTokenMetricsRepository(),
+        settingsRepository: settingsRepo,
+        localExchangeRateRepository: _FakeExchangeRateRepository(),
+        syncService: ExchangeRateSyncService(
+          remoteRepository: _FakeRemoteExchangeRateRepository({}),
+          localRepository: _FakeExchangeRateRepository(),
+        ),
+      ),
+      pickImportSource: () async => null,
+    );
+    await tester.pumpAndSettle();
+
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    await tester.ensureVisible(find.byKey(const Key('metrics-tab-text')));
+    await tester.tap(find.byKey(const Key('metrics-tab-text')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('metrics-overview-section')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('models tab drilldown smoke test', (tester) async {

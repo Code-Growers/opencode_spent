@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_core/openspent_core.dart';
 import 'package:openspent_dashboard/l10n/app_localizations.dart';
+import 'package:openspent_dashboard/src/screens/dashboard/widgets/dashboard_surface.dart';
 import 'package:openspent_dashboard/src/screens/sessions/cubit/sessions_cubit.dart';
 import 'package:openspent_dashboard/src/sessions/import_selection.dart';
 import 'package:openspent_dashboard/src/sessions/sessions_explorer_panel.dart';
@@ -1062,7 +1063,10 @@ void main() {
       final pieSize = tester.getSize(spotlightPie);
 
       expect(sidebarRect.top, lessThan(listRect.top));
-      expect(listRect.left, closeTo(panelRect.left + 8, 1));
+      expect(
+        listRect.left,
+        closeTo(panelRect.left + DashboardSpacing.primaryPanelPadding + 1, 1),
+      );
       expect(listRect.width, greaterThan(panelRect.width * 0.9));
       expect(pieSize.height, greaterThan(300));
 

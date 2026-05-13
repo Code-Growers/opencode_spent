@@ -1,4 +1,3 @@
-import 'package:sqlite3/common.dart';
 import 'package:sqlite3/wasm.dart';
 
 const _defaultDatabaseName = 'openspent_local';

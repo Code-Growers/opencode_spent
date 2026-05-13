@@ -114,7 +114,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get metricsMissingExchangeRatesHelper =>
-      '> chybí kurzy CZK pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.';
+      '> chybí kurzy pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.';
 
   @override
   String get textTab => '[ TEXT ]';
@@ -799,6 +799,11 @@ class AppLocalizationsCs extends AppLocalizations {
       '> Porovnání s minulým obdobím není dostupné kvůli chybějícím kurzům.';
 
   @override
+  String exchangeRatesHistoryTitle(String currency) {
+    return 'Historie směnných kurzů ($currency → CZK)';
+  }
+
+  @override
   String get sessionsSearchPlaceholder => 'Hledat v metadatech...';
 
   @override
@@ -816,4 +821,14 @@ class AppLocalizationsCs extends AppLocalizations {
   String pieLegendOverflow(int count) {
     return '+$count dalších';
   }
+
+  @override
+  String get metricsOverviewSessionsPerDay => '-- RELACE / DEN --';
+
+  @override
+  String get metricsOverviewAvgCostPerSession => '-- PRŮM. CENA / RELACI --';
+
+  @override
+  String get metricsOverviewAvgTokensPerSession =>
+      '-- PRŮM. TOKENY / RELACI --';
 }

@@ -1,6 +1,7 @@
 enum SupportedCurrency {
   usd('USD'),
-  czk('CZK');
+  czk('CZK'),
+  eur('EUR');
 
   const SupportedCurrency(this.code);
 

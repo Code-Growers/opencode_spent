@@ -13,29 +13,40 @@ part 'app_router.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => <AutoRoute>[
-    AutoRoute(
+    CustomRoute(
       path: '/',
       page: DashboardShellRoute.page,
       initial: true,
+      duration: Duration.zero,
+      reverseDuration: Duration.zero,
+      transitionsBuilder: TransitionsBuilders.noTransition,
       children: <AutoRoute>[
         CustomRoute(
           path: '',
           page: DashboardMetricsRoute.page,
+          duration: Duration.zero,
+          reverseDuration: Duration.zero,
           transitionsBuilder: TransitionsBuilders.noTransition,
         ),
         CustomRoute(
           path: 'sessions',
           page: DashboardSessionsRoute.page,
+          duration: Duration.zero,
+          reverseDuration: Duration.zero,
           transitionsBuilder: TransitionsBuilders.noTransition,
         ),
         CustomRoute(
           path: 'exchange-rates',
           page: DashboardExchangeRatesRoute.page,
+          duration: Duration.zero,
+          reverseDuration: Duration.zero,
           transitionsBuilder: TransitionsBuilders.noTransition,
         ),
         CustomRoute(
           path: 'state',
           page: DashboardStateRoute.page,
+          duration: Duration.zero,
+          reverseDuration: Duration.zero,
           transitionsBuilder: TransitionsBuilders.noTransition,
         ),
       ],

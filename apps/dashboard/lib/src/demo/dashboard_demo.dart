@@ -30,6 +30,11 @@ List<ExchangeRate> buildDashboardMockExchangeRates(
         rateToCzk: 1.0,
         date: anchor.subtract(Duration(days: i)),
       ),
+      ExchangeRate(
+        currency: SupportedCurrency.eur,
+        rateToCzk: 25.1 + ((i % 5) * 0.10),
+        date: anchor.subtract(Duration(days: i)),
+      ),
     ],
   ];
 }

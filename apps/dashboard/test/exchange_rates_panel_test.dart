@@ -221,6 +221,12 @@ void main() {
 
     expect(changedCurrency, SupportedCurrency.czk);
     expect(find.text('> Display currency set to CZK.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('exchange-rates-currency-eur')));
+    await tester.pumpAndSettle();
+
+    expect(changedCurrency, SupportedCurrency.eur);
+    expect(find.text('> Display currency set to EUR.'), findsOneWidget);
   });
 
   testWidgets('external refresh clears stale local status message', (

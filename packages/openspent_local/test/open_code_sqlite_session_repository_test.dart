@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_core/openspent_core.dart';
 import 'package:openspent_local/openspent_local_native.dart';
-import 'package:openspent_local/src/repositories/open_code_uploaded_sqlite_session_repository.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 void main() {

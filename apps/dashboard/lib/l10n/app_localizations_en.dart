@@ -114,7 +114,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricsMissingExchangeRatesHelper =>
-      '> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.';
+      '> missing exchange rates for spend days. Sync rates in the exchange panel and retry.';
 
   @override
   String get textTab => '[ TEXT ]';
@@ -797,6 +797,11 @@ class AppLocalizationsEn extends AppLocalizations {
       '> Prior-window compare unavailable due to missing exchange rates.';
 
   @override
+  String exchangeRatesHistoryTitle(String currency) {
+    return 'Exchange Rate History ($currency → CZK)';
+  }
+
+  @override
   String get sessionsSearchPlaceholder => 'Search metadata...';
 
   @override
@@ -814,4 +819,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String pieLegendOverflow(int count) {
     return '+$count more';
   }
+
+  @override
+  String get metricsOverviewSessionsPerDay => '-- SESSIONS / DAY --';
+
+  @override
+  String get metricsOverviewAvgCostPerSession => '-- AVG COST / SESSION --';
+
+  @override
+  String get metricsOverviewAvgTokensPerSession => '-- AVG TOKENS / SESSION --';
 }

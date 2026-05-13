@@ -204,6 +204,46 @@ List<double> buildVisibleDailyCostSeries(
   });
 }
 
+List<int> buildVisibleDailySessionsSeries(
+  List<MonetizedDailyMetrics> dailyBreakdown,
+  List<DateTime> visibleDays,
+) {
+  return List<int>.generate(visibleDays.length, (index) {
+    final daily = findDailyMetricsForDay(dailyBreakdown, visibleDays[index]);
+    return daily?.baseMetrics.sessionCount ?? 0;
+  });
+}
+
+List<double> buildVisibleDailyAvgCostPerSessionSeries(
+  List<MonetizedDailyMetrics> dailyBreakdown,
+  List<DateTime> visibleDays,
+) {
+  return List<double>.generate(visibleDays.length, (index) {
+    final daily = findDailyMetricsForDay(dailyBreakdown, visibleDays[index]);
+    if (daily == null || daily.baseMetrics.sessionCount <= 0) {
+      return 0.0;
+    }
+    return daily.displayTotalCost / daily.baseMetrics.sessionCount;
+  });
+}
+
+List<double> buildVisibleDailyAvgTokensPerSessionSeries(
+  List<MonetizedDailyMetrics> dailyBreakdown,
+  List<DateTime> visibleDays,
+) {
+  return List<double>.generate(visibleDays.length, (index) {
+    final daily = findDailyMetricsForDay(dailyBreakdown, visibleDays[index]);
+    if (daily == null || daily.baseMetrics.sessionCount <= 0) {
+      return 0.0;
+    }
+    final tokens = totalTokens(
+      daily.baseMetrics.inputTokens,
+      daily.baseMetrics.outputTokens,
+    );
+    return tokens / daily.baseMetrics.sessionCount;
+  });
+}
+
 List<int> buildVisibleDailyTokenSeries(
   List<MonetizedDailyMetrics> dailyBreakdown,
   List<DateTime> visibleDays,
@@ -276,8 +316,12 @@ bool isMissingExchangeRateError(Object? error) {
     return false;
   }
 
-  final message = error.message;
-  return message.startsWith('Missing USD exchange rate');
+  final message = error.message.toString();
+  if (message.startsWith('Missing ')) {
+    return message.contains('exchange rate');
+  }
+  final lower = message.toLowerCase();
+  return lower.contains('missing') && lower.contains('exchange rate');
 }
 
 String compactNumber(double value) {

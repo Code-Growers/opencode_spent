@@ -483,6 +483,58 @@ class MetricsTextSummary extends StatelessWidget {
             );
           },
         ),
+        const SizedBox(height: DashboardSpacing.majorSectionGap),
+        LayoutBuilder(
+          key: const Key('metrics-overview-section'),
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 800;
+            final double childWidth = isNarrow
+                ? constraints.maxWidth
+                : (constraints.maxWidth -
+                          DashboardSpacing.nestedPanelPadding * 2) /
+                      3;
+
+            return Wrap(
+              spacing: DashboardSpacing.nestedPanelPadding,
+              runSpacing: DashboardSpacing.nestedPanelPadding,
+              children: [
+                SizedBox(
+                  width: childWidth,
+                  child: CompactDashboardLineChart(
+                    key: const Key('metrics-overview-sessions-chart'),
+                    title: l10n.metricsOverviewSessionsPerDay,
+                    values: buildVisibleDailySessionsSeries(
+                      metrics.dailyBreakdown,
+                      visibleDays,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: childWidth,
+                  child: CompactDashboardLineChart(
+                    key: const Key('metrics-overview-avg-cost-chart'),
+                    title: l10n.metricsOverviewAvgCostPerSession,
+                    values: buildVisibleDailyAvgCostPerSessionSeries(
+                      metrics.dailyBreakdown,
+                      visibleDays,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: childWidth,
+                  child: CompactDashboardLineChart(
+                    key: const Key('metrics-overview-avg-tokens-chart'),
+                    title: l10n.metricsOverviewAvgTokensPerSession,
+                    values: buildVisibleDailyAvgTokensPerSessionSeries(
+                      metrics.dailyBreakdown,
+                      visibleDays,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
         if (usageByModel.isNotEmpty) ...[
           const SizedBox(height: DashboardSpacing.majorSectionGap),
           Text(l10n.modelsTab, style: textTheme.bodyMedium),

@@ -130,7 +130,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                 );
               } else if (state.hasError) {
                 final errorText =
-                    widget.selectedCurrency == SupportedCurrency.czk &&
+                    widget.selectedCurrency != SupportedCurrency.usd &&
                         isMissingExchangeRateError(state.error)
                     ? l10n.metricsMissingExchangeRatesHelper
                     : l10n.metricsUnavailable;

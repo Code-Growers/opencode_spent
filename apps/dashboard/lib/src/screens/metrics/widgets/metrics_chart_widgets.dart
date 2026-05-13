@@ -1233,3 +1233,92 @@ class ProvidersPriceChart extends StatelessWidget {
     );
   }
 }
+
+class CompactDashboardLineChart extends StatelessWidget {
+  const CompactDashboardLineChart({
+    super.key,
+    required this.title,
+    required this.values,
+  });
+
+  final String title;
+  final List<num> values;
+
+  @override
+  Widget build(BuildContext context) {
+    if (values.isEmpty) {
+      return DashboardSurface(
+        child: SizedBox(
+          height: 140,
+          child: Center(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: dashboardSecondaryTextColor,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final double maxVal = values.isEmpty
+        ? 0.0
+        : values.map((v) => v.toDouble()).reduce(math.max);
+    final double maxY = maxVal > 0 ? maxVal * 1.2 : 1.0;
+
+    final spots = List<FlSpot>.generate(
+      values.length,
+      (index) => FlSpot(index.toDouble(), values[index].toDouble()),
+    );
+
+    return DashboardSurface(
+      child: Container(
+        height: 140,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: dashboardSecondaryTextColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  maxX: (values.length - 1 > 0 ? values.length - 1 : 1)
+                      .toDouble(),
+                  minY: 0,
+                  maxY: maxY,
+                  gridData: const FlGridData(show: false),
+                  titlesData: const FlTitlesData(show: false),
+                  borderData: FlBorderData(show: false),
+                  lineTouchData: const LineTouchData(enabled: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      curveSmoothness: 0.1,
+                      color: dashboardPrimaryTextColor,
+                      barWidth: 2,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: dashboardPrimaryTextColor.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

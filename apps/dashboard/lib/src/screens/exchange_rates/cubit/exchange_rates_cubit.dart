@@ -25,16 +25,20 @@ final class ExchangeRatesState {
     this.selectedCurrency = SupportedCurrency.usd,
     this.requiredDates = const <DateTime>[],
     this.missingDates = const <DateTime>[],
+    this.ratesByDate = const <DateTime, List<ExchangeRate>>{},
     this.isError = false,
     this.errorMessage,
+    this.visibleDates = const <DateTime>[],
   });
 
   final bool isLoading;
   final SupportedCurrency selectedCurrency;
   final List<DateTime> requiredDates;
   final List<DateTime> missingDates;
+  final Map<DateTime, List<ExchangeRate>> ratesByDate;
   final bool isError;
   final String? errorMessage;
+  final List<DateTime> visibleDates;
 
   int get coveredDateCount => requiredDates.length - missingDates.length;
 
@@ -43,18 +47,22 @@ final class ExchangeRatesState {
     SupportedCurrency? selectedCurrency,
     List<DateTime>? requiredDates,
     List<DateTime>? missingDates,
+    Map<DateTime, List<ExchangeRate>>? ratesByDate,
     bool? isError,
     Object? errorMessage = _errorMessageUnchanged,
+    List<DateTime>? visibleDates,
   }) {
     return ExchangeRatesState(
       isLoading: isLoading ?? this.isLoading,
       selectedCurrency: selectedCurrency ?? this.selectedCurrency,
       requiredDates: requiredDates ?? this.requiredDates,
       missingDates: missingDates ?? this.missingDates,
+      ratesByDate: ratesByDate ?? this.ratesByDate,
       isError: isError ?? this.isError,
       errorMessage: identical(errorMessage, _errorMessageUnchanged)
           ? this.errorMessage
           : errorMessage as String?,
+      visibleDates: visibleDates ?? this.visibleDates,
     );
   }
 }
@@ -68,12 +76,22 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
 
   int _activeRequestId = 0;
 
-  Future<void> load({DateTime? from, DateTime? to}) async {
+  Future<void> load({
+    DateTime? from,
+    DateTime? to,
+    DateTime? visibleFrom,
+    DateTime? visibleTo,
+  }) async {
     final requestId = ++_activeRequestId;
     emit(state.copyWith(isLoading: true, isError: false, errorMessage: null));
 
     try {
-      final snapshot = await _readSnapshot(from: from, to: to);
+      final snapshot = await _readSnapshot(
+        from: from,
+        to: to,
+        visibleFrom: visibleFrom,
+        visibleTo: visibleTo,
+      );
       if (!_isActive(requestId)) {
         return;
       }
@@ -84,8 +102,10 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
           selectedCurrency: snapshot.selectedCurrency,
           requiredDates: snapshot.requiredDates,
           missingDates: snapshot.missingDates,
+          ratesByDate: snapshot.ratesByDate,
           isError: false,
           errorMessage: null,
+          visibleDates: snapshot.visibleDates,
         ),
       );
     } catch (error) {
@@ -107,6 +127,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
     SupportedCurrency currency, {
     DateTime? from,
     DateTime? to,
+    DateTime? visibleFrom,
+    DateTime? visibleTo,
   }) async {
     final requestId = ++_activeRequestId;
     emit(state.copyWith(isLoading: true, isError: false, errorMessage: null));
@@ -126,6 +148,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
         selectedCurrencyOverride: currency,
         from: from,
         to: to,
+        visibleFrom: visibleFrom,
+        visibleTo: visibleTo,
       );
       if (!_isActive(requestId)) {
         return false;
@@ -137,8 +161,10 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
           selectedCurrency: snapshot.selectedCurrency,
           requiredDates: snapshot.requiredDates,
           missingDates: snapshot.missingDates,
+          ratesByDate: snapshot.ratesByDate,
           isError: false,
           errorMessage: null,
+          visibleDates: snapshot.visibleDates,
         ),
       );
       return true;
@@ -158,7 +184,12 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
     }
   }
 
-  Future<bool> syncMissingRates({DateTime? from, DateTime? to}) async {
+  Future<bool> syncMissingRates({
+    DateTime? from,
+    DateTime? to,
+    DateTime? visibleFrom,
+    DateTime? visibleTo,
+  }) async {
     final requestId = ++_activeRequestId;
     emit(state.copyWith(isLoading: true, isError: false, errorMessage: null));
 
@@ -168,6 +199,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
         selectedCurrencyOverride: selectedCurrency,
         from: from,
         to: to,
+        visibleFrom: visibleFrom,
+        visibleTo: visibleTo,
       );
 
       for (final date in snapshotBeforeSync.missingDates) {
@@ -178,6 +211,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
         selectedCurrencyOverride: snapshotBeforeSync.selectedCurrency,
         from: from,
         to: to,
+        visibleFrom: visibleFrom,
+        visibleTo: visibleTo,
       );
       if (!_isActive(requestId)) {
         return false;
@@ -189,8 +224,10 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
           selectedCurrency: refreshedSnapshot.selectedCurrency,
           requiredDates: refreshedSnapshot.requiredDates,
           missingDates: refreshedSnapshot.missingDates,
+          ratesByDate: refreshedSnapshot.ratesByDate,
           isError: false,
           errorMessage: null,
+          visibleDates: refreshedSnapshot.visibleDates,
         ),
       );
       return true;
@@ -200,6 +237,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
           selectedCurrencyOverride: selectedCurrency,
           from: from,
           to: to,
+          visibleFrom: visibleFrom,
+          visibleTo: visibleTo,
         );
         if (!_isActive(requestId)) {
           return false;
@@ -211,6 +250,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
             selectedCurrency: refreshedSnapshot.selectedCurrency,
             requiredDates: refreshedSnapshot.requiredDates,
             missingDates: refreshedSnapshot.missingDates,
+            ratesByDate: refreshedSnapshot.ratesByDate,
+            visibleDates: refreshedSnapshot.visibleDates,
             isError: true,
             errorMessage: error.toString(),
           ),
@@ -237,10 +278,33 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
     return !isClosed && requestId == _activeRequestId;
   }
 
+  List<DateTime> _buildVisibleDates(
+    List<DateTime> requiredDates, {
+    DateTime? visibleFrom,
+    DateTime? visibleTo,
+  }) {
+    if (visibleFrom == null || visibleTo == null) {
+      return requiredDates;
+    }
+
+    final start = _normalizeUtcDay(visibleFrom);
+    final end = _normalizeUtcDay(visibleTo);
+
+    final result = <DateTime>[];
+    var current = start;
+    while (!current.isAfter(end)) {
+      result.add(current);
+      current = current.add(const Duration(days: 1));
+    }
+    return result;
+  }
+
   Future<_ExchangeRateSnapshot> _readSnapshot({
     SupportedCurrency? selectedCurrencyOverride,
     DateTime? from,
     DateTime? to,
+    DateTime? visibleFrom,
+    DateTime? visibleTo,
   }) async {
     final settings = await _dependencies.settingsRepository.readSettings();
     final selectedCurrency =
@@ -265,15 +329,45 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
     }
     requiredDates.sort((left, right) => left.compareTo(right));
 
+    final visibleDates = _buildVisibleDates(
+      requiredDates,
+      visibleFrom: visibleFrom,
+      visibleTo: visibleTo,
+    );
+
+    final datesToFetch = <DateTime>{...requiredDates, ...visibleDates}.toList();
+    datesToFetch.sort((left, right) => left.compareTo(right));
+
     final missingDates = <DateTime>[];
-    for (final date in requiredDates) {
+    final ratesByDate = <DateTime, List<ExchangeRate>>{};
+
+    for (final date in datesToFetch) {
       final rates = await _dependencies.localExchangeRateRepository
           .readExchangeRatesForDate(date);
-      final hasUsdRate = rates.any(
-        (rate) => rate.currency == SupportedCurrency.usd,
-      );
-      if (!hasUsdRate) {
-        missingDates.add(date);
+      ratesByDate[date] = rates;
+
+      if (requiredDates.contains(date)) {
+        final hasUsdRate = rates.any(
+          (rate) => rate.currency == SupportedCurrency.usd,
+        );
+        final hasEurRate = rates.any(
+          (rate) => rate.currency == SupportedCurrency.eur,
+        );
+
+        bool isMissing = false;
+        switch (selectedCurrency) {
+          case SupportedCurrency.usd:
+          case SupportedCurrency.czk:
+            if (!hasUsdRate) isMissing = true;
+            break;
+          case SupportedCurrency.eur:
+            if (!hasUsdRate || !hasEurRate) isMissing = true;
+            break;
+        }
+
+        if (isMissing) {
+          missingDates.add(date);
+        }
       }
     }
 
@@ -281,6 +375,8 @@ final class ExchangeRatesCubit extends Cubit<ExchangeRatesState> {
       selectedCurrency: selectedCurrency,
       requiredDates: List<DateTime>.unmodifiable(requiredDates),
       missingDates: List<DateTime>.unmodifiable(missingDates),
+      ratesByDate: Map<DateTime, List<ExchangeRate>>.unmodifiable(ratesByDate),
+      visibleDates: List<DateTime>.unmodifiable(visibleDates),
     );
   }
 
@@ -295,9 +391,13 @@ final class _ExchangeRateSnapshot {
     required this.selectedCurrency,
     required this.requiredDates,
     required this.missingDates,
+    required this.ratesByDate,
+    required this.visibleDates,
   });
 
   final SupportedCurrency selectedCurrency;
   final List<DateTime> requiredDates;
   final List<DateTime> missingDates;
+  final Map<DateTime, List<ExchangeRate>> ratesByDate;
+  final List<DateTime> visibleDates;
 }

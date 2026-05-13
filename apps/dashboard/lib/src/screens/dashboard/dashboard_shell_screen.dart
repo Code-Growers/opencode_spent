@@ -380,11 +380,13 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
         ? DateTimeRange(start: _windowFrom!, end: _windowTo!)
         : null;
 
-    final pickedRange = await showDateRangePicker(
-      context: context,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      initialDateRange: initialDateRange,
+    final pickedRange = await _showDashboardDialog<DateTimeRange>(
+      keyValue: 'custom-range-modal-overlay',
+      child: _CustomDateRangeDialog(
+        initialDateRange: initialDateRange,
+        firstDate: firstDate,
+        lastDate: lastDate,
+      ),
     );
 
     if (pickedRange != null && mounted) {
@@ -568,11 +570,11 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     );
   }
 
-  Future<void> _showDashboardDialog({
+  Future<T?> _showDashboardDialog<T>({
     required String keyValue,
     required Widget child,
   }) {
-    return showGeneralDialog<void>(
+    return showGeneralDialog<T>(
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -758,6 +760,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
         onRatesSynced: () => _invalidateMetrics(),
         from: _effectiveExchangeRateFrom(_windowFrom, _windowTo),
         to: _windowTo,
+        visibleFrom: _windowFrom,
+        visibleTo: _windowTo,
         windowLabel: formatWindowLabel(
           context,
           _selectedWindow,
@@ -1197,6 +1201,133 @@ class _HelpDialogBody extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CustomDateRangeDialog extends StatefulWidget {
+  const _CustomDateRangeDialog({
+    required this.initialDateRange,
+    required this.firstDate,
+    required this.lastDate,
+  });
+
+  final DateTimeRange? initialDateRange;
+  final DateTime firstDate;
+  final DateTime lastDate;
+
+  @override
+  State<_CustomDateRangeDialog> createState() => _CustomDateRangeDialogState();
+}
+
+class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
+  DateTime? _start;
+  DateTime? _end;
+
+  @override
+  void initState() {
+    super.initState();
+    _start = widget.initialDateRange?.start;
+    _end = widget.initialDateRange?.end;
+  }
+
+  Future<void> _pickStart() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _start ?? DateTime.now(),
+      firstDate: widget.firstDate,
+      lastDate: _end ?? widget.lastDate,
+    );
+    if (picked != null) {
+      setState(() {
+        _start = picked;
+      });
+    }
+  }
+
+  Future<void> _pickEnd() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _end ?? _start ?? DateTime.now(),
+      firstDate: _start ?? widget.firstDate,
+      lastDate: widget.lastDate,
+    );
+    if (picked != null) {
+      setState(() {
+        _end = picked;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
+    final startLabel = _start != null
+        ? '${_start!.year}-${_start!.month.toString().padLeft(2, '0')}-${_start!.day.toString().padLeft(2, '0')}'
+        : 'Select Start';
+    final endLabel = _end != null
+        ? '${_end!.year}-${_end!.month.toString().padLeft(2, '0')}-${_end!.day.toString().padLeft(2, '0')}'
+        : 'Select End';
+
+    return DashboardSurface(
+      key: const Key('custom-range-dialog'),
+      padding: const EdgeInsets.all(24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.windowActionCustom, style: textTheme.titleMedium),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: DashboardChipButton(
+                    key: const Key('custom-range-start'),
+                    label: startLabel,
+                    onTap: _pickStart,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(' - '),
+                ),
+                Expanded(
+                  child: DashboardChipButton(
+                    key: const Key('custom-range-end'),
+                    label: endLabel,
+                    onTap: _pickEnd,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                DashboardChipButton(
+                  key: const Key('custom-range-cancel'),
+                  label: l10n.settingsClose,
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+                const SizedBox(width: 16),
+                DashboardChipButton(
+                  key: const Key('custom-range-save'),
+                  label: l10n.settingsSave,
+                  isSelected: true,
+                  onTap: _start != null && _end != null
+                      ? () => Navigator.of(
+                          context,
+                        ).pop(DateTimeRange(start: _start!, end: _end!))
+                      : null,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

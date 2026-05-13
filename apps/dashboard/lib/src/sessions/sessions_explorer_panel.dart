@@ -949,9 +949,11 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
               ],
             );
 
-            return Container(
+            return DashboardSurface(
               key: const Key("sessions-panel"),
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(
+                DashboardSpacing.primaryPanelPadding,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

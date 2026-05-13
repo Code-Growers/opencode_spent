@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// No description provided for @metricsMissingExchangeRatesHelper.
   ///
   /// In en, this message translates to:
-  /// **'> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.'**
+  /// **'> missing exchange rates for spend days. Sync rates in the exchange panel and retry.'**
   String get metricsMissingExchangeRatesHelper;
 
   /// No description provided for @textTab.
@@ -1303,6 +1303,12 @@ abstract class AppLocalizations {
   /// **'> Prior-window compare unavailable due to missing exchange rates.'**
   String get compareUnavailableHelper;
 
+  /// Title of the exchange rates history chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange Rate History ({currency} → CZK)'**
+  String exchangeRatesHistoryTitle(String currency);
+
   /// No description provided for @sessionsSearchPlaceholder.
   ///
   /// In en, this message translates to:
@@ -1332,6 +1338,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{count} more'**
   String pieLegendOverflow(int count);
+
+  /// No description provided for @metricsOverviewSessionsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'-- SESSIONS / DAY --'**
+  String get metricsOverviewSessionsPerDay;
+
+  /// No description provided for @metricsOverviewAvgCostPerSession.
+  ///
+  /// In en, this message translates to:
+  /// **'-- AVG COST / SESSION --'**
+  String get metricsOverviewAvgCostPerSession;
+
+  /// No description provided for @metricsOverviewAvgTokensPerSession.
+  ///
+  /// In en, this message translates to:
+  /// **'-- AVG TOKENS / SESSION --'**
+  String get metricsOverviewAvgTokensPerSession;
 }
 
 class _AppLocalizationsDelegate

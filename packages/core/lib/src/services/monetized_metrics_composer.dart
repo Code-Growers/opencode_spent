@@ -90,29 +90,50 @@ final class MonetizedMetricsComposer {
           );
     }
 
-    final providerBreakdowns = <String, MonetizedUsageBreakdown>{};
-    for (final entry in metrics.providerBreakdowns.entries) {
-      providerBreakdowns[entry.key] =
-          await _createDisplayCurrencyUsageBreakdown(
-            breakdown: entry.value,
-            displayCurrency: selectedCurrency,
-            exchangeRateCache: exchangeRateCache,
-          );
-    }
-
     final providerModelBreakdowns =
         <String, Map<String, MonetizedUsageBreakdown>>{};
     for (final providerEntry in metrics.providerModelBreakdowns.entries) {
       final monetizedBreakdowns = <String, MonetizedUsageBreakdown>{};
       for (final modelEntry in providerEntry.value.entries) {
-        monetizedBreakdowns[modelEntry.key] =
+        final modelName = modelEntry.key;
+        final convertedDaily = perModelDailyBreakdown[modelName];
+        double? convertedTotalCost;
+        if (convertedDaily != null) {
+          convertedTotalCost = 0.0;
+          for (final d in convertedDaily) {
+            convertedTotalCost = convertedTotalCost! + d.displayTotalCost;
+          }
+        }
+        monetizedBreakdowns[modelName] =
             await _createDisplayCurrencyUsageBreakdown(
               breakdown: modelEntry.value,
               displayCurrency: selectedCurrency,
               exchangeRateCache: exchangeRateCache,
+              convertedTotalCost: convertedTotalCost,
             );
       }
       providerModelBreakdowns[providerEntry.key] = monetizedBreakdowns;
+    }
+
+    final providerBreakdowns = <String, MonetizedUsageBreakdown>{};
+    for (final entry in metrics.providerBreakdowns.entries) {
+      final provider = entry.key;
+      double? providerTotalCost;
+      final providerModels = providerModelBreakdowns[provider];
+      if (providerModels != null) {
+        providerTotalCost = 0.0;
+        for (final m in providerModels.values) {
+          if (m.displayTotalCost != null) {
+            providerTotalCost = providerTotalCost! + m.displayTotalCost!;
+          }
+        }
+      }
+      providerBreakdowns[provider] = await _createDisplayCurrencyUsageBreakdown(
+        breakdown: entry.value,
+        displayCurrency: selectedCurrency,
+        exchangeRateCache: exchangeRateCache,
+        convertedTotalCost: providerTotalCost,
+      );
     }
 
     var displayTotalCost = 0.0;
@@ -137,17 +158,18 @@ final class MonetizedMetricsComposer {
     required UsageBreakdown breakdown,
     required SupportedCurrency displayCurrency,
     required Map<DateTime, List<ExchangeRate>> exchangeRateCache,
+    required double? convertedTotalCost,
   }) async {
-    if (displayCurrency != SupportedCurrency.usd) {
+    if (displayCurrency == SupportedCurrency.usd) {
       return MonetizedUsageBreakdown(
         baseMetrics: breakdown,
-        displayTotalCost: null,
+        displayTotalCost: breakdown.totalCostUsd,
       );
     }
 
     return MonetizedUsageBreakdown(
       baseMetrics: breakdown,
-      displayTotalCost: breakdown.totalCostUsd,
+      displayTotalCost: convertedTotalCost,
     );
   }
 

@@ -111,7 +111,7 @@ void main() {
     test('fails clearly for unsupported persisted currency values', () async {
       final store = InMemoryKeyValueStore()
         ..values['openspent.settings'] = jsonEncode(<String, Object?>{
-          'selectedCurrency': 'EUR',
+          'selectedCurrency': 'GBP',
           'openCodeServerUrl': 'http://127.0.0.1:4096',
         });
 
@@ -123,7 +123,7 @@ void main() {
           isA<FormatException>().having(
             (error) => error.message,
             'message',
-            'Unsupported persisted currency: EUR',
+            'Unsupported persisted currency: GBP',
           ),
         ),
       );

@@ -66,7 +66,7 @@
   "metricsTitle": "METRIKY",
   "metricsLoad": "_ \u010dek\u00e1m na prvn\u00ed data metrik ...",
   "metricsUnavailable": "> metriky nedostupn\u00e9",
-  "metricsMissingExchangeRatesHelper": "> chyb\u00ed kurzy CZK pro dny s \u00fatratou. Synchronizujte kurzy v panelu m\u011bn a zkuste to znovu.",
+  "metricsMissingExchangeRatesHelper": "> chybí kurzy pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.",
   "textTab": "[ TEXT ]",
   "spendTab": "[ \u00daTRATA ]",
   "tokensTab": "[ TOKENY ]",
@@ -773,6 +773,16 @@
   },
   "compareSplitUnavailable": "> Rozklad delty ...... nelze spo\u010d\u00edtat",
   "compareUnavailableHelper": "> Porovn\u00e1n\u00ed s minul\u00fdm obdob\u00edm nen\u00ed dostupn\u00e9 kv\u016fli chyb\u011bj\u00edc\u00edm kurz\u016fm.",
+  "exchangeRatesHistoryTitle": "Historie směnných kurzů ({currency} → CZK)",
+  "@exchangeRatesHistoryTitle": {
+    "description": "Název grafu historie směnných kurzů.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "CZK"
+      }
+    }
+  },
   "sessionsSearchPlaceholder": "Hledat v metadatech...",
   "sessionsSearchClear": "[ ZRU\u0160IT ]",
   "sessionsSearchResultsCount": "> V\u00fdsledky .......... {count}",
@@ -784,5 +794,8 @@
     }
   },
   "sessionsListHeader": "-- Z\u00c1ZNAM RELAC\u00cd --",
-  "pieLegendOverflow": "+{count} dal\u0161\u00edch"
+  "pieLegendOverflow": "+{count} dal\u0161\u00edch",
+  "metricsOverviewSessionsPerDay": "-- RELACE / DEN --",
+  "metricsOverviewAvgCostPerSession": "-- PR\u016eM. CENA / RELACI --",
+  "metricsOverviewAvgTokensPerSession": "-- PR\u016eM. TOKENY / RELACI --"
 }

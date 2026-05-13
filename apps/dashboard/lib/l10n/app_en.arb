@@ -66,7 +66,7 @@
   "metricsTitle": "METRICS",
   "metricsLoad": "_ awaiting first metrics payload ...",
   "metricsUnavailable": "> metrics unavailable",
-  "metricsMissingExchangeRatesHelper": "> missing CZK exchange rates for spend days. Sync rates in the exchange panel and retry.",
+  "metricsMissingExchangeRatesHelper": "> missing exchange rates for spend days. Sync rates in the exchange panel and retry.",
   "textTab": "[ TEXT ]",
   "spendTab": "[ SPEND ]",
   "tokensTab": "[ TOKENS ]",
@@ -840,6 +840,16 @@
   },
   "compareSplitUnavailable": "> Split breakdown .... math undefined",
   "compareUnavailableHelper": "> Prior-window compare unavailable due to missing exchange rates.",
+  "exchangeRatesHistoryTitle": "Exchange Rate History ({currency} → CZK)",
+  "@exchangeRatesHistoryTitle": {
+    "description": "Title of the exchange rates history chart.",
+    "placeholders": {
+      "currency": {
+        "type": "String",
+        "example": "CZK"
+      }
+    }
+  },
   "sessionsSearchPlaceholder": "Search metadata...",
   "sessionsSearchClear": "[ CLEAR ]",
   "sessionsSearchResultsCount": "> Results ........... {count}",
@@ -858,5 +868,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "metricsOverviewSessionsPerDay": "-- SESSIONS / DAY --",
+  "metricsOverviewAvgCostPerSession": "-- AVG COST / SESSION --",
+  "metricsOverviewAvgTokensPerSession": "-- AVG TOKENS / SESSION --"
 }

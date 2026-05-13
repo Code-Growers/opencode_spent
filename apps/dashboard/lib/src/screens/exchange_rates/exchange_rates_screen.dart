@@ -14,6 +14,8 @@ class ExchangeRatesScreen extends StatefulWidget {
     required this.onRatesSynced,
     this.from,
     this.to,
+    this.visibleFrom,
+    this.visibleTo,
     required this.windowLabel,
   });
 
@@ -23,6 +25,8 @@ class ExchangeRatesScreen extends StatefulWidget {
   final VoidCallback onRatesSynced;
   final DateTime? from;
   final DateTime? to;
+  final DateTime? visibleFrom;
+  final DateTime? visibleTo;
   final String windowLabel;
 
   @override
@@ -33,7 +37,12 @@ class _ExchangeRatesScreenState extends State<ExchangeRatesScreen> {
   late ExchangeRatesCubit _exchangeRatesCubit;
 
   void _loadExchangeRates() {
-    _exchangeRatesCubit.load(from: widget.from, to: widget.to);
+    _exchangeRatesCubit.load(
+      from: widget.from,
+      to: widget.to,
+      visibleFrom: widget.visibleFrom,
+      visibleTo: widget.visibleTo,
+    );
   }
 
   @override
@@ -57,7 +66,9 @@ class _ExchangeRatesScreenState extends State<ExchangeRatesScreen> {
 
     if (oldWidget.exchangeRatesRevision != widget.exchangeRatesRevision ||
         oldWidget.from != widget.from ||
-        oldWidget.to != widget.to) {
+        oldWidget.to != widget.to ||
+        oldWidget.visibleFrom != widget.visibleFrom ||
+        oldWidget.visibleTo != widget.visibleTo) {
       _loadExchangeRates();
     }
   }
@@ -77,6 +88,8 @@ class _ExchangeRatesScreenState extends State<ExchangeRatesScreen> {
         onRatesSynced: widget.onRatesSynced,
         from: widget.from,
         to: widget.to,
+        visibleFrom: widget.visibleFrom,
+        visibleTo: widget.visibleTo,
         windowLabel: widget.windowLabel,
       ),
     );

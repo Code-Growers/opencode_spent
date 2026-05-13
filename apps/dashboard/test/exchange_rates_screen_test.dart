@@ -4,6 +4,7 @@ import 'package:openspent_core/openspent_core.dart';
 import 'package:openspent_dashboard/l10n/app_localizations.dart';
 import 'package:openspent_dashboard/src/screens/exchange_rates/cubit/exchange_rates_cubit.dart';
 import 'package:openspent_dashboard/src/screens/exchange_rates/exchange_rates_screen.dart';
+import 'package:openspent_dashboard/src/screens/exchange_rates/widgets/exchange_rates_chart_widgets.dart';
 
 class _FakeSettingsRepository implements SettingsRepository {
   _FakeSettingsRepository(this._settings);
@@ -141,6 +142,8 @@ Future<void> _pumpScreen(
   VoidCallback? onRatesSynced,
   DateTime? from,
   DateTime? to,
+  DateTime? visibleFrom,
+  DateTime? visibleTo,
   String windowLabel = 'ALL',
 }) async {
   await tester.pumpWidget(
@@ -155,6 +158,8 @@ Future<void> _pumpScreen(
           onRatesSynced: onRatesSynced ?? () {},
           from: from,
           to: to,
+          visibleFrom: visibleFrom,
+          visibleTo: visibleTo,
           windowLabel: windowLabel,
         ),
       ),
@@ -399,5 +404,63 @@ void main() {
       contains('1/1'),
     );
     expect(find.textContaining('> Synced missing rates for'), findsOneWidget);
+  });
+
+  testWidgets('screen reloads local cubit data when visible bounds change', (
+    WidgetTester tester,
+  ) async {
+    final settingsRepository = _FakeSettingsRepository(
+      OpenCodeSettings(
+        selectedCurrency: SupportedCurrency.usd,
+        openCodeServerUrl: Uri.parse('http://localhost:4096'),
+      ),
+    );
+    final metricsRepository = _FakeMetricsRepository(
+      allDailyBreakdown: [
+        DailyMetrics(
+          date: DateTime.utc(2026, 5, 8),
+          sessionCount: 1,
+          inputTokens: 10,
+          outputTokens: 4,
+          totalCostUsd: 1,
+        ),
+      ],
+    );
+    final localRepository = _FakeExchangeRateRepository()
+      ..seed(DateTime.utc(2026, 5, 8), [
+        _usdRate(DateTime.utc(2026, 5, 8), 22),
+      ]);
+    final dependencies = _buildDependencies(
+      metricsRepository: metricsRepository,
+      settingsRepository: settingsRepository,
+      localRepository: localRepository,
+    );
+
+    await _pumpScreen(
+      tester,
+      dependencies: dependencies,
+      exchangeRatesRevision: 0,
+      visibleFrom: DateTime.utc(2026, 5, 8),
+      visibleTo: DateTime.utc(2026, 5, 8),
+    );
+
+    final chartFinder = find.byType(ExchangeRatesHistoryChart);
+    expect(chartFinder, findsOneWidget);
+
+    await _pumpScreen(
+      tester,
+      dependencies: dependencies,
+      exchangeRatesRevision: 0,
+      visibleFrom: DateTime.utc(2026, 5, 7),
+      visibleTo: DateTime.utc(2026, 5, 8),
+    );
+    await tester.pumpAndSettle();
+
+    final chart = tester.widget<ExchangeRatesHistoryChart>(chartFinder);
+    expect(chart.visibleDays.length, 2);
+    expect(chart.visibleDays.first, DateTime.utc(2026, 5, 7));
+
+    // Assert the new title logic and that USD doesn't suppress chart text
+    expect(find.text('Exchange Rate History (USD → CZK)'), findsOneWidget);
   });
 }

@@ -463,4 +463,49 @@ void main() {
       expect(cubit.state.coveredDateCount, 1);
     },
   );
+
+  test(
+    'load derives visible-window chart days separate from coverage days',
+    () async {
+      final metricsRepository = _FakeMetricsRepository(_buildMetrics());
+      final settingsRepository = _FakeSettingsRepository(
+        OpenCodeSettings(
+          selectedCurrency: SupportedCurrency.czk,
+          openCodeServerUrl: Uri.parse('http://localhost:4096'),
+        ),
+      );
+      final localRepository = _FakeExchangeRateRepository();
+      final remoteRepository = _FakeRemoteExchangeRateRepository({});
+
+      final cubit = _buildCubit(
+        metricsRepository: metricsRepository,
+        settingsRepository: settingsRepository,
+        localRepository: localRepository,
+        remoteRepository: remoteRepository,
+      );
+      addTearDown(cubit.close);
+
+      final visibleFrom = DateTime.utc(2026, 5, 5);
+      final visibleTo = DateTime.utc(2026, 5, 8);
+
+      await cubit.load(visibleFrom: visibleFrom, visibleTo: visibleTo);
+
+      expect(cubit.state.requiredDates, [
+        DateTime.utc(2026, 5, 6),
+        DateTime.utc(2026, 5, 8),
+      ]);
+      expect(cubit.state.visibleDates, [
+        DateTime.utc(2026, 5, 5),
+        DateTime.utc(2026, 5, 6),
+        DateTime.utc(2026, 5, 7),
+        DateTime.utc(2026, 5, 8),
+      ]);
+      expect(cubit.state.ratesByDate.keys.toList()..sort(), [
+        DateTime.utc(2026, 5, 5),
+        DateTime.utc(2026, 5, 6),
+        DateTime.utc(2026, 5, 7),
+        DateTime.utc(2026, 5, 8),
+      ]);
+    },
+  );
 }
