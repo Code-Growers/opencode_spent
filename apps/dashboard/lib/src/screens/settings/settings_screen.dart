@@ -3,8 +3,8 @@ import 'package:openspent_core/openspent_core.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../theme/dashboard_colors.dart';
-import '../dashboard/widgets/dashboard_chip_button.dart';
 import '../dashboard/widgets/dashboard_surface.dart';
+import 'widgets/settings_form_sections.dart';
 
 const defaultOpenCodeServerUrl = 'http://localhost:4096';
 
@@ -166,170 +166,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text(l10n.settingsTitle, style: textTheme.titleMedium),
             const SizedBox(height: 24),
-            ExcludeSemantics(
-              child: Text(l10n.settingsServerUrl, style: textTheme.bodyMedium),
-            ),
-            const SizedBox(height: 12),
-            Semantics(
-              label: l10n.settingsServerUrl,
-              textField: true,
-              child: TextField(
-                key: const Key('settings-server-url-field'),
-                controller: _serverUrlController,
-                style: textTheme.bodyLarge,
-                decoration: _inputDecoration(
-                  context,
-                  errorText: _serverUrlError,
-                ),
-              ),
+            SettingsServerSection(
+              controller: _serverUrlController,
+              errorText: _serverUrlError,
+              inputDecoration: _inputDecoration(context),
             ),
             const SizedBox(height: 24),
-            ExcludeSemantics(
-              child: Text(
-                l10n.settingsServerUsername,
-                style: textTheme.bodyMedium,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Semantics(
-              label: l10n.settingsServerUsername,
-              textField: true,
-              child: TextField(
-                key: const Key('settings-server-username-field'),
-                controller: _serverUsernameController,
-                style: textTheme.bodyLarge,
-                decoration: _inputDecoration(context),
-              ),
+            SettingsCredentialsSection(
+              usernameController: _serverUsernameController,
+              passwordController: _serverPasswordController,
+              inputDecoration: _inputDecoration(context),
             ),
             const SizedBox(height: 24),
-            ExcludeSemantics(
-              child: Text(
-                l10n.settingsServerPassword,
-                style: textTheme.bodyMedium,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Semantics(
-              label: l10n.settingsServerPassword,
-              textField: true,
-              child: TextField(
-                key: const Key('settings-server-password-field'),
-                controller: _serverPasswordController,
-                style: textTheme.bodyLarge,
-                obscureText: true,
-                decoration: _inputDecoration(context),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(l10n.settingsServerAuthHint, style: textTheme.bodyMedium),
-            const SizedBox(height: 24),
-            MergeSemantics(
-              key: const Key('settings-currency-semantics'),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.settingsCurrency, style: textTheme.bodyMedium),
-                  const SizedBox(height: 12),
-                  DashboardSurface(
-                    backgroundColor: dashboardBackgroundColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<SupportedCurrency>(
-                        key: const Key('settings-currency-dropdown'),
-                        value: _currency,
-                        isExpanded: true,
-                        dropdownColor: dashboardBackgroundColor,
-                        style: textTheme.bodyLarge,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _currency = value;
-                            });
-                          }
-                        },
-                        items: SupportedCurrency.values.map((currency) {
-                          return DropdownMenuItem<SupportedCurrency>(
-                            value: currency,
-                            child: Text(currency.code),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            SettingsCurrencySelector(
+              currency: _currency,
+              onChanged: (value) {
+                setState(() {
+                  _currency = value;
+                });
+              },
             ),
             const SizedBox(height: 24),
-            MergeSemantics(
-              key: const Key('settings-language-semantics'),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.settingsLanguage, style: textTheme.bodyMedium),
-                  const SizedBox(height: 12),
-                  DashboardSurface(
-                    backgroundColor: dashboardBackgroundColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<_SettingsLanguageOption>(
-                        key: const Key('settings-language-dropdown'),
-                        value: _language,
-                        isExpanded: true,
-                        dropdownColor: dashboardBackgroundColor,
-                        style: textTheme.bodyLarge,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _language = value;
-                            });
-                          }
-                        },
-                        items: <DropdownMenuItem<_SettingsLanguageOption>>[
-                          DropdownMenuItem<_SettingsLanguageOption>(
-                            value: _SettingsLanguageOption.system,
-                            child: Text(l10n.settingsLanguageSystem),
-                          ),
-                          DropdownMenuItem<_SettingsLanguageOption>(
-                            value: _SettingsLanguageOption.english,
-                            child: Text(l10n.settingsLanguageEnglish),
-                          ),
-                          DropdownMenuItem<_SettingsLanguageOption>(
-                            value: _SettingsLanguageOption.czech,
-                            child: Text(l10n.settingsLanguageCzech),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            SettingsLanguageSelector<_SettingsLanguageOption>(
+              language: _language,
+              systemOption: _SettingsLanguageOption.system,
+              englishOption: _SettingsLanguageOption.english,
+              czechOption: _SettingsLanguageOption.czech,
+              onChanged: (value) {
+                setState(() {
+                  _language = value;
+                });
+              },
             ),
             const SizedBox(height: 32),
-            OverflowBar(
-              alignment: MainAxisAlignment.end,
-              spacing: 16,
-              overflowAlignment: OverflowBarAlignment.end,
-              children: [
-                DashboardChipButton(
-                  key: const Key('settings-close-button'),
-                  label: l10n.settingsClose,
-                  onTap: () {
-                    final onCloseRequested = widget.onCloseRequested;
-                    if (onCloseRequested != null) {
-                      onCloseRequested();
-                    } else {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                ),
-                DashboardChipButton(
-                  key: const Key('settings-save-button'),
-                  label: l10n.settingsSave,
-                  onTap: _saveSettings,
-                  isEmphasized: true,
-                  activeColor: dashboardStatusColor,
-                ),
-              ],
+            SettingsActionBar(
+              onClose: () {
+                final onCloseRequested = widget.onCloseRequested;
+                if (onCloseRequested != null) {
+                  onCloseRequested();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
+              onSave: _saveSettings,
             ),
           ],
         ),

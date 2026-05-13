@@ -21,9 +21,9 @@ OpenSpent is designed to avoid sensitive data exposure:
 - Source switching uses registered labels instead of exposing absolute project roots.
 - All application data stays on the local machine.
 
-## Planned Features
+## Current Capabilities
 
-- Multi-currency cost tracking with USD and CZK support.
+- Multi-currency cost tracking with USD, CZK, and EUR support.
 - Local SQLite caching for exchange rates and session metadata.
 - Real-time connection to a local OpenCode server.
 - Manual SQLite and JSON log ingestion.
@@ -36,12 +36,18 @@ OpenSpent is designed to avoid sensitive data exposure:
 ├── apps/
 │   ├── dashboard/
 │   └── website/
-├── docs/
-└── packages/
-    ├── core/
-    ├── openspent_local/
-    └── openspent_remote/
+├── packages/
+│   ├── core/
+│   ├── openspent_local/
+│   └── openspent_remote/
+├── AGENTS.md
+└── DESIGN.md
 ```
+
+## Documentation
+
+- [AGENTS.md](./AGENTS.md) — Operational guardrails, architecture patterns, and agent-specific guidance.
+- [DESIGN.md](./DESIGN.md) — Visual authority, theme tokens, and dashboard UI/UX rules.
 
 ## Development
 

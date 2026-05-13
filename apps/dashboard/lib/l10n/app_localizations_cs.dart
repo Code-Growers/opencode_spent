@@ -107,6 +107,18 @@ class AppLocalizationsCs extends AppLocalizations {
   String get metricsTitle => 'METRIKY';
 
   @override
+  String get shellNavMetrics => '[ METRIKY ]';
+
+  @override
+  String get shellNavSessions => '[ RELACE ]';
+
+  @override
+  String get shellNavExchangeRates => '[ KURZY ]';
+
+  @override
+  String get shellNavState => '[ STAV ]';
+
+  @override
   String get metricsLoad => '_ čekám na první data metrik ...';
 
   @override
@@ -662,6 +674,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get windowActionCustom => '[ VLASTNÍ ]';
 
   @override
+  String get customRangeSelectStart => 'Vybrat začátek';
+
+  @override
+  String get customRangeSelectEnd => 'Vybrat konec';
+
+  @override
   String get sessionsExplorerCachedHistoryTitle => '-- CACHOVANÁ HISTORIE --';
 
   @override
@@ -831,4 +849,14 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get metricsOverviewAvgTokensPerSession =>
       '-- PRŮM. TOKENY / RELACI --';
+
+  @override
+  String shellFooterDevelopedBy(String company) {
+    return 'Vyvinuto společností $company';
+  }
+
+  @override
+  String shellFooterBuildVersion(String version) {
+    return 'Sestavení $version';
+  }
 }

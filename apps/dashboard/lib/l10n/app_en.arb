@@ -64,6 +64,10 @@
     }
   },
   "metricsTitle": "METRICS",
+  "shellNavMetrics": "[ METRICS ]",
+  "shellNavSessions": "[ SESSIONS ]",
+  "shellNavExchangeRates": "[ EXCHANGE ]",
+  "shellNavState": "[ STATE ]",
   "metricsLoad": "_ awaiting first metrics payload ...",
   "metricsUnavailable": "> metrics unavailable",
   "metricsMissingExchangeRatesHelper": "> missing exchange rates for spend days. Sync rates in the exchange panel and retry.",
@@ -626,6 +630,8 @@
   "windowAction30d": "[ 30D ]",
   "windowAction90d": "[ 90D ]",
   "windowActionCustom": "[ CUSTOM ]",
+  "customRangeSelectStart": "Select Start",
+  "customRangeSelectEnd": "Select End",
   "sessionsExplorerCachedHistoryTitle": "-- CACHED HISTORY --",
   "sessionsExplorerCachedCount": "> Sessions .......... {count}",
   "@sessionsExplorerCachedCount": {
@@ -871,5 +877,21 @@
   },
   "metricsOverviewSessionsPerDay": "-- SESSIONS / DAY --",
   "metricsOverviewAvgCostPerSession": "-- AVG COST / SESSION --",
-  "metricsOverviewAvgTokensPerSession": "-- AVG TOKENS / SESSION --"
+  "metricsOverviewAvgTokensPerSession": "-- AVG TOKENS / SESSION --",
+  "shellFooterDevelopedBy": "Developed by {company}",
+  "@shellFooterDevelopedBy": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "shellFooterBuildVersion": "Build {version}",
+  "@shellFooterBuildVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
 }

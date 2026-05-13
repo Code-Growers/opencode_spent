@@ -15,14 +15,13 @@ import '../../screens/exchange_rates/exchange_rates_screen.dart';
 import '../../screens/sessions/cubit/sessions_cubit.dart';
 import '../../screens/sessions/sessions_screen.dart';
 import '../../sessions/import_selection.dart';
-import '../../theme/dashboard_colors.dart';
 import '../metrics/metrics_screen.dart';
 import '../metrics/metrics_utils.dart';
 import '../settings/settings_screen.dart';
-import 'widgets/terminal_pane.dart';
-import 'widgets/dashboard_chip_button.dart';
+import 'widgets/dashboard_shell_chrome.dart';
+import 'widgets/dashboard_shell_dialogs.dart';
+import 'widgets/dashboard_state_panel.dart';
 import 'widgets/dashboard_surface.dart';
-import 'widgets/dashboard_paired_row.dart';
 
 enum ServerProbeState { unknown, disconnected, connected, error }
 
@@ -382,7 +381,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
 
     final pickedRange = await _showDashboardDialog<DateTimeRange>(
       keyValue: 'custom-range-modal-overlay',
-      child: _CustomDateRangeDialog(
+      child: DashboardCustomDateRangeDialog(
         initialDateRange: initialDateRange,
         firstDate: firstDate,
         lastDate: lastDate,
@@ -473,100 +472,9 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   }
 
   Future<void> _openHelpDialog() async {
-    final l10n = AppLocalizations.of(context)!;
     await _showDashboardDialog(
       keyValue: 'help-modal-overlay',
-      child: DefaultTabController(
-        length: 2,
-        child: DashboardSurface(
-          key: const Key('help-dialog'),
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.helpDialogTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 24),
-                DashboardSurface(
-                  padding: EdgeInsets.zero,
-                  backgroundColor: dashboardBackgroundColor,
-                  child: TabBar(
-                    indicator: BoxDecoration(
-                      color: dashboardSurfaceColor,
-                      border: Border.all(color: dashboardBorderColor),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelColor: dashboardPrimaryTextColor,
-                    unselectedLabelColor: dashboardSecondaryTextColor,
-                    tabs: [
-                      Tab(
-                        key: const Key('help-tab-local'),
-                        text: l10n.helpTabLocal,
-                      ),
-                      Tab(
-                        key: const Key('help-tab-remote'),
-                        text: l10n.helpTabRemote,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 300,
-                  child: TabBarView(
-                    children: [
-                      _HelpDialogBody(
-                        key: const Key('help-panel-local'),
-                        lines: [
-                          l10n.helpLocalLineImport,
-                          l10n.helpLocalLinePaths,
-                          l10n.helpLocalLineCommandDbPath,
-                          l10n.helpLocalLineCommandExport,
-                          l10n.helpLocalLineCommandSessionList,
-                          l10n.helpLocalLineCommandStats,
-                          l10n.helpLocalLineBackup,
-                        ],
-                      ),
-                      _HelpDialogBody(
-                        key: const Key('help-panel-remote'),
-                        lines: [
-                          l10n.helpRemoteLineServe,
-                          l10n.helpRemoteLineDefaultUrl,
-                          l10n.helpRemoteLineHostUse,
-                          l10n.helpRemoteLineAuthEnv,
-                          l10n.helpRemoteLineAuthDefaultUsername,
-                          l10n.helpRemoteLineCors(
-                            Uri.base.scheme.startsWith('http')
-                                ? Uri.base.origin
-                                : 'http://localhost:8080',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: DashboardChipButton(
-                    key: const Key('help-close-button'),
-                    label: l10n.settingsClose,
-                    onTap: () =>
-                        Navigator.of(context, rootNavigator: true).pop(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: const DashboardHelpDialogContent(),
     );
   }
 
@@ -773,10 +681,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   }
 
   Widget _buildStateContent(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context)!;
     final demoModeController = DemoModeScope.of(context);
-    final isMockData = _isMockDataMode;
     final serverLabel = _settingsLoaded
         ? _effectiveSettings.openCodeServerUrl.toString()
         : l10n.statusServerLoading;
@@ -790,140 +696,14 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
       ServerProbeState.unknown => l10n.statusProbeUnknown,
     };
 
-    return SingleChildScrollView(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final wideLayout = constraints.maxWidth >= 680;
-          final paneWidth = wideLayout
-              ? (constraints.maxWidth - 16) / 2
-              : constraints.maxWidth;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (demoModeController != null) ...[
-                Row(
-                  children: [
-                    Text(l10n.dataModeLabel, style: textTheme.bodyLarge),
-                    const SizedBox(width: 16),
-                    DashboardChipButton(
-                      label: l10n.dataModeReal,
-                      isSelected: !isMockData,
-                      onTap: isMockData ? demoModeController.toggle : null,
-                    ),
-                    const SizedBox(width: 8),
-                    DashboardChipButton(
-                      label: l10n.dataModeMock,
-                      isSelected: isMockData,
-                      onTap: !isMockData ? demoModeController.toggle : null,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (wideLayout)
-                DashboardPairedRow(
-                  spacing: 16,
-                  firstChild: TerminalPane(
-                    key: const Key('dashboard-kpi-status'),
-                    title: l10n.statusPaneTitle,
-                    lines: [
-                      l10n.statusLineReady(
-                        _settingsLoaded ? l10n.statusReady : l10n.statusLoading,
-                      ),
-                      l10n.statusLineMode(
-                        isMockData
-                            ? '${l10n.statusModeLocalCache}${l10n.statusModeMockSuffix}'
-                            : l10n.statusModeLocalCache,
-                      ),
-                      l10n.statusLineServer(serverLabel),
-                      l10n.statusLineProbe(displayProbe),
-                    ],
-                    lineStyles: [
-                      null,
-                      null,
-                      null,
-                      _probeState == ServerProbeState.connected
-                          ? textTheme.bodyLarge?.copyWith(
-                              color: dashboardStatusColor,
-                            )
-                          : null,
-                    ],
-                  ),
-                  secondChild: TerminalPane(
-                    key: const Key('dashboard-kpi-privacy'),
-                    title: l10n.privacyPaneTitle,
-                    lines: [
-                      l10n.privacyLinePrompts,
-                      l10n.privacyLineToolOutput,
-                      l10n.privacyLineErrors,
-                    ],
-                  ),
-                )
-              else
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: [
-                    SizedBox(
-                      width: paneWidth,
-                      child: TerminalPane(
-                        title: l10n.statusPaneTitle,
-                        lines: [
-                          l10n.statusLineReady(
-                            _settingsLoaded
-                                ? l10n.statusReady
-                                : l10n.statusLoading,
-                          ),
-                          l10n.statusLineMode(
-                            isMockData
-                                ? '${l10n.statusModeLocalCache}${l10n.statusModeMockSuffix}'
-                                : l10n.statusModeLocalCache,
-                          ),
-                          l10n.statusLineServer(serverLabel),
-                          l10n.statusLineProbe(displayProbe),
-                        ],
-                        lineStyles: [
-                          null,
-                          null,
-                          null,
-                          _probeState == ServerProbeState.connected
-                              ? textTheme.bodyLarge?.copyWith(
-                                  color: dashboardStatusColor,
-                                )
-                              : null,
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: paneWidth,
-                      child: TerminalPane(
-                        title: l10n.privacyPaneTitle,
-                        lines: [
-                          l10n.privacyLinePrompts,
-                          l10n.privacyLineToolOutput,
-                          l10n.privacyLineErrors,
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 16),
-              DashboardSurface(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    l10n.persistedAllowlist(
-                      OpenSpentInfo.persistedMetadataAllowlist.length,
-                    ),
-                    style: textTheme.bodyLarge,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+    return DashboardStatePanel(
+      isMockData: _isMockDataMode,
+      settingsLoaded: _settingsLoaded,
+      serverLabel: serverLabel,
+      probeState: _probeState,
+      displayProbe: displayProbe,
+      demoModeController: demoModeController,
+      allowlistCount: OpenSpentInfo.persistedMetadataAllowlist.length,
     );
   }
 
@@ -950,27 +730,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     return 0;
   }
 
-  Widget _buildNavLink({
-    required String label,
-    required int semanticIndex,
-    required int selectedIndex,
-    required VoidCallback onTap,
-    required String keyValue,
-  }) {
-    final isSelected = selectedIndex == semanticIndex;
-    return DashboardChipButton(
-      key: Key(keyValue),
-      label: label,
-      isSelected: isSelected,
-      onTap: onTap,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -989,127 +750,36 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
                     DashboardSpacing.shellGutter,
                     0,
                   ),
-                  child: Row(
-                    key: const Key('dashboard-shell-header'),
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '[ ${OpenSpentInfo.productName.toUpperCase()} ]',
-                        style: textTheme.headlineSmall?.copyWith(height: 1),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: dashboardBorderColor),
-                        ),
-                        child: Text(
-                          l10n.localLabel,
-                          style: textTheme.titleMedium?.copyWith(
-                            color: dashboardStatusColor,
-                            height: 1,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        key: const Key('help-open-button'),
-                        onPressed: _openHelpDialog,
-                        icon: const Icon(Icons.info_outline),
-                        color: dashboardSecondaryTextColor,
-                        iconSize: 24,
-                        tooltip: l10n.helpDialogTitle,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                      if (_hasSettingsRoute) ...[
-                        const SizedBox(width: 12),
-                        IconButton(
-                          key: const Key('settings-open-button'),
-                          onPressed: _openSettingsDialog,
-                          icon: const Icon(Icons.settings),
-                          color: dashboardSecondaryTextColor,
-                          iconSize: 24,
-                          tooltip: l10n.settingsTitle,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ],
+                  child: DashboardShellHeader(
+                    hasSettingsRoute: _hasSettingsRoute,
+                    onHelpPressed: _openHelpDialog,
+                    onSettingsPressed: _openSettingsDialog,
                   ),
+                ),
+                const SizedBox(height: DashboardSpacing.shellGutter),
+                const Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: DashboardSpacing.shellGutter,
+                  ),
+                  child: DashboardShellHero(),
                 ),
                 const SizedBox(height: DashboardSpacing.shellGutter),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: DashboardSpacing.shellGutter,
                   ),
-                  child: Column(
-                    key: const Key('dashboard-shell-hero'),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l10n.heroTitle, style: textTheme.titleLarge),
-                      const SizedBox(height: 12),
-                      Text(l10n.heroDescription, style: textTheme.bodyMedium),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: DashboardSpacing.shellGutter),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: DashboardSpacing.shellGutter,
-                  ),
-                  child: DashboardSurface(
-                    key: const Key('dashboard-shell-nav'),
-                    padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Wrap(
-                        spacing: 16,
-                        runSpacing: 8,
-                        children: [
-                          _buildNavLink(
-                            label: '[ METRICS ]',
-                            semanticIndex: 0,
-                            selectedIndex: selectedIndex,
-                            onTap: () => context.navigateTo(
-                              const DashboardMetricsRoute(),
-                            ),
-                            keyValue: 'dashboard-nav-metrics',
-                          ),
-                          if (_hasSessionsRoute)
-                            _buildNavLink(
-                              label: '[ SESSIONS ]',
-                              semanticIndex: 1,
-                              selectedIndex: selectedIndex,
-                              onTap: () => context.navigateTo(
-                                const DashboardSessionsRoute(),
-                              ),
-                              keyValue: 'dashboard-nav-sessions',
-                            ),
-                          if (_hasExchangeRatesRoute)
-                            _buildNavLink(
-                              label: '[ EXCHANGE ]',
-                              semanticIndex: 2,
-                              selectedIndex: selectedIndex,
-                              onTap: () => context.navigateTo(
-                                const DashboardExchangeRatesRoute(),
-                              ),
-                              keyValue: 'dashboard-nav-exchange-rates',
-                            ),
-                          _buildNavLink(
-                            label: '[ STATE ]',
-                            semanticIndex: 3,
-                            selectedIndex: selectedIndex,
-                            onTap: () =>
-                                context.navigateTo(const DashboardStateRoute()),
-                            keyValue: 'dashboard-nav-state',
-                          ),
-                        ],
-                      ),
-                    ),
+                  child: DashboardShellNav(
+                    selectedIndex: selectedIndex,
+                    hasSessionsRoute: _hasSessionsRoute,
+                    hasExchangeRatesRoute: _hasExchangeRatesRoute,
+                    onMetricsNav: () =>
+                        context.navigateTo(const DashboardMetricsRoute()),
+                    onSessionsNav: () =>
+                        context.navigateTo(const DashboardSessionsRoute()),
+                    onExchangeRatesNav: () =>
+                        context.navigateTo(const DashboardExchangeRatesRoute()),
+                    onStateNav: () =>
+                        context.navigateTo(const DashboardStateRoute()),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -1127,6 +797,13 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                const Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: DashboardSpacing.shellGutter,
+                  ),
+                  child: DashboardShellFooter(),
                 ),
                 const SizedBox(height: DashboardSpacing.shellGutter),
               ],
@@ -1175,161 +852,5 @@ class DashboardStateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DashboardShellScope.of(context).buildStateContent(context);
-  }
-}
-
-class _HelpDialogBody extends StatelessWidget {
-  const _HelpDialogBody({super.key, required this.lines});
-
-  final List<String> lines;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return DashboardSurface(
-      padding: const EdgeInsets.all(16),
-      backgroundColor: dashboardBackgroundColor,
-      child: SizedBox(
-        width: double.infinity,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var index = 0; index < lines.length; index++) ...[
-                Text(lines[index], style: textTheme.bodyLarge),
-                if (index < lines.length - 1) const SizedBox(height: 12),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CustomDateRangeDialog extends StatefulWidget {
-  const _CustomDateRangeDialog({
-    required this.initialDateRange,
-    required this.firstDate,
-    required this.lastDate,
-  });
-
-  final DateTimeRange? initialDateRange;
-  final DateTime firstDate;
-  final DateTime lastDate;
-
-  @override
-  State<_CustomDateRangeDialog> createState() => _CustomDateRangeDialogState();
-}
-
-class _CustomDateRangeDialogState extends State<_CustomDateRangeDialog> {
-  DateTime? _start;
-  DateTime? _end;
-
-  @override
-  void initState() {
-    super.initState();
-    _start = widget.initialDateRange?.start;
-    _end = widget.initialDateRange?.end;
-  }
-
-  Future<void> _pickStart() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _start ?? DateTime.now(),
-      firstDate: widget.firstDate,
-      lastDate: _end ?? widget.lastDate,
-    );
-    if (picked != null) {
-      setState(() {
-        _start = picked;
-      });
-    }
-  }
-
-  Future<void> _pickEnd() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _end ?? _start ?? DateTime.now(),
-      firstDate: _start ?? widget.firstDate,
-      lastDate: widget.lastDate,
-    );
-    if (picked != null) {
-      setState(() {
-        _end = picked;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final l10n = AppLocalizations.of(context)!;
-    final startLabel = _start != null
-        ? '${_start!.year}-${_start!.month.toString().padLeft(2, '0')}-${_start!.day.toString().padLeft(2, '0')}'
-        : 'Select Start';
-    final endLabel = _end != null
-        ? '${_end!.year}-${_end!.month.toString().padLeft(2, '0')}-${_end!.day.toString().padLeft(2, '0')}'
-        : 'Select End';
-
-    return DashboardSurface(
-      key: const Key('custom-range-dialog'),
-      padding: const EdgeInsets.all(24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.windowActionCustom, style: textTheme.titleMedium),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: DashboardChipButton(
-                    key: const Key('custom-range-start'),
-                    label: startLabel,
-                    onTap: _pickStart,
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(' - '),
-                ),
-                Expanded(
-                  child: DashboardChipButton(
-                    key: const Key('custom-range-end'),
-                    label: endLabel,
-                    onTap: _pickEnd,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                DashboardChipButton(
-                  key: const Key('custom-range-cancel'),
-                  label: l10n.settingsClose,
-                  onTap: () => Navigator.of(context).pop(),
-                ),
-                const SizedBox(width: 16),
-                DashboardChipButton(
-                  key: const Key('custom-range-save'),
-                  label: l10n.settingsSave,
-                  isSelected: true,
-                  onTap: _start != null && _end != null
-                      ? () => Navigator.of(
-                          context,
-                        ).pop(DateTimeRange(start: _start!, end: _end!))
-                      : null,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

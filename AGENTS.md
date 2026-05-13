@@ -35,6 +35,16 @@
   - `languageCode`
 - `languageCode` is already implemented in the shipped dashboard. Treat older notes claiming language switching is pending as stale.
 
+## Dashboard operational guardrails
+
+- **Visual Authority**: `DESIGN.md` at the repo root is the canonical guide for UI/UX. Match theme tokens, typography, and layout rules defined there.
+- **State Ownership**: `DashboardShellScreen` owns cross-screen state (filters, probe loops, revision counters). Feature cubits stay screen-local under `apps/dashboard/lib/src/screens/*/cubit/`.
+- **Localization Workflow**: Run `dart run melos run generate:l10n` to update translations. Never manually edit `apps/dashboard/lib/l10n/app_localizations*.dart`.
+- **Generated Code**: Do not hand-edit files ending in `.g.dart`, `.gr.dart`, or generated localization files. Use Melos `generate` scripts to refresh them.
+- **Branding**: Attribution and versioning live in the dashboard shell footer. Reference `apps/dashboard/lib/src/app/dashboard_build_info.dart` and `apps/dashboard/web/logo.svg`.
+- **Build Version Sync**: Keep `apps/dashboard/lib/src/app/dashboard_build_info.dart` aligned with the package version in `apps/dashboard/pubspec.yaml` until release automation owns that value.
+- **Testing**: UI changes require verification in both Real and Mock data modes. Run `flutter test` in `apps/dashboard`.
+
 ## Package responsibilities
 
 - `packages/core`: pure Dart models, repository interfaces, calculators/composers, parsers, sync services, and shared product/privacy constants.
@@ -56,6 +66,6 @@
 
 - Match the existing separation of concerns: shell-owned shared dashboard state, screen-local cubits, pure-Dart core contracts, local adapters in `openspent_local`, remote adapters in `openspent_remote`.
 - Preserve `resolution: workspace`, workspace membership, Flutter SDK dependencies, and path dependencies unless the task explicitly changes workspace structure.
-- Prefer architecture-faithful updates over roadmap assumptions. `docs/implementation_steps.md` is useful context, but some dashboard notes in it are stale.
+- Prefer architecture-faithful updates over roadmap assumptions. `prompts/implementation_steps.md` is useful context, but some dashboard notes in it are stale.
 - Do not edit generated files manually unless regeneration is impossible and the task explicitly requires it.
 - Validate with the Melos workflow after meaningful changes.

@@ -272,6 +272,30 @@ abstract class AppLocalizations {
   /// **'METRICS'**
   String get metricsTitle;
 
+  /// No description provided for @shellNavMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'[ METRICS ]'**
+  String get shellNavMetrics;
+
+  /// No description provided for @shellNavSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'[ SESSIONS ]'**
+  String get shellNavSessions;
+
+  /// No description provided for @shellNavExchangeRates.
+  ///
+  /// In en, this message translates to:
+  /// **'[ EXCHANGE ]'**
+  String get shellNavExchangeRates;
+
+  /// No description provided for @shellNavState.
+  ///
+  /// In en, this message translates to:
+  /// **'[ STATE ]'**
+  String get shellNavState;
+
   /// No description provided for @metricsLoad.
   ///
   /// In en, this message translates to:
@@ -1111,6 +1135,18 @@ abstract class AppLocalizations {
   /// **'[ CUSTOM ]'**
   String get windowActionCustom;
 
+  /// No description provided for @customRangeSelectStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Start'**
+  String get customRangeSelectStart;
+
+  /// No description provided for @customRangeSelectEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Select End'**
+  String get customRangeSelectEnd;
+
   /// No description provided for @sessionsExplorerCachedHistoryTitle.
   ///
   /// In en, this message translates to:
@@ -1356,6 +1392,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'-- AVG TOKENS / SESSION --'**
   String get metricsOverviewAvgTokensPerSession;
+
+  /// No description provided for @shellFooterDevelopedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developed by {company}'**
+  String shellFooterDevelopedBy(String company);
+
+  /// No description provided for @shellFooterBuildVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Build {version}'**
+  String shellFooterBuildVersion(String version);
 }
 
 class _AppLocalizationsDelegate

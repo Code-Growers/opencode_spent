@@ -107,6 +107,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricsTitle => 'METRICS';
 
   @override
+  String get shellNavMetrics => '[ METRICS ]';
+
+  @override
+  String get shellNavSessions => '[ SESSIONS ]';
+
+  @override
+  String get shellNavExchangeRates => '[ EXCHANGE ]';
+
+  @override
+  String get shellNavState => '[ STATE ]';
+
+  @override
   String get metricsLoad => '_ awaiting first metrics payload ...';
 
   @override
@@ -660,6 +672,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get windowActionCustom => '[ CUSTOM ]';
 
   @override
+  String get customRangeSelectStart => 'Select Start';
+
+  @override
+  String get customRangeSelectEnd => 'Select End';
+
+  @override
   String get sessionsExplorerCachedHistoryTitle => '-- CACHED HISTORY --';
 
   @override
@@ -828,4 +846,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricsOverviewAvgTokensPerSession => '-- AVG TOKENS / SESSION --';
+
+  @override
+  String shellFooterDevelopedBy(String company) {
+    return 'Developed by $company';
+  }
+
+  @override
+  String shellFooterBuildVersion(String version) {
+    return 'Build $version';
+  }
 }

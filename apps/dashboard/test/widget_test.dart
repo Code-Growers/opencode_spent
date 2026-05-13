@@ -535,6 +535,16 @@ void main() {
       dashboardStatusColor,
     );
 
+    // Verify footer rendering in English
+    expect(find.byKey(const Key('dashboard-shell-footer')), findsOneWidget);
+    expect(find.byKey(const Key('dashboard-shell-brand-logo')), findsOneWidget);
+    expect(
+      find.byKey(const Key('dashboard-shell-build-version')),
+      findsOneWidget,
+    );
+    expect(find.text('Developed by Code Growers s.r.o.'), findsOneWidget);
+    expect(find.text('Build 0.1.0+1'), findsOneWidget);
+
     await _openDashboardSection(tester, 'dashboard-nav-metrics');
     expect(find.text('-- OVERALL --'), findsOneWidget);
     expect(find.text('> Total cost ......... USD 1.25'), findsOneWidget);
@@ -718,9 +728,25 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('METRIKY'), findsOneWidget);
+    expect(find.text('[ STAV ]'), findsOneWidget);
     await _openDashboardSection(tester, 'dashboard-nav-state');
     expect(find.text('> Sonda ............. PŘIPOJENO'), findsOneWidget);
     expect(find.text('[ NASTAVENÍ ]'), findsNothing);
+
+    // Verify footer rendering in Czech
+    expect(
+      find.text('Vyvinuto společností Code Growers s.r.o.'),
+      findsOneWidget,
+    );
+    expect(find.text('Sestavení 0.1.0+1'), findsOneWidget);
+
+    await _openDashboardSection(tester, 'dashboard-nav-metrics');
+    await tester.ensureVisible(find.byKey(const Key('metrics-window-custom')));
+    await tester.tap(find.byKey(const Key('metrics-window-custom')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Vybrat začátek'), findsOneWidget);
+    expect(find.text('Vybrat konec'), findsOneWidget);
   });
 
   testWidgets('null language code preserves current system-locale behavior', (
