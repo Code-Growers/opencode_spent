@@ -1,6 +1,21 @@
 import '../models/exchange_rate.dart';
 import '../models/supported_currency.dart';
 
+const _cnbEnglishMonthNumbers = <String, int>{
+  'jan': 1,
+  'feb': 2,
+  'mar': 3,
+  'apr': 4,
+  'may': 5,
+  'jun': 6,
+  'jul': 7,
+  'aug': 8,
+  'sep': 9,
+  'oct': 10,
+  'nov': 11,
+  'dec': 12,
+};
+
 final class CnbExchangeRateParser {
   const CnbExchangeRateParser();
 
@@ -66,15 +81,35 @@ final class CnbExchangeRateParser {
   }
 
   DateTime _parseDate(String header) {
-    final match = RegExp(r'^(\d{1,2})\.(\d{1,2})\.(\d{4})').firstMatch(header);
-    if (match == null) {
+    final dottedMatch = RegExp(
+      r'^(\d{1,2})\.(\d{1,2})\.(\d{4})',
+    ).firstMatch(header);
+    if (dottedMatch != null) {
+      final day = int.parse(dottedMatch.group(1)!);
+      final month = int.parse(dottedMatch.group(2)!);
+      final year = int.parse(dottedMatch.group(3)!);
+      return _validatedDate(year, month, day, header);
+    }
+
+    final englishMatch = RegExp(
+      r'^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})',
+    ).firstMatch(header);
+    if (englishMatch == null) {
       throw FormatException('Missing ČNB date header: $header');
     }
 
-    final day = int.parse(match.group(1)!);
-    final month = int.parse(match.group(2)!);
-    final year = int.parse(match.group(3)!);
+    final day = int.parse(englishMatch.group(1)!);
+    final monthToken = englishMatch.group(2)!.toLowerCase();
+    final month = _cnbEnglishMonthNumbers[monthToken];
+    if (month == null) {
+      throw FormatException('Missing ČNB date header: $header');
+    }
 
+    final year = int.parse(englishMatch.group(3)!);
+    return _validatedDate(year, month, day, header);
+  }
+
+  DateTime _validatedDate(int year, int month, int day, String header) {
     if (!_isValidCalendarDate(year, month, day)) {
       throw FormatException('Invalid ČNB calendar date: $header');
     }

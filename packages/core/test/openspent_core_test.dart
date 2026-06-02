@@ -140,6 +140,33 @@ void main() {
       expect(czk.rateToCzk, 1.0);
     });
 
+    test('parses current English ČNB header format', () {
+      const parser = CnbExchangeRateParser();
+      final rates = parser.parse(
+        '01 Jun 2026 #103\n'
+        'Country|Currency|Amount|Code|Rate\n'
+        'EMU|euro|1|EUR|24.290\n'
+        'United States|dollar|1|USD|21.405\n',
+      );
+
+      final eur = rates.firstWhere(
+        (rate) => rate.currency == SupportedCurrency.eur,
+      );
+      final usd = rates.firstWhere(
+        (rate) => rate.currency == SupportedCurrency.usd,
+      );
+      final czk = rates.firstWhere(
+        (rate) => rate.currency == SupportedCurrency.czk,
+      );
+
+      expect(eur.date, DateTime.utc(2026, 6, 1));
+      expect(eur.rateToCzk, closeTo(24.29, 0.000001));
+      expect(usd.date, DateTime.utc(2026, 6, 1));
+      expect(usd.rateToCzk, closeTo(21.405, 0.000001));
+      expect(czk.date, DateTime.utc(2026, 6, 1));
+      expect(czk.rateToCzk, 1.0);
+    });
+
     test('divides rates by amount for quoted units above one', () {
       const parser = CnbExchangeRateParser();
       final rates = parser.parse(
