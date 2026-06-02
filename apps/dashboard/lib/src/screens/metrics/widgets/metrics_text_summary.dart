@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:openspent_core/openspent_core.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -494,6 +495,14 @@ class MetricsTextSummary extends StatelessWidget {
                           DashboardSpacing.nestedPanelPadding * 2) /
                       3;
 
+            final dateLabels = visibleDays
+                .map(
+                  (d) => DateFormat.Md(
+                    Localizations.localeOf(context).toString(),
+                  ).format(d),
+                )
+                .toList();
+
             return Wrap(
               spacing: DashboardSpacing.nestedPanelPadding,
               runSpacing: DashboardSpacing.nestedPanelPadding,
@@ -507,6 +516,10 @@ class MetricsTextSummary extends StatelessWidget {
                       metrics.dailyBreakdown,
                       visibleDays,
                     ),
+                    xLabels: dateLabels,
+                    xAxisTitle: l10n.axisLabelDate,
+                    yAxisTitle: l10n.axisLabelSessions,
+                    yLabelFormatter: (val) => compactNumber(val),
                   ),
                 ),
                 SizedBox(
@@ -518,6 +531,10 @@ class MetricsTextSummary extends StatelessWidget {
                       metrics.dailyBreakdown,
                       visibleDays,
                     ),
+                    xLabels: dateLabels,
+                    xAxisTitle: l10n.axisLabelDate,
+                    yAxisTitle: l10n.axisLabelAvgCost,
+                    yLabelFormatter: (val) => val.toStringAsFixed(2),
                   ),
                 ),
                 SizedBox(
@@ -529,6 +546,10 @@ class MetricsTextSummary extends StatelessWidget {
                       metrics.dailyBreakdown,
                       visibleDays,
                     ),
+                    xLabels: dateLabels,
+                    xAxisTitle: l10n.axisLabelDate,
+                    yAxisTitle: l10n.axisLabelAvgTokens,
+                    yLabelFormatter: (val) => compactNumber(val),
                   ),
                 ),
               ],

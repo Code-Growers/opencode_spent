@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:openspent_core/openspent_core.dart';
 
 import '../../../../l10n/app_localizations.dart';
@@ -124,8 +125,11 @@ class ExchangeRatesHistoryChart extends StatelessWidget {
                         if (index < 0 || index >= visibleDays.length) {
                           return const SizedBox.shrink();
                         }
+                        final dateStr = DateFormat.yMMMd(
+                          Localizations.localeOf(context).toString(),
+                        ).format(visibleDays[index]);
                         return Text(
-                          visibleDays[index].day.toString(),
+                          dateStr,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
                                 fontSize: 10,

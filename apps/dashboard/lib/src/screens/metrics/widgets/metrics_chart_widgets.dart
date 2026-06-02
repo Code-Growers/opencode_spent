@@ -1239,10 +1239,18 @@ class CompactDashboardLineChart extends StatelessWidget {
     super.key,
     required this.title,
     required this.values,
+    this.xLabels,
+    this.yLabelFormatter,
+    this.xAxisTitle,
+    this.yAxisTitle,
   });
 
   final String title;
   final List<num> values;
+  final List<String>? xLabels;
+  final String Function(double)? yLabelFormatter;
+  final String? xAxisTitle;
+  final String? yAxisTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -1295,7 +1303,85 @@ class CompactDashboardLineChart extends StatelessWidget {
                   minY: 0,
                   maxY: maxY,
                   gridData: const FlGridData(show: false),
-                  titlesData: const FlTitlesData(show: false),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    leftTitles: AxisTitles(
+                      axisNameWidget: yAxisTitle != null
+                          ? Text(
+                              yAxisTitle!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    fontSize: 10,
+                                    color: dashboardSecondaryTextColor,
+                                  ),
+                            )
+                          : null,
+                      axisNameSize: yAxisTitle != null ? 16 : 0,
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 32,
+                        getTitlesWidget: (value, meta) {
+                          if (value == maxY || value == 0 && maxY > 0) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            yLabelFormatter?.call(value) ??
+                                compactNumber(value),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontSize: 10,
+                                  color: dashboardSecondaryTextColor,
+                                ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      axisNameWidget: xAxisTitle != null
+                          ? Text(
+                              xAxisTitle!,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    fontSize: 10,
+                                    color: dashboardSecondaryTextColor,
+                                  ),
+                            )
+                          : null,
+                      axisNameSize: xAxisTitle != null ? 16 : 0,
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 22,
+                        interval: xLabels != null
+                            ? math.max(1, (xLabels!.length / 4).floorToDouble())
+                            : 1.0,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (xLabels == null ||
+                              index < 0 ||
+                              index >= xLabels!.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              xLabels![index],
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    fontSize: 10,
+                                    color: dashboardSecondaryTextColor,
+                                  ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                   borderData: FlBorderData(show: false),
                   lineTouchData: const LineTouchData(enabled: false),
                   lineBarsData: [

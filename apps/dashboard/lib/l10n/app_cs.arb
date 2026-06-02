@@ -4,6 +4,13 @@
   "localLabel": "[ LOKÁLNÍ ]",
   "heroTitle": "Monitorujte OpenCode. Lokálně.",
   "heroDescription": "Soukromý lokální dashboard s cachovanými metrikami a terminálovým zobrazením.",
+  "heroEyebrow": "// LOKÁLNÍ PŘEHLED ÚTRATY",
+  "heroMetricSyncLabel": "SYNC",
+  "heroMetricSyncValue": "REALTIME",
+  "heroMetricDataLabel": "DATA",
+  "heroMetricDataValue": "LOKÁLNÍ",
+  "heroMetricFieldsLabel": "POLE",
+  "heroMetricFieldsValue": "ALLOWLIST",
   "statusPaneTitle": "STAV",
   "statusLineReady": "> Dashboard .......... {state}",
   "@statusLineReady": {
@@ -819,5 +826,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "axisLabelDate": "Datum",
+  "axisLabelSessions": "Relace",
+  "axisLabelAvgCost": "Prům. cena",
+  "axisLabelAvgTokens": "Prům. tokeny"
 }

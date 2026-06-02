@@ -126,9 +126,9 @@ void main() {
           .first,
     );
     final selectedDecoration = selectedContainer.decoration as BoxDecoration;
-    expect(selectedDecoration.color, Colors.red.withValues(alpha: 0.1));
+    expect(selectedDecoration.color, Colors.red.withValues(alpha: 0.16));
     final selectedBorder = selectedDecoration.border as Border;
-    expect(selectedBorder.top.color, Colors.red.withValues(alpha: 0.5));
+    expect(selectedBorder.top.color, Colors.red.withValues(alpha: 0.72));
 
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
     await tester.pumpAndSettle();
@@ -147,7 +147,7 @@ void main() {
     expect(focusedSelectedDecoration.boxShadow, isNotEmpty);
     expect(
       focusedSelectedDecoration.boxShadow!.first.color,
-      const Color(0xFF3B82F6).withValues(alpha: 0.35),
+      Colors.red.withValues(alpha: 0.24),
     );
 
     // Normal chip (focused) semantics should not have 'selected' state.

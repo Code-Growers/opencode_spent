@@ -93,6 +93,7 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
             onPrimary: dashboardPrimaryTextColor,
             surface: dashboardSurfaceColor,
             onSurface: dashboardPrimaryTextColor,
+            surfaceContainer: dashboardSurfaceElevatedColor,
             surfaceContainerHighest: dashboardSurfaceHighlightColor,
             outline: dashboardBorderColor,
             secondary: dashboardSecondaryTextColor,
@@ -120,6 +121,24 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderSide: BorderSide(color: dashboardErrorColor),
+            ),
+          ),
+          iconButtonTheme: IconButtonThemeData(
+            style: IconButton.styleFrom(
+              foregroundColor: dashboardSecondaryTextColor,
+              hoverColor: dashboardSurfaceHighlightColor,
+              focusColor: dashboardAccentColor.withValues(alpha: 0.12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          cardTheme: CardThemeData(
+            color: dashboardSurfaceElevatedColor,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: dashboardBorderColor),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
           textTheme: const TextTheme(

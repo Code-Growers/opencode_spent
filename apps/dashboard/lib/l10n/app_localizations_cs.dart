@@ -22,6 +22,27 @@ class AppLocalizationsCs extends AppLocalizations {
       'Soukromý lokální dashboard s cachovanými metrikami a terminálovým zobrazením.';
 
   @override
+  String get heroEyebrow => '// LOKÁLNÍ PŘEHLED ÚTRATY';
+
+  @override
+  String get heroMetricSyncLabel => 'SYNC';
+
+  @override
+  String get heroMetricSyncValue => 'REALTIME';
+
+  @override
+  String get heroMetricDataLabel => 'DATA';
+
+  @override
+  String get heroMetricDataValue => 'LOKÁLNÍ';
+
+  @override
+  String get heroMetricFieldsLabel => 'POLE';
+
+  @override
+  String get heroMetricFieldsValue => 'ALLOWLIST';
+
+  @override
   String get statusPaneTitle => 'STAV';
 
   @override
@@ -859,4 +880,16 @@ class AppLocalizationsCs extends AppLocalizations {
   String shellFooterBuildVersion(String version) {
     return 'Sestavení $version';
   }
+
+  @override
+  String get axisLabelDate => 'Datum';
+
+  @override
+  String get axisLabelSessions => 'Relace';
+
+  @override
+  String get axisLabelAvgCost => 'Prům. cena';
+
+  @override
+  String get axisLabelAvgTokens => 'Prům. tokeny';
 }

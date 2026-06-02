@@ -122,6 +122,48 @@ abstract class AppLocalizations {
   /// **'A privacy-first local dashboard with cached metrics and terminal-style drilldowns.'**
   String get heroDescription;
 
+  /// No description provided for @heroEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'// LOCAL-FIRST SPEND INTELLIGENCE'**
+  String get heroEyebrow;
+
+  /// No description provided for @heroMetricSyncLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SYNC'**
+  String get heroMetricSyncLabel;
+
+  /// No description provided for @heroMetricSyncValue.
+  ///
+  /// In en, this message translates to:
+  /// **'REALTIME'**
+  String get heroMetricSyncValue;
+
+  /// No description provided for @heroMetricDataLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'DATA'**
+  String get heroMetricDataLabel;
+
+  /// No description provided for @heroMetricDataValue.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCAL'**
+  String get heroMetricDataValue;
+
+  /// No description provided for @heroMetricFieldsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'FIELDS'**
+  String get heroMetricFieldsLabel;
+
+  /// No description provided for @heroMetricFieldsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'ALLOWLISTED'**
+  String get heroMetricFieldsValue;
+
   /// No description provided for @statusPaneTitle.
   ///
   /// In en, this message translates to:
@@ -1404,6 +1446,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Build {version}'**
   String shellFooterBuildVersion(String version);
+
+  /// No description provided for @axisLabelDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get axisLabelDate;
+
+  /// No description provided for @axisLabelSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get axisLabelSessions;
+
+  /// No description provided for @axisLabelAvgCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Cost'**
+  String get axisLabelAvgCost;
+
+  /// No description provided for @axisLabelAvgTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Tokens'**
+  String get axisLabelAvgTokens;
 }
 
 class _AppLocalizationsDelegate

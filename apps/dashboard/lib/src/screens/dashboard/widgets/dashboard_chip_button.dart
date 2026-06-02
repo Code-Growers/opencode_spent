@@ -40,13 +40,13 @@ class _DashboardChipButtonState extends State<DashboardChipButton> {
     final List<BoxShadow>? boxShadow;
 
     if (widget.isEmphasized) {
-      backgroundColor = widget.activeColor.withValues(alpha: 0.1);
-      borderColor = widget.activeColor.withValues(alpha: 0.5);
+      backgroundColor = widget.activeColor.withValues(alpha: 0.14);
+      borderColor = widget.activeColor.withValues(alpha: 0.64);
       textColor = widget.activeColor;
     } else if (widget.isSelected) {
-      backgroundColor = widget.activeColor.withValues(alpha: 0.1);
-      borderColor = widget.activeColor.withValues(alpha: 0.5);
-      textColor = widget.activeColor;
+      backgroundColor = widget.activeColor.withValues(alpha: 0.16);
+      borderColor = widget.activeColor.withValues(alpha: 0.72);
+      textColor = dashboardPrimaryTextColor;
     } else if (_isFocused) {
       backgroundColor = Colors.transparent;
       borderColor = dashboardAccentColor;
@@ -61,12 +61,20 @@ class _DashboardChipButtonState extends State<DashboardChipButton> {
       textColor = dashboardSecondaryTextColor;
     }
 
-    boxShadow = _isFocused
+    boxShadow = widget.isSelected || widget.isEmphasized
+        ? [
+            BoxShadow(
+              color: widget.activeColor.withValues(alpha: 0.24),
+              blurRadius: 18,
+              spreadRadius: -6,
+            ),
+          ]
+        : _isFocused
         ? [
             BoxShadow(
               color: dashboardAccentColor.withValues(alpha: 0.35),
-              blurRadius: 0,
-              spreadRadius: 1,
+              blurRadius: 16,
+              spreadRadius: -4,
             ),
           ]
         : null;
@@ -80,18 +88,20 @@ class _DashboardChipButtonState extends State<DashboardChipButton> {
         child: InkWell(
           onTap: widget.onTap,
           autofocus: widget.autofocus,
-          borderRadius: BorderRadius.circular(4.0),
+          borderRadius: BorderRadius.circular(999),
           onHover: (hovered) => setState(() => _isHovered = hovered),
           onFocusChange: (focused) => setState(() => _isFocused = focused),
           mouseCursor: widget.onTap != null
               ? SystemMouseCursors.click
               : SystemMouseCursors.basic,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOutCubic,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: backgroundColor,
               border: Border.all(color: borderColor),
-              borderRadius: BorderRadius.circular(4.0),
+              borderRadius: BorderRadius.circular(999),
               boxShadow: boxShadow,
             ),
             child: Text(

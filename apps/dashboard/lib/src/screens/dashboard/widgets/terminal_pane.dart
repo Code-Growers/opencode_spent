@@ -21,6 +21,7 @@ class TerminalPane extends StatelessWidget {
 
     return DashboardSurface(
       padding: const EdgeInsets.all(16),
+      backgroundColor: dashboardSurfaceElevatedColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,6 +29,7 @@ class TerminalPane extends StatelessWidget {
           const SizedBox(height: 16),
           DashboardSurface(
             backgroundColor: dashboardBackgroundColor,
+            radius: 14,
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,

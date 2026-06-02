@@ -4,6 +4,13 @@
   "localLabel": "[ LOCAL ]",
   "heroTitle": "Monitor OpenCode. Locally.",
   "heroDescription": "A privacy-first local dashboard with cached metrics and terminal-style drilldowns.",
+  "heroEyebrow": "// LOCAL-FIRST SPEND INTELLIGENCE",
+  "heroMetricSyncLabel": "SYNC",
+  "heroMetricSyncValue": "REALTIME",
+  "heroMetricDataLabel": "DATA",
+  "heroMetricDataValue": "LOCAL",
+  "heroMetricFieldsLabel": "FIELDS",
+  "heroMetricFieldsValue": "ALLOWLISTED",
   "statusPaneTitle": "STATUS",
   "statusLineReady": "> Dashboard .......... {state}",
   "@statusLineReady": {
@@ -893,5 +900,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "axisLabelDate": "Date",
+  "axisLabelSessions": "Sessions",
+  "axisLabelAvgCost": "Avg Cost",
+  "axisLabelAvgTokens": "Avg Tokens"
 }

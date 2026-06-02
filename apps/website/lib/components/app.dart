@@ -22,11 +22,11 @@ class _AppState extends State<App> {
   Component build(BuildContext context) {
     return div(
       classes:
-          'min-h-screen bg-black text-white font-mono leading-relaxed selection:bg-[#333] selection:text-white',
+          'min-h-screen bg-[#05070b] text-white font-mono leading-relaxed selection:bg-[#1d4ed8] selection:text-white',
       [
         div(
           classes:
-              'w-full max-w-[1200px] mx-auto min-h-screen border-x border-[#222] bg-gradient-to-b from-[#050505] to-black flex flex-col',
+              'w-full max-w-[1240px] mx-auto min-h-screen border-x border-[#1f2937] bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_34%),linear-gradient(180deg,#0d0e10_0%,#05070b_48%,#020305_100%)] flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.5)]',
           [
             _buildHeader(),
             main_(classes: 'flex-grow flex flex-col', [
@@ -34,6 +34,7 @@ class _AppState extends State<App> {
               _buildBadges(),
               _buildFeatures(),
               _buildPreview(),
+              _buildEnterprise(),
               _buildCompany(),
             ]),
             _buildFooter(),
@@ -46,10 +47,14 @@ class _AppState extends State<App> {
   Component _buildHeader() {
     return header(
       classes:
-          'p-6 border-b border-[#222] flex justify-between items-center sticky top-0 bg-black/80 backdrop-blur-md z-10',
+          'p-6 border-b border-[#1f2937] flex justify-between items-center sticky top-0 bg-[#05070b]/85 backdrop-blur-xl z-10',
       [
         div(classes: 'flex items-center gap-3', [
-          img(src: 'favicon.svg', classes: 'w-4 h-4'), // Simple logo
+          div(
+            classes:
+                'p-2 rounded-xl border border-[#1d4ed8]/50 bg-[#3b82f6]/10 shadow-[0_0_24px_rgba(59,130,246,0.16)]',
+            [img(src: 'favicon.svg', classes: 'w-4 h-4')],
+          ),
           h1(classes: 'm-0 tracking-[0.15em] uppercase text-lg font-bold', [
             Component.text(loc.title),
           ]),
@@ -67,21 +72,29 @@ class _AppState extends State<App> {
   Component _buildHero() {
     return section(
       classes:
-          'px-6 py-24 flex flex-col items-center justify-center text-center border-b border-[#222] relative overflow-hidden',
+          'px-6 py-24 md:py-32 flex flex-col items-center justify-center text-center border-b border-[#1f2937] relative overflow-hidden',
       [
         // Subtle background glow
         div(
           classes:
-              'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-white/[0.02] blur-[100px] pointer-events-none',
+              'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[360px] bg-[#3b82f6]/[0.12] blur-[120px] pointer-events-none',
           [],
         ),
 
+        div(
+          classes:
+              'mb-6 inline-flex items-center gap-3 rounded-full border border-[#2563eb]/50 bg-[#3b82f6]/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-[#93c5fd]',
+          [
+            span([Component.text('●')]),
+            Component.text('Realtime local analytics'),
+          ],
+        ),
         h2(
           classes:
-              'text-4xl md:text-6xl font-bold tracking-tight mb-6 max-w-[800px] leading-tight',
+              'text-4xl md:text-7xl font-bold tracking-tight mb-6 max-w-[940px] leading-[0.95]',
           [Component.text(loc.heroTitle)],
         ),
-        p(classes: 'text-lg md:text-xl text-[#a1a1aa] max-w-[600px] mb-10', [
+        p(classes: 'text-lg md:text-xl text-[#cbd5e1] max-w-[760px] mb-10', [
           Component.text(loc.heroSubtitle),
         ]),
         div(
@@ -115,12 +128,14 @@ class _AppState extends State<App> {
 
   Component _buildBadges() {
     return div(
-      classes: 'flex flex-wrap justify-center border-b border-[#222]',
+      classes:
+          'flex flex-wrap justify-center border-b border-[#1f2937] bg-[#0d0e10]/70',
       [
         _badge(loc.badgeAlpha),
         _badge(loc.badgeFree),
         _badge(loc.badgePrivacy),
         _badge(loc.badgeOpenSource),
+        _badge(loc.badgeRealtime),
       ],
     );
   }
@@ -128,7 +143,7 @@ class _AppState extends State<App> {
   Component _badge(String text) {
     return div(
       classes:
-          'px-8 py-4 border-r border-[#222] last:border-r-0 text-sm tracking-[0.2em] text-[#a1a1aa]',
+          'px-8 py-4 border-r border-[#1f2937] last:border-r-0 text-sm tracking-[0.2em] text-[#a1a1aa]',
       [Component.text(text)],
     );
   }
@@ -136,9 +151,19 @@ class _AppState extends State<App> {
   Component _buildFeatures() {
     return section(
       classes:
-          'p-6 md:p-12 border-b border-[#222] flex flex-col lg:flex-row gap-12',
+          'p-6 md:p-12 border-b border-[#1f2937] flex flex-col lg:flex-row gap-12',
       [
-        div(classes: 'flex-1 grid grid-cols-1 md:grid-cols-2 gap-6', [
+        div(classes: 'lg:w-[280px] flex-shrink-0', [
+          h3(
+            classes:
+                'm-0 text-sm tracking-[0.2em] uppercase text-[#60a5fa] mb-4',
+            [Component.text(loc.sectionFeatures)],
+          ),
+          p(classes: 'text-[#94a3b8] m-0 text-sm leading-relaxed', [
+            Component.text(loc.sectionFeaturesBody),
+          ]),
+        ]),
+        div(classes: 'flex-[1.35] grid grid-cols-1 md:grid-cols-2 gap-8', [
           _featureCard(
             title: loc.featPrivacyTitle,
             body: loc.featPrivacyBody,
@@ -153,6 +178,11 @@ class _AppState extends State<App> {
             title: loc.featMonitorTitle,
             body: loc.featMonitorBody,
             icon: '[~]',
+          ),
+          _featureCard(
+            title: loc.featCompanyTitle,
+            body: loc.featCompanyBody,
+            icon: '[HQ]',
           ),
         ]),
         div(classes: 'w-full lg:w-[400px]', [
@@ -173,17 +203,17 @@ class _AppState extends State<App> {
   }) {
     return div(
       classes:
-          'p-6 border border-[#222] bg-[#0a0a0a] hover:border-[#444] transition-colors flex flex-col',
+          'min-h-[220px] p-8 border border-[#1f2937] bg-[#111318]/80 hover:border-[#3b82f6]/60 hover:bg-[#151923] transition-colors flex flex-col rounded-3xl shadow-[0_24px_54px_rgba(0,0,0,0.28)]',
       [
-        div(classes: 'text-[#666] mb-4 font-bold tracking-widest', [
+        div(classes: 'text-[#60a5fa] mb-6 text-lg font-bold tracking-widest', [
           Component.text(icon),
         ]),
         strong(
           classes:
-              'block mb-3 text-white font-normal uppercase tracking-wider text-sm',
+              'block mb-4 text-white font-semibold uppercase tracking-wider text-base',
           [Component.text(title)],
         ),
-        p(classes: 'text-[#888] text-sm leading-relaxed m-0', [
+        p(classes: 'text-[#94a3b8] text-base leading-relaxed m-0', [
           Component.text(body),
         ]),
       ],
@@ -191,7 +221,7 @@ class _AppState extends State<App> {
   }
 
   Component _buildPreview() {
-    return section(classes: 'p-6 md:p-12 border-b border-[#222]', [
+    return section(classes: 'p-6 md:p-12 border-b border-[#1f2937]', [
       div(classes: 'mb-8', [
         h3(classes: 'm-0 text-sm tracking-[0.2em] uppercase text-[#666] mb-2', [
           Component.text(loc.sectionPreview),
@@ -216,13 +246,20 @@ class _AppState extends State<App> {
           _mockTableRow('09:12:04', 'Claude-3.5', '\$0.08'),
           _mockTableRow('YESTERDAY', 'Local', '\$0.00'),
         ]),
+        _mockWindow(loc.previewCompany, [
+          _mockSignalRow('HQ SERVER', 'CONNECTED', 'text-[#10b981]'),
+          _mockSignalRow('MONTH SPEND', '\$24,860', 'text-white'),
+          _mockSignalRow('ACTIVE MODELS', '12', 'text-white'),
+          _mockSignalRow('PROMPTS', 'NEVER STORED', 'text-[#60a5fa]'),
+        ]),
       ]),
     ]);
   }
 
   Component _mockWindow(String title, List<Component> children) {
     return div(
-      classes: 'border border-[#333] bg-[#050505] rounded-sm overflow-hidden',
+      classes:
+          'border border-[#1f2937] bg-[#090b10] rounded-2xl overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.28)]',
       [
         div(
           classes:
@@ -247,7 +284,7 @@ class _AppState extends State<App> {
     return div(classes: 'flex-1 bg-[#222] relative h-16', [
       div(
         classes: 'absolute bottom-0 left-0 right-0 bg-[#444]',
-        attributes: {'style': 'height: \$height%'},
+        attributes: {'style': 'height: $height%'},
         [],
       ),
     ]);
@@ -263,6 +300,84 @@ class _AppState extends State<App> {
         span(classes: 'text-white', [Component.text(cost)]),
       ],
     );
+  }
+
+  Component _mockSignalRow(String label, String value, String valueClass) {
+    return div(
+      classes:
+          'flex justify-between gap-6 py-3 border-b border-[#111827] last:border-0 text-xs',
+      [
+        span(classes: 'text-[#64748b]', [Component.text(label)]),
+        span(classes: '$valueClass tracking-widest', [Component.text(value)]),
+      ],
+    );
+  }
+
+  Component _buildEnterprise() {
+    return section(
+      classes:
+          'p-6 md:p-12 border-b border-[#1f2937] grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-stretch',
+      [
+        div(
+          classes:
+              'rounded-3xl border border-[#2563eb]/40 bg-[#0f172a]/50 p-8 shadow-[0_30px_80px_rgba(37,99,235,0.12)]',
+          [
+            h3(
+              classes:
+                  'm-0 text-sm tracking-[0.2em] uppercase text-[#60a5fa] mb-6',
+              [Component.text(loc.sectionEnterprise)],
+            ),
+            h4(
+              classes:
+                  'text-3xl md:text-4xl font-bold leading-tight mb-5 max-w-3xl',
+              [Component.text(loc.enterpriseTitle)],
+            ),
+            p(classes: 'text-[#cbd5e1] leading-relaxed max-w-3xl mb-8', [
+              Component.text(loc.enterpriseBody),
+            ]),
+            div(classes: 'grid grid-cols-1 md:grid-cols-3 gap-4', [
+              _enterprisePoint('01', loc.enterprisePointRealtime),
+              _enterprisePoint('02', loc.enterprisePointLocal),
+              _enterprisePoint('03', loc.enterprisePointOps),
+            ]),
+          ],
+        ),
+        _mockWindow(loc.previewCompany, [
+          div(classes: 'grid grid-cols-2 gap-3 mb-4', [
+            _miniMetric('SPEND', '\$24.8K'),
+            _miniMetric('SESSIONS', '1,284'),
+            _miniMetric('TEAM', '42 DEV'),
+            _miniMetric('LATENCY', '812MS'),
+          ]),
+          _mockSignalRow('finance view', 'LIVE', 'text-[#10b981]'),
+          _mockSignalRow('engineering view', 'FILTERED', 'text-[#60a5fa]'),
+          _mockSignalRow('sensitive fields', 'BLOCKED', 'text-[#fbbf24]'),
+        ]),
+      ],
+    );
+  }
+
+  Component _enterprisePoint(String number, String text) {
+    return div(
+      classes: 'border border-[#1f2937] bg-[#05070b]/80 rounded-2xl p-4',
+      [
+        div(classes: 'text-[#60a5fa] text-xs tracking-[0.2em] mb-3', [
+          Component.text(number),
+        ]),
+        p(classes: 'm-0 text-sm text-[#e5e7eb] leading-relaxed', [
+          Component.text(text),
+        ]),
+      ],
+    );
+  }
+
+  Component _miniMetric(String label, String value) {
+    return div(classes: 'border border-[#1f2937] bg-[#05070b] rounded-xl p-3', [
+      div(classes: 'text-[10px] text-[#64748b] tracking-[0.2em] mb-2', [
+        Component.text(label),
+      ]),
+      div(classes: 'text-lg text-white font-bold', [Component.text(value)]),
+    ]);
   }
 
   Component _buildCompany() {

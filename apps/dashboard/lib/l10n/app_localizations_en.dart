@@ -22,6 +22,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'A privacy-first local dashboard with cached metrics and terminal-style drilldowns.';
 
   @override
+  String get heroEyebrow => '// LOCAL-FIRST SPEND INTELLIGENCE';
+
+  @override
+  String get heroMetricSyncLabel => 'SYNC';
+
+  @override
+  String get heroMetricSyncValue => 'REALTIME';
+
+  @override
+  String get heroMetricDataLabel => 'DATA';
+
+  @override
+  String get heroMetricDataValue => 'LOCAL';
+
+  @override
+  String get heroMetricFieldsLabel => 'FIELDS';
+
+  @override
+  String get heroMetricFieldsValue => 'ALLOWLISTED';
+
+  @override
   String get statusPaneTitle => 'STATUS';
 
   @override
@@ -856,4 +877,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String shellFooterBuildVersion(String version) {
     return 'Build $version';
   }
+
+  @override
+  String get axisLabelDate => 'Date';
+
+  @override
+  String get axisLabelSessions => 'Sessions';
+
+  @override
+  String get axisLabelAvgCost => 'Avg Cost';
+
+  @override
+  String get axisLabelAvgTokens => 'Avg Tokens';
 }

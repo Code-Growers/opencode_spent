@@ -65,7 +65,7 @@ class MetricsKpiCards extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final spacing = DashboardSpacing.nestedPanelPadding;
-        final minCardWidth = 260.0;
+        final minCardWidth = 230.0;
         int crossAxisCount = (constraints.maxWidth / minCardWidth).floor();
         if (crossAxisCount == 0) crossAxisCount = 1;
         if (crossAxisCount > 5) crossAxisCount = 5;
@@ -166,23 +166,47 @@ class _KpiCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Container(
       width: width,
-      constraints: const BoxConstraints(minHeight: 140),
+      constraints: const BoxConstraints(minHeight: 150),
       child: DashboardSurface(
         padding: const EdgeInsets.all(DashboardSpacing.primaryPanelPadding),
+        backgroundColor: dashboardSurfaceElevatedColor,
+        borderColor: dashboardBorderColor.withValues(alpha: 0.9),
+        showGlow: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                border: Border.all(color: dashboardBorderColor),
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: Icon(icon, color: dashboardStatusColor, size: 20),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: dashboardAccentColor.withValues(alpha: 0.12),
+                    border: Border.all(
+                      color: dashboardAccentColor.withValues(alpha: 0.42),
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(icon, color: dashboardAccentSoftColor, size: 20),
+                ),
+                const Spacer(),
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: dashboardStatusColor.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            Text(title, style: textTheme.bodyMedium?.copyWith(height: 1.4)),
+            Text(
+              title,
+              style: textTheme.bodyMedium?.copyWith(
+                color: dashboardPrimaryTextColor,
+                height: 1.45,
+              ),
+            ),
           ],
         ),
       ),

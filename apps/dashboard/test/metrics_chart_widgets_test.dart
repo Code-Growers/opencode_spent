@@ -106,4 +106,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ModelUsagePieChart), findsOneWidget);
   });
+
+  testWidgets(
+    'CompactDashboardLineChart renders explicit axis titles when provided',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        buildTestableWidget(
+          const CompactDashboardLineChart(
+            title: 'Test Chart',
+            values: [10, 20, 30],
+            xAxisTitle: 'Test X Axis',
+            yAxisTitle: 'Test Y Axis',
+          ),
+        ),
+      );
+
+      expect(find.text('Test Chart'), findsOneWidget);
+      expect(find.text('Test X Axis'), findsOneWidget);
+      expect(find.text('Test Y Axis'), findsOneWidget);
+    },
+  );
 }

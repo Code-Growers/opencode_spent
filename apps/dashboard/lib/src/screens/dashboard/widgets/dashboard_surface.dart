@@ -17,6 +17,8 @@ class DashboardSurface extends StatelessWidget {
     this.borderColor = dashboardBorderColor,
     this.backgroundColor = dashboardSurfaceColor,
     this.highlight = false,
+    this.radius = 18.0,
+    this.showGlow = false,
   });
 
   final Widget child;
@@ -24,26 +26,52 @@ class DashboardSurface extends StatelessWidget {
   final Color borderColor;
   final Color backgroundColor;
   final bool highlight;
+  final double radius;
+  final bool showGlow;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
+    final effectiveBackground = highlight
+        ? dashboardSurfaceHighlightColor
+        : backgroundColor;
+
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: highlight ? dashboardSurfaceHighlightColor : backgroundColor,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(4.0),
-        boxShadow: highlight
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 8.0,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
+        borderRadius: BorderRadius.circular(radius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: highlight ? 0.36 : 0.24),
+            blurRadius: highlight ? 28.0 : 18.0,
+            offset: const Offset(0, 12),
+          ),
+          if (showGlow)
+            BoxShadow(
+              color: dashboardGlowColor.withValues(alpha: 0.18),
+              blurRadius: 36,
+              spreadRadius: -8,
+            ),
+        ],
       ),
-      child: child,
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: effectiveBackground,
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(radius),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              effectiveBackground.withValues(alpha: 0.98),
+              Color.alphaBlend(
+                dashboardAccentColor.withValues(alpha: showGlow ? 0.10 : 0.03),
+                effectiveBackground,
+              ),
+            ],
+          ),
+        ),
+        child: child,
+      ),
     );
   }
 }

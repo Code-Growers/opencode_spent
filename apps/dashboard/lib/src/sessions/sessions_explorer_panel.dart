@@ -803,13 +803,16 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text("-- TOP SESSIONS --", style: textTheme.bodyMedium),
-                        Wrap(
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isNarrow = constraints.maxWidth < 450;
+                        final titleWidget = Text(
+                          "-- TOP SESSIONS --",
+                          style: textTheme.bodyMedium,
+                        );
+                        final buttonsWidget = Wrap(
                           spacing: 8,
+                          runSpacing: 8,
                           children: [
                             DashboardChipButton(
                               key: const Key("sessions-sort-latest"),
@@ -835,8 +838,25 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                               ),
                             ),
                           ],
-                        ),
-                      ],
+                        );
+
+                        if (isNarrow) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              titleWidget,
+                              const SizedBox(height: 12),
+                              buttonsWidget,
+                            ],
+                          );
+                        } else {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [titleWidget, buttonsWidget],
+                          );
+                        }
+                      },
                     ),
                     const SizedBox(height: 8),
                     !isDesktop
