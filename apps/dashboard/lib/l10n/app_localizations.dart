@@ -1470,6 +1470,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avg Tokens'**
   String get axisLabelAvgTokens;
+
+  /// No description provided for @metricsActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVITY'**
+  String get metricsActivity;
+
+  /// No description provided for @metricsActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE DAYS'**
+  String get metricsActiveDays;
+
+  /// No description provided for @metricsCurrentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT STREAK'**
+  String get metricsCurrentStreak;
+
+  /// No description provided for @metricsLongestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'LONGEST STREAK'**
+  String get metricsLongestStreak;
+
+  /// No description provided for @metricsPeakDay.
+  ///
+  /// In en, this message translates to:
+  /// **'PEAK DAY'**
+  String get metricsPeakDay;
+
+  /// No description provided for @metricsPeakDayDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions'**
+  String metricsPeakDayDetail(int count);
+
+  /// No description provided for @metricsDayCountCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String metricsDayCountCompact(int count);
+
+  /// No description provided for @metricsHeatmapLegendLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get metricsHeatmapLegendLow;
+
+  /// No description provided for @metricsHeatmapLegendHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get metricsHeatmapLegendHigh;
+
+  /// No description provided for @metricsHeatmapCellLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: {sessions} sessions, {tokens} tokens'**
+  String metricsHeatmapCellLabel(String day, int sessions, String tokens);
+
+  /// No description provided for @metricsHeatmapCellTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}\n{sessions} sessions • {tokens} tokens'**
+  String metricsHeatmapCellTooltip(String day, int sessions, String tokens);
 }
 
 class _AppLocalizationsDelegate

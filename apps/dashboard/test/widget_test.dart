@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_core/openspent_core.dart';
 import 'package:openspent_dashboard/src/app/open_spent_app.dart';
 import 'package:openspent_dashboard/src/screens/dashboard/dashboard_shell_screen.dart';
+import 'package:openspent_dashboard/src/screens/dashboard/widgets/dashboard_chip_button.dart';
 import 'package:openspent_dashboard/src/theme/dashboard_colors.dart';
 import 'package:openspent_dashboard/src/screens/exchange_rates/cubit/exchange_rates_cubit.dart';
 import 'package:openspent_dashboard/src/screens/sessions/cubit/sessions_cubit.dart';
@@ -421,6 +422,8 @@ Future<void> _pumpEnglishDashboard(
   Future<ServerProbeState> Function(OpenCodeSettings settings)? serverProbe,
   SessionsCubitDependencies? sessionsDependencies,
   Future<ImportSelection?> Function()? pickImportSource,
+  Size viewportSize = const Size(1440, 2200),
+  double devicePixelRatio = 1.0,
 }) async {
   final repository = settingsRepository ?? _FakeSettingsRepository();
   final service =
@@ -433,8 +436,8 @@ Future<void> _pumpEnglishDashboard(
         ),
       );
 
-  tester.view.physicalSize = const Size(1440, 2200);
-  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = viewportSize;
+  tester.view.devicePixelRatio = devicePixelRatio;
   addTearDown(() {
     tester.view.resetPhysicalSize();
     tester.view.resetDevicePixelRatio();
@@ -466,6 +469,8 @@ Future<void> _pumpDashboardWithLocale(
   Future<ServerProbeState> Function(OpenCodeSettings settings)? serverProbe,
   SessionsCubitDependencies? sessionsDependencies,
   Future<ImportSelection?> Function()? pickImportSource,
+  Size viewportSize = const Size(1440, 2200),
+  double devicePixelRatio = 1.0,
 }) async {
   final repository = settingsRepository ?? _FakeSettingsRepository();
   final service =
@@ -478,8 +483,8 @@ Future<void> _pumpDashboardWithLocale(
         ),
       );
 
-  tester.view.physicalSize = const Size(1440, 2200);
-  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = viewportSize;
+  tester.view.devicePixelRatio = devicePixelRatio;
   addTearDown(() {
     tester.view.resetPhysicalSize();
     tester.view.resetDevicePixelRatio();
@@ -501,9 +506,15 @@ Future<void> _pumpDashboardWithLocale(
 }
 
 Future<void> _openDashboardSection(WidgetTester tester, String keyValue) async {
+  final shellScrollView = find.byKey(const Key('dashboard-shell-scroll-view'));
+  expect(shellScrollView, findsOneWidget);
+  final shellScrollState = tester.state<NestedScrollViewState>(shellScrollView);
+  shellScrollState.outerController.jumpTo(0);
+  await tester.pumpAndSettle();
+
   final navLink = find.byKey(Key(keyValue));
-  await tester.ensureVisible(navLink);
-  await tester.tap(navLink);
+  expect(navLink, findsOneWidget);
+  tester.widget<DashboardChipButton>(navLink).onTap!();
   await tester.pumpAndSettle();
 }
 
@@ -4102,7 +4113,7 @@ void main() {
   });
 
   testWidgets(
-    'Dashboard shell composition regression: shell header and nav do not move when route scrolls',
+    'Dashboard shell composition regression: only header stays fixed while nav scrolls with body',
     (WidgetTester tester) async {
       tester.view.physicalSize = const Size(800, 400);
       tester.view.devicePixelRatio = 1.0;
@@ -4126,21 +4137,22 @@ void main() {
       final headerLocationBefore = tester.getTopLeft(headerFinder);
       final navLocationBefore = tester.getTopLeft(navFinder);
 
-      final routeScrollable = find
-          .descendant(
-            of: find.byKey(const Key('dashboard-shell-route-area')),
-            matching: find.byType(Scrollable),
-          )
-          .first;
+      final shellScrollable = find.byKey(
+        const Key('dashboard-shell-scroll-view'),
+      );
+      expect(shellScrollable, findsOneWidget);
+      final shellScrollState = tester.state<NestedScrollViewState>(
+        shellScrollable,
+      );
 
-      await tester.drag(routeScrollable, const Offset(0, -100));
+      shellScrollState.outerController.jumpTo(60);
       await tester.pumpAndSettle();
 
       final headerLocationAfter = tester.getTopLeft(headerFinder);
       final navLocationAfter = tester.getTopLeft(navFinder);
 
       expect(headerLocationAfter, equals(headerLocationBefore));
-      expect(navLocationAfter, equals(navLocationBefore));
+      expect(navLocationAfter.dy, lessThan(navLocationBefore.dy));
     },
   );
 
@@ -4328,12 +4340,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _openDashboardSection(tester, 'dashboard-nav-metrics');
     await tester.ensureVisible(find.byKey(const Key('metrics-tab-text')));
-    await tester.tap(find.byKey(const Key('metrics-tab-text')));
+    tester
+        .widget<DashboardChipButton>(find.byKey(const Key('metrics-tab-text')))
+        .onTap!();
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('metrics-window-7d')));
+    await tester.ensureVisible(find.byKey(const Key('metrics-window-7d')));
+    tester
+        .widget<DashboardChipButton>(find.byKey(const Key('metrics-window-7d')))
+        .onTap!();
     await tester.pumpAndSettle();
 
     expect(

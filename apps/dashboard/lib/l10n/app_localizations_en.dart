@@ -889,4 +889,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get axisLabelAvgTokens => 'Avg Tokens';
+
+  @override
+  String get metricsActivity => 'ACTIVITY';
+
+  @override
+  String get metricsActiveDays => 'ACTIVE DAYS';
+
+  @override
+  String get metricsCurrentStreak => 'CURRENT STREAK';
+
+  @override
+  String get metricsLongestStreak => 'LONGEST STREAK';
+
+  @override
+  String get metricsPeakDay => 'PEAK DAY';
+
+  @override
+  String metricsPeakDayDetail(int count) {
+    return '$count sessions';
+  }
+
+  @override
+  String metricsDayCountCompact(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String get metricsHeatmapLegendLow => 'Low';
+
+  @override
+  String get metricsHeatmapLegendHigh => 'High';
+
+  @override
+  String metricsHeatmapCellLabel(String day, int sessions, String tokens) {
+    return '$day: $sessions sessions, $tokens tokens';
+  }
+
+  @override
+  String metricsHeatmapCellTooltip(String day, int sessions, String tokens) {
+    return '$day\n$sessions sessions • $tokens tokens';
+  }
 }

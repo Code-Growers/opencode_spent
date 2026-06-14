@@ -18,6 +18,8 @@ void main() {
       expect(find.text('[EN] / CS'), findsOneComponent);
       expect(find.text('Metrics & Charts'), findsOneComponent);
       expect(find.text('Sessions Overview'), findsOneComponent);
+      expect(find.text('Activity Heatmap'), findsOneComponent);
+      expect(find.text('Total runs'), findsOneComponent);
       expect(find.text('Company Cockpit'), findsNComponents(2));
       expect(find.text('Company OpenCode cockpit'), findsOneComponent);
       expect(find.text('Try the Demo'), findsOneComponent);
@@ -36,6 +38,8 @@ void main() {
       expect(find.text('EN / [CS]'), findsOneComponent);
       expect(find.text('Metriky a Grafy'), findsOneComponent);
       expect(find.text('Přehled Relací'), findsOneComponent);
+      expect(find.text('Teplotní Mapa Aktivity'), findsOneComponent);
+      expect(find.text('Celkem běhů'), findsOneComponent);
       expect(find.text('Firemní Cockpit'), findsNComponents(2));
       expect(find.text('Vyzkoušet Demo'), findsOneComponent);
       expect(find.text('GitHub Repository'), findsOneComponent);
@@ -47,6 +51,9 @@ void main() {
 
       expect(find.text('Metrics & Charts'), findsOneComponent);
       expect(find.text('Sessions Overview'), findsOneComponent);
+      expect(find.text('Activity Heatmap'), findsOneComponent);
+      expect(find.text('Less'), findsOneComponent);
+      expect(find.text('More'), findsOneComponent);
     });
 
     test('mock chart bars interpolate CSS heights', () {
@@ -54,6 +61,22 @@ void main() {
 
       expect(source, contains(r"'style': 'height: $height%'"));
       expect(source, isNot(contains(r"'style': 'height: \$height%'")));
+    });
+
+    test('mobile layout regression guards are present', () {
+      final source = File('lib/components/app.dart').readAsStringSync();
+
+      expect(source, contains('overflow-clip'));
+      expect(source, contains('max-w-full'));
+      expect(source, contains('min-w-0'));
+      expect(source, contains('w-full lg:w-[280px] flex-shrink-0'));
+    });
+
+    test('heatmap preview uses real Tailwind interpolation for cells', () {
+      final source = File('lib/components/app.dart').readAsStringSync();
+
+      expect(source, contains(r'${bgClasses[level]}'));
+      expect(source, isNot(contains(r'\${bgClasses[level]}')));
     });
   });
 }

@@ -26,7 +26,7 @@ class _AppState extends State<App> {
       [
         div(
           classes:
-              'w-full max-w-[1240px] mx-auto min-h-screen border-x border-[#1f2937] bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_34%),linear-gradient(180deg,#0d0e10_0%,#05070b_48%,#020305_100%)] flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.5)]',
+              'w-full max-w-[1240px] mx-auto min-h-screen border-x border-[#1f2937] bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_34%),linear-gradient(180deg,#0d0e10_0%,#05070b_48%,#020305_100%)] flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-clip',
           [
             _buildHeader(),
             main_(classes: 'flex-grow flex flex-col', [
@@ -53,7 +53,7 @@ class _AppState extends State<App> {
           div(
             classes:
                 'p-2 rounded-xl border border-[#1d4ed8]/50 bg-[#3b82f6]/10 shadow-[0_0_24px_rgba(59,130,246,0.16)]',
-            [img(src: 'favicon.svg', classes: 'w-4 h-4')],
+            [img(src: 'logo.svg', classes: 'w-4 h-4')],
           ),
           h1(classes: 'm-0 tracking-[0.15em] uppercase text-lg font-bold', [
             Component.text(loc.title),
@@ -77,7 +77,7 @@ class _AppState extends State<App> {
         // Subtle background glow
         div(
           classes:
-              'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[360px] bg-[#3b82f6]/[0.12] blur-[120px] pointer-events-none',
+              'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] max-w-full h-[360px] bg-[#3b82f6]/[0.12] blur-[120px] pointer-events-none',
           [],
         ),
 
@@ -153,7 +153,7 @@ class _AppState extends State<App> {
       classes:
           'p-6 md:p-12 border-b border-[#1f2937] flex flex-col lg:flex-row gap-12',
       [
-        div(classes: 'lg:w-[280px] flex-shrink-0', [
+        div(classes: 'w-full lg:w-[280px] flex-shrink-0', [
           h3(
             classes:
                 'm-0 text-sm tracking-[0.2em] uppercase text-[#60a5fa] mb-4',
@@ -163,7 +163,7 @@ class _AppState extends State<App> {
             Component.text(loc.sectionFeaturesBody),
           ]),
         ]),
-        div(classes: 'flex-[1.35] grid grid-cols-1 md:grid-cols-2 gap-8', [
+        div(classes: 'flex-1 grid grid-cols-1 md:grid-cols-2 gap-8', [
           _featureCard(
             title: loc.featPrivacyTitle,
             body: loc.featPrivacyBody,
@@ -183,13 +183,6 @@ class _AppState extends State<App> {
             title: loc.featCompanyTitle,
             body: loc.featCompanyBody,
             icon: '[HQ]',
-          ),
-        ]),
-        div(classes: 'w-full lg:w-[400px]', [
-          div(
-            classes:
-                'bg-[#050505] border border-[#333] p-6 text-xs text-[#a1a1aa] leading-loose whitespace-pre overflow-x-auto h-full flex flex-col justify-center',
-            [Component.text(_asciiChart())],
           ),
         ]),
       ],
@@ -227,6 +220,13 @@ class _AppState extends State<App> {
           Component.text(loc.sectionPreview),
         ]),
       ]),
+      div(classes: 'mb-8 min-w-0', [
+        div(
+          classes:
+              'bg-[#050505] border border-[#333] p-6 text-xs text-[#a1a1aa] leading-loose whitespace-pre overflow-x-auto rounded-2xl flex flex-col justify-center',
+          [Component.text(_asciiChart())],
+        ),
+      ]),
       div(classes: 'grid grid-cols-1 md:grid-cols-2 gap-6', [
         _mockWindow(loc.previewMetrics, [
           div(classes: 'flex gap-2 mb-4', [
@@ -252,6 +252,44 @@ class _AppState extends State<App> {
           _mockSignalRow('ACTIVE MODELS', '12', 'text-white'),
           _mockSignalRow('PROMPTS', 'NEVER STORED', 'text-[#60a5fa]'),
         ]),
+        _mockWindow(loc.previewHeatmap, [
+          div(classes: 'flex flex-col gap-5', [
+            div(
+              classes:
+                  'flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between',
+              [
+                div(classes: 'flex flex-col gap-3', [
+                  div(classes: 'flex flex-col gap-1', [
+                    span(classes: 'text-2xl font-bold text-white leading-none', [Component.text('142')]),
+                    span(
+                      classes:
+                          'text-[10px] text-[#64748b] tracking-[0.2em] uppercase',
+                      [Component.text(loc.previewHeatmapRuns)],
+                    ),
+                  ]),
+                  div(classes: 'grid grid-cols-2 gap-2 sm:grid-cols-3', [
+                    _mockHeatmapStat(loc.previewHeatmapActiveDays, '24'),
+                    _mockHeatmapStat(loc.previewHeatmapCurrentStreak, '4D'),
+                    _mockHeatmapStat(loc.previewHeatmapPeak, '1 PM'),
+                  ]),
+                ]),
+                div(
+                  classes:
+                      'flex gap-1.5 items-center text-[10px] text-[#64748b] tracking-wider uppercase',
+                  [
+                    span([Component.text(loc.previewHeatmapLegendLess)]),
+                    _mockHeatmapCell(0),
+                    _mockHeatmapCell(1),
+                    _mockHeatmapCell(2),
+                    _mockHeatmapCell(3),
+                    _mockHeatmapCell(4),
+                    span([Component.text(loc.previewHeatmapLegendMore)]),
+                  ],
+                ),
+              ]),
+            _mockHeatmapGrid(),
+          ]),
+        ]),
       ]),
     ]);
   }
@@ -259,7 +297,7 @@ class _AppState extends State<App> {
   Component _mockWindow(String title, List<Component> children) {
     return div(
       classes:
-          'border border-[#1f2937] bg-[#090b10] rounded-2xl overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.28)]',
+          'border border-[#1f2937] bg-[#090b10] rounded-2xl overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.28)] flex flex-col',
       [
         div(
           classes:
@@ -275,7 +313,66 @@ class _AppState extends State<App> {
             ]),
           ],
         ),
-        div(classes: 'p-6 flex flex-col', children),
+        div(classes: 'p-6 flex flex-col flex-grow justify-center', children),
+      ],
+    );
+  }
+
+  Component _mockHeatmapGrid() {
+    final List<List<int>> columns = [
+      [0, 0, 1, 0, 0, 0, 0],
+      [0, 1, 2, 1, 0, 0, 1],
+      [0, 2, 4, 3, 1, 0, 0],
+      [1, 3, 4, 4, 2, 1, 0],
+      [0, 1, 3, 2, 1, 0, 0],
+      [0, 0, 2, 1, 0, 0, 0],
+      [0, 1, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 1, 2],
+      [1, 0, 0, 1, 2, 3, 1],
+      [2, 1, 0, 2, 4, 3, 0],
+      [3, 2, 1, 1, 2, 1, 0],
+      [1, 0, 0, 0, 1, 0, 0],
+    ];
+
+    return div(classes: 'overflow-x-auto', [
+      div(
+        classes: 'inline-flex min-w-max gap-1.5',
+        columns
+            .map(
+              (col) => div(
+                classes: 'flex flex-col gap-1.5',
+                col.map((level) => _mockHeatmapCell(level)).toList(),
+              ),
+            )
+            .toList(),
+      ),
+    ]);
+  }
+
+  Component _mockHeatmapCell(int level) {
+    final bgClasses = [
+      'bg-[#111827]',
+      'bg-[#1e3a8a]',
+      'bg-[#2563eb]',
+      'bg-[#3b82f6]',
+      'bg-[#60a5fa]',
+    ];
+    return div(
+      classes:
+          'w-2.5 h-2.5 rounded-[2px] border border-white/6 ${bgClasses[level]}',
+      [],
+    );
+  }
+
+  Component _mockHeatmapStat(String label, String value) {
+    return div(
+      classes: 'rounded-lg border border-[#1f2937] bg-[#05070b] px-3 py-2',
+      [
+        div(
+          classes: 'text-[9px] text-[#64748b] tracking-[0.18em] uppercase',
+          [Component.text(label)],
+        ),
+        div(classes: 'mt-1 text-sm font-bold text-white', [Component.text(value)]),
       ],
     );
   }

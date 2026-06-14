@@ -66,6 +66,16 @@ class Loc {
   String get previewSettings => this == cs ? 'Nastavení' : 'Settings';
   String get previewCompany =>
       this == cs ? 'Firemní Cockpit' : 'Company Cockpit';
+  String get previewHeatmap =>
+      this == cs ? 'Teplotní Mapa Aktivity' : 'Activity Heatmap';
+  String get previewHeatmapRuns => this == cs ? 'Celkem běhů' : 'Total runs';
+  String get previewHeatmapActiveDays =>
+      this == cs ? 'Aktivní dny' : 'Active days';
+  String get previewHeatmapCurrentStreak =>
+      this == cs ? 'Aktuální šňůra' : 'Current streak';
+  String get previewHeatmapPeak => this == cs ? 'Špička' : 'Peak';
+  String get previewHeatmapLegendLess => this == cs ? 'Méně' : 'Less';
+  String get previewHeatmapLegendMore => this == cs ? 'Více' : 'More';
 
   // Enterprise use case
   String get sectionEnterprise =>
@@ -91,8 +101,8 @@ class Loc {
       this == cs ? '// Kdo za tím stojí' : '// Built by';
   String get companyTitle => 'Code Growers s.r.o.';
   String get companyBody => this == cs
-      ? 'Jsme vývojářské studio, které věří v lokální nástroje a ochranu soukromí. Vytvořili jsme OpenSpent jako open-source (MIT).'
-      : 'We are a development studio that believes in local-first tools and privacy. We built OpenSpent as open-source (MIT).';
+      ? 'Jsme vývojářské studio, které věří v lokální AI nástroje a ochranu soukromí. Vytvořili jsme OpenSpent jako open-source (MIT).'
+      : 'We are a development studio that believes in local-first AI tools and privacy. We built OpenSpent as open-source (MIT).';
   String get linkDemo => this == cs ? 'Vyzkoušet Demo' : 'Try the Demo';
   String get linkGithub => 'GitHub Repository';
   String get linkLinkedin => 'LinkedIn';

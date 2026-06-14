@@ -904,5 +904,56 @@
   "axisLabelDate": "Date",
   "axisLabelSessions": "Sessions",
   "axisLabelAvgCost": "Avg Cost",
-  "axisLabelAvgTokens": "Avg Tokens"
+  "axisLabelAvgTokens": "Avg Tokens",
+  "metricsActivity": "ACTIVITY",
+  "metricsActiveDays": "ACTIVE DAYS",
+  "metricsCurrentStreak": "CURRENT STREAK",
+  "metricsLongestStreak": "LONGEST STREAK",
+  "metricsPeakDay": "PEAK DAY",
+  "metricsPeakDayDetail": "{count} sessions",
+  "@metricsPeakDayDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsDayCountCompact": "{count}d",
+  "@metricsDayCountCompact": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsHeatmapLegendLow": "Low",
+  "metricsHeatmapLegendHigh": "High",
+  "metricsHeatmapCellLabel": "{day}: {sessions} sessions, {tokens} tokens",
+  "@metricsHeatmapCellLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsHeatmapCellTooltip": "{day}\n{sessions} sessions • {tokens} tokens",
+  "@metricsHeatmapCellTooltip": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "tokens": {
+        "type": "String"
+      }
+    }
+  }
 }

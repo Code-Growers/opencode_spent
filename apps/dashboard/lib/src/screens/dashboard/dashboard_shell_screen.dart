@@ -589,6 +589,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
 
   Widget _buildMetricsContent() {
     return SingleChildScrollView(
+      key: const Key('metrics-scroll-view'),
       child: MetricsScreen(
         metricsService: _metricsService,
         metricsRevision: _metricsRevision,
@@ -756,56 +757,74 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
                     onSettingsPressed: _openSettingsDialog,
                   ),
                 ),
-                const SizedBox(height: DashboardSpacing.shellGutter),
-                const Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: DashboardSpacing.shellGutter,
-                  ),
-                  child: DashboardShellHero(),
-                ),
-                const SizedBox(height: DashboardSpacing.shellGutter),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: DashboardSpacing.shellGutter,
-                  ),
-                  child: DashboardShellNav(
-                    selectedIndex: selectedIndex,
-                    hasSessionsRoute: _hasSessionsRoute,
-                    hasExchangeRatesRoute: _hasExchangeRatesRoute,
-                    onMetricsNav: () =>
-                        context.navigateTo(const DashboardMetricsRoute()),
-                    onSessionsNav: () =>
-                        context.navigateTo(const DashboardSessionsRoute()),
-                    onExchangeRatesNav: () =>
-                        context.navigateTo(const DashboardExchangeRatesRoute()),
-                    onStateNav: () =>
-                        context.navigateTo(const DashboardStateRoute()),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DashboardSpacing.shellGutter,
-                    ),
-                    child: SizedBox(
-                      key: const Key('dashboard-shell-route-area'),
-                      width: double.infinity,
-                      child: _DashboardShellScope(
-                        data: shellScopeData,
-                        child: const AutoRouter(),
+                  child: NestedScrollView(
+                    key: const Key('dashboard-shell-scroll-view'),
+                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: DashboardSpacing.shellGutter),
                       ),
+                      const SliverPadding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: DashboardSpacing.shellGutter,
+                        ),
+                        sliver: SliverToBoxAdapter(child: DashboardShellHero()),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: DashboardSpacing.shellGutter),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DashboardSpacing.shellGutter,
+                        ),
+                        sliver: SliverToBoxAdapter(
+                          child: DashboardShellNav(
+                            selectedIndex: selectedIndex,
+                            hasSessionsRoute: _hasSessionsRoute,
+                            hasExchangeRatesRoute: _hasExchangeRatesRoute,
+                            onMetricsNav: () =>
+                                context.navigateTo(const DashboardMetricsRoute()),
+                            onSessionsNav: () =>
+                                context.navigateTo(const DashboardSessionsRoute()),
+                            onExchangeRatesNav: () =>
+                                context.navigateTo(const DashboardExchangeRatesRoute()),
+                            onStateNav: () =>
+                                context.navigateTo(const DashboardStateRoute()),
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                    ],
+                    body: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: DashboardSpacing.shellGutter,
+                            ),
+                            child: SizedBox(
+                              key: const Key('dashboard-shell-route-area'),
+                              width: double.infinity,
+                              child: _DashboardShellScope(
+                                data: shellScopeData,
+                                child: const AutoRouter(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: DashboardSpacing.shellGutter,
+                          ),
+                          child: DashboardShellFooter(),
+                        ),
+                        const SizedBox(height: DashboardSpacing.shellGutter),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: DashboardSpacing.shellGutter,
-                  ),
-                  child: DashboardShellFooter(),
-                ),
-                const SizedBox(height: DashboardSpacing.shellGutter),
               ],
             );
           },

@@ -892,4 +892,45 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get axisLabelAvgTokens => 'Prům. tokeny';
+
+  @override
+  String get metricsActivity => 'AKTIVITA';
+
+  @override
+  String get metricsActiveDays => 'AKTIVNÍ DNY';
+
+  @override
+  String get metricsCurrentStreak => 'AKTUÁLNÍ ŠŇŮRA';
+
+  @override
+  String get metricsLongestStreak => 'NEJDELŠÍ ŠŇŮRA';
+
+  @override
+  String get metricsPeakDay => 'NEJSILNĚJŠÍ DEN';
+
+  @override
+  String metricsPeakDayDetail(int count) {
+    return '$count relací';
+  }
+
+  @override
+  String metricsDayCountCompact(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String get metricsHeatmapLegendLow => 'Nízká';
+
+  @override
+  String get metricsHeatmapLegendHigh => 'Vysoká';
+
+  @override
+  String metricsHeatmapCellLabel(String day, int sessions, String tokens) {
+    return '$day: $sessions relací, $tokens tokenů';
+  }
+
+  @override
+  String metricsHeatmapCellTooltip(String day, int sessions, String tokens) {
+    return '$day\n$sessions relací • $tokens tokenů';
+  }
 }

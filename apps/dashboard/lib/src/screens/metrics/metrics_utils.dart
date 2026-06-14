@@ -127,23 +127,30 @@ List<DateTime> buildVisibleWindowDays(
   final sorted = List<MonetizedDailyMetrics>.from(dailyBreakdown)
     ..sort((a, b) => a.baseMetrics.date.compareTo(b.baseMetrics.date));
 
-  if (selectedWindow == TimeWindow.all) {
-    return sorted.map((e) => normalizeUtcDay(e.baseMetrics.date)).toList();
+  if (selectedWindow == TimeWindow.all ||
+      (selectedWindow == TimeWindow.custom && (from == null || to == null))) {
+    if (sorted.isEmpty) return const <DateTime>[];
+    final start = normalizeUtcDay(sorted.first.baseMetrics.date);
+    final end = normalizeUtcDay(sorted.last.baseMetrics.date);
+    final diff = end.difference(start).inDays + 1;
+    if (diff > 0) {
+      return List<DateTime>.generate(
+        diff,
+        (index) => start.add(Duration(days: index)),
+      );
+    }
   }
 
-  if (selectedWindow == TimeWindow.custom) {
-    if (from != null && to != null) {
-      final start = normalizeUtcDay(from);
-      final end = normalizeUtcDay(to);
-      final diff = end.difference(start).inDays + 1;
-      if (diff > 0) {
-        return List<DateTime>.generate(
-          diff,
-          (index) => start.add(Duration(days: index)),
-        );
-      }
+  if (selectedWindow == TimeWindow.custom && from != null && to != null) {
+    final start = normalizeUtcDay(from);
+    final end = normalizeUtcDay(to);
+    final diff = end.difference(start).inDays + 1;
+    if (diff > 0) {
+      return List<DateTime>.generate(
+        diff,
+        (index) => start.add(Duration(days: index)),
+      );
     }
-    return sorted.map((e) => normalizeUtcDay(e.baseMetrics.date)).toList();
   }
 
   final latestDay = to != null
@@ -333,4 +340,187 @@ String compactNumber(double value) {
     return '${str.endsWith('.0') ? str.substring(0, str.length - 2) : str}K';
   }
   return value.toInt().toString();
+}
+
+class HeatmapDayData {
+  const HeatmapDayData({
+    required this.day,
+    required this.sessionCount,
+    required this.tokenCount,
+    required this.displayCost,
+    required this.level,
+  });
+
+  final DateTime day;
+  final int sessionCount;
+  final int tokenCount;
+  final double displayCost;
+  final int level;
+
+  bool get isActive => sessionCount > 0;
+}
+
+class HeatmapStats {
+  const HeatmapStats({
+    required this.activeDays,
+    required this.currentStreak,
+    required this.longestStreak,
+    required this.peakDay,
+    required this.peakDaySessionCount,
+    required this.peakDayTokenCount,
+    required this.peakDayCost,
+  });
+
+  final int activeDays;
+  final int currentStreak;
+  final int longestStreak;
+  final DateTime? peakDay;
+  final int peakDaySessionCount;
+  final int peakDayTokenCount;
+  final double peakDayCost;
+}
+
+int resolveHeatmapLevel({
+  required int sessionCount,
+  required int peakSessionCount,
+}) {
+  if (sessionCount <= 0 || peakSessionCount <= 0) {
+    return 0;
+  }
+
+  if (peakSessionCount == 1) {
+    return 4;
+  }
+
+  final ratio = sessionCount / peakSessionCount;
+  return (ratio * 4).ceil().clamp(1, 4);
+}
+
+List<HeatmapDayData> buildHeatmapDayData(
+  List<MonetizedDailyMetrics> dailyBreakdown,
+  List<DateTime> visibleDays,
+) {
+  final normalizedMetrics = <DateTime, MonetizedDailyMetrics>{
+    for (final daily in dailyBreakdown)
+      normalizeUtcDay(daily.baseMetrics.date): daily,
+  };
+
+  var peakSessionCount = 0;
+  for (final day in visibleDays) {
+    final sessions = normalizedMetrics[normalizeUtcDay(day)]?.baseMetrics.sessionCount ??
+        0;
+    if (sessions > peakSessionCount) {
+      peakSessionCount = sessions;
+    }
+  }
+
+  return List<HeatmapDayData>.generate(visibleDays.length, (index) {
+    final day = normalizeUtcDay(visibleDays[index]);
+    final daily = normalizedMetrics[day];
+    final sessionCount = daily?.baseMetrics.sessionCount ?? 0;
+    final tokenCount = daily == null
+        ? 0
+        : totalTokens(
+            daily.baseMetrics.inputTokens,
+            daily.baseMetrics.outputTokens,
+          );
+    final displayCost = daily?.displayTotalCost ?? 0.0;
+
+    return HeatmapDayData(
+      day: day,
+      sessionCount: sessionCount,
+      tokenCount: tokenCount,
+      displayCost: displayCost,
+      level: resolveHeatmapLevel(
+        sessionCount: sessionCount,
+        peakSessionCount: peakSessionCount,
+      ),
+    );
+  });
+}
+
+HeatmapStats calculateHeatmapStats(
+  List<MonetizedDailyMetrics> dailyBreakdown,
+  List<DateTime> visibleDays,
+) {
+  if (visibleDays.isEmpty) {
+    return const HeatmapStats(
+      activeDays: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      peakDay: null,
+      peakDaySessionCount: 0,
+      peakDayTokenCount: 0,
+      peakDayCost: 0,
+    );
+  }
+
+  final dayData = buildHeatmapDayData(dailyBreakdown, visibleDays);
+
+  int activeDays = 0;
+  int currentStreak = 0;
+  int longestStreak = 0;
+  int runningStreak = 0;
+  HeatmapDayData? peakDay;
+
+  for (final day in dayData) {
+    if (day.isActive) {
+      activeDays++;
+      runningStreak++;
+
+      if (peakDay == null || _isBetterPeakDay(candidate: day, current: peakDay)) {
+        peakDay = day;
+      }
+    } else {
+      if (runningStreak > longestStreak) {
+        longestStreak = runningStreak;
+      }
+      runningStreak = 0;
+    }
+  }
+
+  if (runningStreak > longestStreak) {
+    longestStreak = runningStreak;
+  }
+
+  for (var index = dayData.length - 1; index >= 0; index--) {
+    if (dayData[index].isActive) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+
+  return HeatmapStats(
+    activeDays: activeDays,
+    currentStreak: currentStreak,
+    longestStreak: longestStreak,
+    peakDay: peakDay?.day,
+    peakDaySessionCount: peakDay?.sessionCount ?? 0,
+    peakDayTokenCount: peakDay?.tokenCount ?? 0,
+    peakDayCost: peakDay?.displayCost ?? 0,
+  );
+}
+
+bool _isBetterPeakDay({
+  required HeatmapDayData candidate,
+  required HeatmapDayData? current,
+}) {
+  if (current == null) {
+    return true;
+  }
+
+  if (candidate.sessionCount != current.sessionCount) {
+    return candidate.sessionCount > current.sessionCount;
+  }
+
+  if (candidate.tokenCount != current.tokenCount) {
+    return candidate.tokenCount > current.tokenCount;
+  }
+
+  if (candidate.displayCost != current.displayCost) {
+    return candidate.displayCost > current.displayCost;
+  }
+
+  return candidate.day.isAfter(current.day);
 }

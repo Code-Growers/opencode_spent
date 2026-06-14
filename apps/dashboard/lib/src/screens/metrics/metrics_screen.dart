@@ -8,6 +8,7 @@ import 'cubit/metrics_cubit.dart';
 import 'metrics_utils.dart';
 import 'widgets/metrics_chart_widgets.dart';
 import 'widgets/metrics_kpi_cards.dart';
+import 'widgets/metrics_usage_heatmap.dart';
 import '../dashboard/widgets/dashboard_surface.dart';
 import 'widgets/metrics_screen_sections.dart';
 import 'widgets/metrics_text_summary.dart';
@@ -184,6 +185,14 @@ class _MetricsScreenState extends State<MetricsScreen> {
                 widget.from,
                 widget.to,
               );
+              final heatmapDayData = buildHeatmapDayData(
+                metrics.dailyBreakdown,
+                visibleDays,
+              );
+              final heatmapStats = calculateHeatmapStats(
+                metrics.dailyBreakdown,
+                visibleDays,
+              );
               final hasPersistedSelectedDay = widget.selectedDay != null;
               final persistedSelectedDayVisible =
                   hasPersistedSelectedDay &&
@@ -250,6 +259,15 @@ class _MetricsScreenState extends State<MetricsScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  MetricsUsageHeatmap(
+                    visibleDays: visibleDays,
+                    dayData: heatmapDayData,
+                    stats: heatmapStats,
+                    selectedDay: selectedDay,
+                    onDaySelected: widget.onDaySelected,
+                  ),
+                  const SizedBox(height: 24),
+
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,

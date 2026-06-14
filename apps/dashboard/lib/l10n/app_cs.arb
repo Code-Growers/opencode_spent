@@ -830,5 +830,56 @@
   "axisLabelDate": "Datum",
   "axisLabelSessions": "Relace",
   "axisLabelAvgCost": "Prům. cena",
-  "axisLabelAvgTokens": "Prům. tokeny"
+  "axisLabelAvgTokens": "Prům. tokeny",
+  "metricsActivity": "AKTIVITA",
+  "metricsActiveDays": "AKTIVNÍ DNY",
+  "metricsCurrentStreak": "AKTUÁLNÍ ŠŇŮRA",
+  "metricsLongestStreak": "NEJDELŠÍ ŠŇŮRA",
+  "metricsPeakDay": "NEJSILNĚJŠÍ DEN",
+  "metricsPeakDayDetail": "{count} relací",
+  "@metricsPeakDayDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsDayCountCompact": "{count}d",
+  "@metricsDayCountCompact": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsHeatmapLegendLow": "Nízká",
+  "metricsHeatmapLegendHigh": "Vysoká",
+  "metricsHeatmapCellLabel": "{day}: {sessions} relací, {tokens} tokenů",
+  "@metricsHeatmapCellLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsHeatmapCellTooltip": "{day}\n{sessions} relací • {tokens} tokenů",
+  "@metricsHeatmapCellTooltip": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "tokens": {
+        "type": "String"
+      }
+    }
+  }
 }
