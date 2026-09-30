@@ -141,11 +141,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           errorText: errorText,
           errorBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: dashboardErrorColor),
-            borderRadius: BorderRadius.circular(4.0),
+            borderRadius: BorderRadius.zero,
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: dashboardErrorColor),
-            borderRadius: BorderRadius.circular(4.0),
+            borderRadius: BorderRadius.zero,
           ),
         );
   }

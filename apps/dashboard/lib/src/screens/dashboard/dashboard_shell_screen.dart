@@ -741,91 +741,108 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
 
             final shellScopeData = _buildShellScopeData();
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    DashboardSpacing.shellGutter,
-                    DashboardSpacing.shellGutter,
-                    DashboardSpacing.shellGutter,
-                    0,
-                  ),
-                  child: DashboardShellHeader(
-                    hasSettingsRoute: _hasSettingsRoute,
-                    onHelpPressed: _openHelpDialog,
-                    onSettingsPressed: _openSettingsDialog,
-                  ),
-                ),
-                Expanded(
-                  child: NestedScrollView(
-                    key: const Key('dashboard-shell-scroll-view'),
-                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                      const SliverToBoxAdapter(
-                        child: SizedBox(height: DashboardSpacing.shellGutter),
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1600),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        DashboardSpacing.shellGutter,
+                        DashboardSpacing.shellGutter,
+                        DashboardSpacing.shellGutter,
+                        0,
                       ),
-                      const SliverPadding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: DashboardSpacing.shellGutter,
-                        ),
-                        sliver: SliverToBoxAdapter(child: DashboardShellHero()),
+                      child: DashboardShellHeader(
+                        hasSettingsRoute: _hasSettingsRoute,
+                        onHelpPressed: _openHelpDialog,
+                        onSettingsPressed: _openSettingsDialog,
                       ),
-                      const SliverToBoxAdapter(
-                        child: SizedBox(height: DashboardSpacing.shellGutter),
-                      ),
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: DashboardSpacing.shellGutter,
-                        ),
-                        sliver: SliverToBoxAdapter(
-                          child: DashboardShellNav(
-                            selectedIndex: selectedIndex,
-                            hasSessionsRoute: _hasSessionsRoute,
-                            hasExchangeRatesRoute: _hasExchangeRatesRoute,
-                            onMetricsNav: () =>
-                                context.navigateTo(const DashboardMetricsRoute()),
-                            onSessionsNav: () =>
-                                context.navigateTo(const DashboardSessionsRoute()),
-                            onExchangeRatesNav: () =>
-                                context.navigateTo(const DashboardExchangeRatesRoute()),
-                            onStateNav: () =>
-                                context.navigateTo(const DashboardStateRoute()),
+                    ),
+                    Expanded(
+                      child: NestedScrollView(
+                        key: const Key('dashboard-shell-scroll-view'),
+                        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                          const SliverToBoxAdapter(
+                            child: SizedBox(
+                              height: DashboardSpacing.shellGutter,
+                            ),
                           ),
-                        ),
-                      ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                    ],
-                    body: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Padding(
+                          const SliverPadding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: DashboardSpacing.shellGutter,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: DashboardShellHero(),
+                            ),
+                          ),
+                          const SliverToBoxAdapter(
+                            child: SizedBox(
+                              height: DashboardSpacing.shellGutter,
+                            ),
+                          ),
+                          SliverPadding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: DashboardSpacing.shellGutter,
                             ),
-                            child: SizedBox(
-                              key: const Key('dashboard-shell-route-area'),
-                              width: double.infinity,
-                              child: _DashboardShellScope(
-                                data: shellScopeData,
-                                child: const AutoRouter(),
+                            sliver: SliverToBoxAdapter(
+                              child: DashboardShellNav(
+                                selectedIndex: selectedIndex,
+                                hasSessionsRoute: _hasSessionsRoute,
+                                hasExchangeRatesRoute: _hasExchangeRatesRoute,
+                                onMetricsNav: () => context.navigateTo(
+                                  const DashboardMetricsRoute(),
+                                ),
+                                onSessionsNav: () => context.navigateTo(
+                                  const DashboardSessionsRoute(),
+                                ),
+                                onExchangeRatesNav: () => context.navigateTo(
+                                  const DashboardExchangeRatesRoute(),
+                                ),
+                                onStateNav: () => context.navigateTo(
+                                  const DashboardStateRoute(),
+                                ),
                               ),
                             ),
                           ),
+                          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                        ],
+                        body: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: DashboardSpacing.shellGutter,
+                                ),
+                                child: SizedBox(
+                                  key: const Key('dashboard-shell-route-area'),
+                                  width: double.infinity,
+                                  child: _DashboardShellScope(
+                                    data: shellScopeData,
+                                    child: const AutoRouter(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: DashboardSpacing.shellGutter,
+                              ),
+                              child: DashboardShellFooter(),
+                            ),
+                            const SizedBox(
+                              height: DashboardSpacing.shellGutter,
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: DashboardSpacing.shellGutter,
-                          ),
-                          child: DashboardShellFooter(),
-                        ),
-                        const SizedBox(height: DashboardSpacing.shellGutter),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ),

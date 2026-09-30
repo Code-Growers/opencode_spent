@@ -1,2 +1,22 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Necto Mono';
+  src: url('fonts/NectoMono-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@theme {
+  --font-brand: 'Necto Mono', 'Courier New', monospace;
+}
+
+:root { color-scheme: dark; background: #080808; font-synthesis: none; }
+body { margin: 0; }
+button:focus-visible, a:focus-visible { outline: 2px solid #39ff82; outline-offset: 4px; }
+
+.brand-frame {
+  background-image: linear-gradient(to right, transparent calc(100% - 1px), #30303055 0);
+  background-size: 25% 100%;
+}

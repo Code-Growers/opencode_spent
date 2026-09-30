@@ -48,7 +48,7 @@ class _InlineActionTextState extends State<_InlineActionText> {
               color: _isFocused
                   ? dashboardPrimaryTextColor.withValues(alpha: 0.1)
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.zero,
             ),
             child: Text(widget.text, style: widget.style),
           ),

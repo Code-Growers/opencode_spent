@@ -9,6 +9,7 @@ import 'package:openspent_dashboard/l10n/app_localizations.dart';
 import 'package:openspent_dashboard/src/screens/dashboard/widgets/dashboard_surface.dart';
 import 'package:openspent_dashboard/src/screens/sessions/cubit/sessions_cubit.dart';
 import 'package:openspent_dashboard/src/sessions/import_selection.dart';
+import 'package:openspent_dashboard/src/theme/dashboard_colors.dart';
 import 'package:openspent_dashboard/src/sessions/sessions_explorer_panel.dart';
 import 'package:openspent_local/openspent_local.dart';
 
@@ -1218,23 +1219,23 @@ void main() {
       expect(decoration.filled, isTrue);
       expect(
         decoration.fillColor,
-        const Color(0xFF0D0E10),
+        dashboardBackgroundColor,
       ); // dashboardBackgroundColor
       expect(decoration.isDense, isTrue);
 
       final enabledBorder = decoration.enabledBorder as OutlineInputBorder;
       expect(
         enabledBorder.borderSide.color,
-        const Color(0xFF2B2D31),
+        dashboardBorderColor,
       ); // dashboardBorderColor
-      expect(enabledBorder.borderRadius, BorderRadius.circular(4.0));
+      expect(enabledBorder.borderRadius, BorderRadius.zero);
 
       final focusedBorder = decoration.focusedBorder as OutlineInputBorder;
       expect(
         focusedBorder.borderSide.color,
-        const Color(0xFF3B82F6),
+        dashboardAccentColor,
       ); // dashboardAccentColor
-      expect(focusedBorder.borderRadius, BorderRadius.circular(4.0));
+      expect(focusedBorder.borderRadius, BorderRadius.zero);
     },
   );
 

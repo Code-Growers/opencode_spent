@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openspent_dashboard/src/screens/dashboard/widgets/dashboard_chip_button.dart';
+import 'package:openspent_dashboard/src/theme/dashboard_colors.dart';
 
 void main() {
   testWidgets('DashboardChipButton responds to keyboard Enter and Space', (
@@ -110,12 +111,8 @@ void main() {
           .first,
     );
     final normalDecoration = normalContainer.decoration as BoxDecoration;
-    expect(normalDecoration.boxShadow, isNotNull);
-    expect(normalDecoration.boxShadow, isNotEmpty);
-    expect(
-      normalDecoration.boxShadow!.first.color,
-      const Color(0xFF3B82F6).withValues(alpha: 0.35),
-    );
+    expect(normalDecoration.boxShadow, isNull);
+    expect((normalDecoration.border as Border).top.width, 2);
 
     final selectedContainer = tester.widget<Container>(
       find
@@ -126,9 +123,9 @@ void main() {
           .first,
     );
     final selectedDecoration = selectedContainer.decoration as BoxDecoration;
-    expect(selectedDecoration.color, Colors.red.withValues(alpha: 0.16));
+    expect(selectedDecoration.color, dashboardSurfaceHighlightColor);
     final selectedBorder = selectedDecoration.border as Border;
-    expect(selectedBorder.top.color, Colors.red.withValues(alpha: 0.72));
+    expect(selectedBorder.top.color, Colors.red);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
     await tester.pumpAndSettle();
@@ -143,12 +140,8 @@ void main() {
     );
     final focusedSelectedDecoration =
         focusedSelectedContainer.decoration as BoxDecoration;
-    expect(focusedSelectedDecoration.boxShadow, isNotNull);
-    expect(focusedSelectedDecoration.boxShadow, isNotEmpty);
-    expect(
-      focusedSelectedDecoration.boxShadow!.first.color,
-      Colors.red.withValues(alpha: 0.24),
-    );
+    expect(focusedSelectedDecoration.boxShadow, isNull);
+    expect((focusedSelectedDecoration.border as Border).top.width, 2);
 
     // Normal chip (focused) semantics should not have 'selected' state.
     final normalSemantics = tester.getSemantics(find.text('Normal'));

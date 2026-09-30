@@ -799,7 +799,7 @@ class ModelSpendChart extends StatelessWidget {
             onTap: () => onModelSelected(isSelected ? null : item.name),
             hoverColor: dashboardPrimaryTextColor.withValues(alpha: 0.05),
             focusColor: dashboardPrimaryTextColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(4.0),
+            borderRadius: BorderRadius.zero,
             child: DashboardSurface(
               padding: const EdgeInsets.all(12),
               highlight: isSelected,

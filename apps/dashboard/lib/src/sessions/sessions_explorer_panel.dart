@@ -514,13 +514,13 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                                   borderSide: const BorderSide(
                                     color: _borderColor,
                                   ),
-                                  borderRadius: BorderRadius.circular(4.0),
+                                  borderRadius: BorderRadius.zero,
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: const BorderSide(
                                     color: dashboardAccentColor,
                                   ),
-                                  borderRadius: BorderRadius.circular(4.0),
+                                  borderRadius: BorderRadius.zero,
                                 ),
                                 suffixIcon: _searchQuery.isNotEmpty
                                     ? IconButton(

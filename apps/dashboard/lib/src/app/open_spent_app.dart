@@ -86,11 +86,33 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
         supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(
           useMaterial3: true,
+          fontFamily: 'Necto Mono',
+          splashFactory: NoSplash.splashFactory,
+          dialogTheme: const DialogThemeData(
+            backgroundColor: dashboardSurfaceColor,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: dashboardBorderColor),
+            ),
+          ),
+          filledButtonTheme: FilledButtonThemeData(
+            style: FilledButton.styleFrom(
+              shape: const RoundedRectangleBorder(),
+              foregroundColor: dashboardBackgroundColor,
+              backgroundColor: dashboardAccentColor,
+            ),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              shape: const RoundedRectangleBorder(),
+              side: const BorderSide(color: dashboardBorderColor),
+            ),
+          ),
           scaffoldBackgroundColor: dashboardBackgroundColor,
           dividerColor: dashboardBorderColor,
           colorScheme: const ColorScheme.dark(
             primary: dashboardAccentColor,
-            onPrimary: dashboardPrimaryTextColor,
+            onPrimary: dashboardBackgroundColor,
             surface: dashboardSurfaceColor,
             onSurface: dashboardPrimaryTextColor,
             surfaceContainer: dashboardSurfaceElevatedColor,
@@ -108,18 +130,23 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
             fillColor: dashboardBackgroundColor,
             hintStyle: TextStyle(color: dashboardSecondaryTextColor),
             border: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
               borderSide: BorderSide(color: dashboardBorderColor),
             ),
             enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
               borderSide: BorderSide(color: dashboardBorderColor),
             ),
             focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
               borderSide: BorderSide(color: dashboardAccentColor),
             ),
             errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
               borderSide: BorderSide(color: dashboardErrorColor),
             ),
             focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
               borderSide: BorderSide(color: dashboardErrorColor),
             ),
           ),
@@ -128,9 +155,7 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
               foregroundColor: dashboardSecondaryTextColor,
               hoverColor: dashboardSurfaceHighlightColor,
               focusColor: dashboardAccentColor.withValues(alpha: 0.12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
           ),
           cardTheme: CardThemeData(
@@ -138,43 +163,43 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
             elevation: 0,
             shape: RoundedRectangleBorder(
               side: const BorderSide(color: dashboardBorderColor),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.zero,
             ),
           ),
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
               color: dashboardPrimaryTextColor,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 2.4,
-              fontFamilyFallback: <String>['Menlo', 'Courier'],
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.8,
+              fontFamilyFallback: <String>['Courier New', 'monospace'],
             ),
             titleMedium: TextStyle(
               color: dashboardPrimaryTextColor,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.4,
-              fontFamilyFallback: <String>['Menlo', 'Courier'],
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.3,
+              fontFamilyFallback: <String>['Courier New', 'monospace'],
             ),
             titleLarge: TextStyle(
               color: dashboardPrimaryTextColor,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w400,
               letterSpacing: 0.2,
-              fontFamilyFallback: <String>['Menlo', 'Courier'],
+              fontFamilyFallback: <String>['Courier New', 'monospace'],
             ),
             labelLarge: TextStyle(
               color: dashboardPrimaryTextColor,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-              fontFamilyFallback: <String>['Menlo', 'Courier'],
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.4,
+              fontFamilyFallback: <String>['Courier New', 'monospace'],
             ),
             bodyLarge: TextStyle(
               color: dashboardPrimaryTextColor,
               height: 1.5,
-              fontFamilyFallback: <String>['Menlo', 'Courier'],
+              fontFamilyFallback: <String>['Courier New', 'monospace'],
             ),
             bodyMedium: TextStyle(
               color: dashboardSecondaryTextColor,
               height: 1.5,
-              fontFamilyFallback: <String>['Menlo', 'Courier'],
+              fontFamilyFallback: <String>['Courier New', 'monospace'],
             ),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import '../localization.dart';
 
+@client
 class App extends StatefulComponent {
   const App({super.key});
 
@@ -22,11 +23,11 @@ class _AppState extends State<App> {
   Component build(BuildContext context) {
     return div(
       classes:
-          'min-h-screen bg-[#05070b] text-white font-mono leading-relaxed selection:bg-[#1d4ed8] selection:text-white',
+          'min-h-screen bg-[#080808] text-white font-brand leading-relaxed selection:bg-[#39ff82] selection:text-[#080808]',
       [
         div(
           classes:
-              'w-full max-w-[1240px] mx-auto min-h-screen border-x border-[#1f2937] bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_34%),linear-gradient(180deg,#0d0e10_0%,#05070b_48%,#020305_100%)] flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-clip',
+              'brand-frame w-[calc(100%-40px)] lg:w-[calc(100%-70px)] max-w-[1600px] mx-auto min-h-screen border-x border-[#303030] bg-[#080808] flex flex-col overflow-clip',
           [
             _buildHeader(),
             main_(classes: 'flex-grow flex flex-col', [
@@ -47,21 +48,19 @@ class _AppState extends State<App> {
   Component _buildHeader() {
     return header(
       classes:
-          'p-6 border-b border-[#1f2937] flex justify-between items-center sticky top-0 bg-[#05070b]/85 backdrop-blur-xl z-10',
+          'p-6 border-b border-[#303030] flex justify-between items-center sticky top-0 bg-[#080808] z-10',
       [
         div(classes: 'flex items-center gap-3', [
-          div(
-            classes:
-                'p-2 rounded-xl border border-[#1d4ed8]/50 bg-[#3b82f6]/10 shadow-[0_0_24px_rgba(59,130,246,0.16)]',
-            [img(src: 'logo.svg', classes: 'w-4 h-4')],
-          ),
-          h1(classes: 'm-0 tracking-[0.15em] uppercase text-lg font-bold', [
+          div(classes: 'pr-4', [
+            img(src: 'logo.svg', classes: 'w-[90px] h-auto'),
+          ]),
+          h1(classes: 'm-0 tracking-tight text-lg font-normal', [
             Component.text(loc.title),
           ]),
         ]),
         button(
           classes:
-              'text-[#a1a1aa] hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0 font-mono text-sm tracking-widest',
+              'text-[#aaaaaa] hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0 font-brand text-sm tracking-wide',
           onClick: _toggleLang,
           [Component.text(loc.langSwitch)],
         ),
@@ -72,18 +71,17 @@ class _AppState extends State<App> {
   Component _buildHero() {
     return section(
       classes:
-          'px-6 py-24 md:py-32 flex flex-col items-center justify-center text-center border-b border-[#1f2937] relative overflow-hidden',
+          'px-6 py-24 md:py-32 flex flex-col items-start justify-center text-left border-b border-[#303030] relative overflow-hidden',
       [
-        // Subtle background glow
-        div(
+        img(
+          src: 'brand-flower.webp',
+          attributes: {'alt': '', 'aria-hidden': 'true'},
           classes:
-              'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] max-w-full h-[360px] bg-[#3b82f6]/[0.12] blur-[120px] pointer-events-none',
-          [],
+              'absolute right-0 top-0 h-full w-2/3 object-contain opacity-20 pointer-events-none',
         ),
-
         div(
           classes:
-              'mb-6 inline-flex items-center gap-3 rounded-full border border-[#2563eb]/50 bg-[#3b82f6]/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-[#93c5fd]',
+              'mb-6 relative inline-flex items-center gap-3 rounded-none border border-[#39ff82]/50 bg-[#39ff82]/10 px-4 py-2 text-xs uppercase tracking-[0.06em] text-[#39ff82]',
           [
             span([Component.text('●')]),
             Component.text('Realtime local analytics'),
@@ -91,20 +89,22 @@ class _AppState extends State<App> {
         ),
         h2(
           classes:
-              'text-4xl md:text-7xl font-bold tracking-tight mb-6 max-w-[940px] leading-[0.95]',
+              'relative text-4xl md:text-6xl font-normal tracking-tight mb-6 max-w-[940px] max-w-full leading-[1.3]',
           [Component.text(loc.heroTitle)],
         ),
-        p(classes: 'text-lg md:text-xl text-[#cbd5e1] max-w-[760px] mb-10', [
-          Component.text(loc.heroSubtitle),
-        ]),
+        p(
+          classes:
+              'relative text-lg md:text-xl text-[#c5c5c5] max-w-[760px] mb-10',
+          [Component.text(loc.heroSubtitle)],
+        ),
         div(
           classes:
-              'flex flex-col sm:flex-row gap-4 items-center justify-center',
+              'relative flex flex-col sm:flex-row gap-4 items-center justify-center',
           [
             a(
               href: '/demo/',
               classes:
-                  'inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-[#ccc] transition-colors w-full sm:w-auto',
+                  'inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#39ff82] text-[#080808] font-normal uppercase tracking-wide hover:bg-white transition-colors w-full sm:w-auto',
               [
                 span([Component.text('→')]),
                 Component.text(loc.linkDemo),
@@ -114,7 +114,7 @@ class _AppState extends State<App> {
               href: 'https://github.com/Code-Growers/opencode_spent',
               target: Target.blank,
               classes:
-                  'inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#444] text-white font-bold uppercase tracking-widest hover:bg-[#111] hover:border-[#666] transition-colors w-full sm:w-auto',
+                  'inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#444] text-white font-normal uppercase tracking-wide hover:bg-[#111] hover:border-[#666] transition-colors w-full sm:w-auto',
               [
                 span([Component.text('↗')]),
                 Component.text(loc.linkGithub),
@@ -129,7 +129,7 @@ class _AppState extends State<App> {
   Component _buildBadges() {
     return div(
       classes:
-          'flex flex-wrap justify-center border-b border-[#1f2937] bg-[#0d0e10]/70',
+          'flex flex-wrap justify-center border-b border-[#303030] bg-[#080808]/70',
       [
         _badge(loc.badgeAlpha),
         _badge(loc.badgeFree),
@@ -143,7 +143,7 @@ class _AppState extends State<App> {
   Component _badge(String text) {
     return div(
       classes:
-          'px-8 py-4 border-r border-[#1f2937] last:border-r-0 text-sm tracking-[0.2em] text-[#a1a1aa]',
+          'px-8 py-4 border-r border-[#303030] last:border-r-0 text-sm tracking-[0.06em] text-[#aaaaaa]',
       [Component.text(text)],
     );
   }
@@ -151,15 +151,15 @@ class _AppState extends State<App> {
   Component _buildFeatures() {
     return section(
       classes:
-          'p-6 md:p-12 border-b border-[#1f2937] flex flex-col lg:flex-row gap-12',
+          'p-6 md:p-12 border-b border-[#303030] flex flex-col lg:flex-row gap-12',
       [
         div(classes: 'w-full lg:w-[280px] flex-shrink-0', [
           h3(
             classes:
-                'm-0 text-sm tracking-[0.2em] uppercase text-[#60a5fa] mb-4',
+                'm-0 text-sm tracking-[0.06em] uppercase text-[#39ff82] mb-4',
             [Component.text(loc.sectionFeatures)],
           ),
-          p(classes: 'text-[#94a3b8] m-0 text-sm leading-relaxed', [
+          p(classes: 'text-[#aaaaaa] m-0 text-sm leading-relaxed', [
             Component.text(loc.sectionFeaturesBody),
           ]),
         ]),
@@ -196,17 +196,17 @@ class _AppState extends State<App> {
   }) {
     return div(
       classes:
-          'min-h-[220px] p-8 border border-[#1f2937] bg-[#111318]/80 hover:border-[#3b82f6]/60 hover:bg-[#151923] transition-colors flex flex-col rounded-3xl shadow-[0_24px_54px_rgba(0,0,0,0.28)]',
+          'min-h-[220px] p-8 border border-[#303030] bg-[#0c0c0c]/80 hover:border-[#39ff82]/60 hover:bg-[#101811] transition-colors flex flex-col rounded-none ',
       [
-        div(classes: 'text-[#60a5fa] mb-6 text-lg font-bold tracking-widest', [
+        div(classes: 'text-[#39ff82] mb-6 text-lg font-normal tracking-wide', [
           Component.text(icon),
         ]),
         strong(
           classes:
-              'block mb-4 text-white font-semibold uppercase tracking-wider text-base',
+              'block mb-4 text-white font-normal uppercase tracking-wider text-base',
           [Component.text(title)],
         ),
-        p(classes: 'text-[#94a3b8] text-base leading-relaxed m-0', [
+        p(classes: 'text-[#aaaaaa] text-base leading-relaxed m-0', [
           Component.text(body),
         ]),
       ],
@@ -214,16 +214,17 @@ class _AppState extends State<App> {
   }
 
   Component _buildPreview() {
-    return section(classes: 'p-6 md:p-12 border-b border-[#1f2937]', [
+    return section(classes: 'p-6 md:p-12 border-b border-[#303030]', [
       div(classes: 'mb-8', [
-        h3(classes: 'm-0 text-sm tracking-[0.2em] uppercase text-[#666] mb-2', [
-          Component.text(loc.sectionPreview),
-        ]),
+        h3(
+          classes: 'm-0 text-sm tracking-[0.06em] uppercase text-[#666] mb-2',
+          [Component.text(loc.sectionPreview)],
+        ),
       ]),
       div(classes: 'mb-8 min-w-0', [
         div(
           classes:
-              'bg-[#050505] border border-[#333] p-6 text-xs text-[#a1a1aa] leading-loose whitespace-pre overflow-x-auto rounded-2xl flex flex-col justify-center',
+              'bg-[#050505] border border-[#333] p-6 text-xs text-[#aaaaaa] leading-loose whitespace-pre overflow-x-auto rounded-none flex flex-col justify-center',
           [Component.text(_asciiChart())],
         ),
       ]),
@@ -247,10 +248,10 @@ class _AppState extends State<App> {
           _mockTableRow('YESTERDAY', 'Local', '\$0.00'),
         ]),
         _mockWindow(loc.previewCompany, [
-          _mockSignalRow('HQ SERVER', 'CONNECTED', 'text-[#10b981]'),
+          _mockSignalRow('HQ SERVER', 'CONNECTED', 'text-[#39ff82]'),
           _mockSignalRow('MONTH SPEND', '\$24,860', 'text-white'),
           _mockSignalRow('ACTIVE MODELS', '12', 'text-white'),
-          _mockSignalRow('PROMPTS', 'NEVER STORED', 'text-[#60a5fa]'),
+          _mockSignalRow('PROMPTS', 'NEVER STORED', 'text-[#39ff82]'),
         ]),
         _mockWindow(loc.previewHeatmap, [
           div(classes: 'flex flex-col gap-5', [
@@ -260,10 +261,13 @@ class _AppState extends State<App> {
               [
                 div(classes: 'flex flex-col gap-3', [
                   div(classes: 'flex flex-col gap-1', [
-                    span(classes: 'text-2xl font-bold text-white leading-none', [Component.text('142')]),
+                    span(
+                      classes: 'text-2xl font-normal text-white leading-none',
+                      [Component.text('142')],
+                    ),
                     span(
                       classes:
-                          'text-[10px] text-[#64748b] tracking-[0.2em] uppercase',
+                          'text-[10px] text-[#aaaaaa] tracking-[0.06em] uppercase',
                       [Component.text(loc.previewHeatmapRuns)],
                     ),
                   ]),
@@ -275,7 +279,7 @@ class _AppState extends State<App> {
                 ]),
                 div(
                   classes:
-                      'flex gap-1.5 items-center text-[10px] text-[#64748b] tracking-wider uppercase',
+                      'flex gap-1.5 items-center text-[10px] text-[#aaaaaa] tracking-wider uppercase',
                   [
                     span([Component.text(loc.previewHeatmapLegendLess)]),
                     _mockHeatmapCell(0),
@@ -286,7 +290,8 @@ class _AppState extends State<App> {
                     span([Component.text(loc.previewHeatmapLegendMore)]),
                   ],
                 ),
-              ]),
+              ],
+            ),
             _mockHeatmapGrid(),
           ]),
         ]),
@@ -297,18 +302,18 @@ class _AppState extends State<App> {
   Component _mockWindow(String title, List<Component> children) {
     return div(
       classes:
-          'border border-[#1f2937] bg-[#090b10] rounded-2xl overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.28)] flex flex-col',
+          'border border-[#303030] bg-[#0c0c0c] rounded-none overflow-hidden  flex flex-col',
       [
         div(
           classes:
               'border-b border-[#333] p-3 flex items-center gap-3 bg-[#0a0a0a]',
           [
             div(classes: 'flex gap-1.5', [
-              div(classes: 'w-2.5 h-2.5 rounded-full bg-[#333]', []),
-              div(classes: 'w-2.5 h-2.5 rounded-full bg-[#333]', []),
-              div(classes: 'w-2.5 h-2.5 rounded-full bg-[#333]', []),
+              div(classes: 'w-2.5 h-2.5 rounded-none bg-[#333]', []),
+              div(classes: 'w-2.5 h-2.5 rounded-none bg-[#333]', []),
+              div(classes: 'w-2.5 h-2.5 rounded-none bg-[#333]', []),
             ]),
-            span(classes: 'text-xs text-[#888] tracking-widest uppercase', [
+            span(classes: 'text-xs text-[#888] tracking-wide uppercase', [
               Component.text(title),
             ]),
           ],
@@ -339,9 +344,9 @@ class _AppState extends State<App> {
         classes: 'inline-flex min-w-max gap-1.5',
         columns
             .map(
-              (col) => div(
+              (levels) => div(
                 classes: 'flex flex-col gap-1.5',
-                col.map((level) => _mockHeatmapCell(level)).toList(),
+                levels.map((level) => _mockHeatmapCell(level)).toList(),
               ),
             )
             .toList(),
@@ -351,11 +356,11 @@ class _AppState extends State<App> {
 
   Component _mockHeatmapCell(int level) {
     final bgClasses = [
-      'bg-[#111827]',
-      'bg-[#1e3a8a]',
-      'bg-[#2563eb]',
-      'bg-[#3b82f6]',
-      'bg-[#60a5fa]',
+      'bg-[#121212]',
+      'bg-[#163d25]',
+      'bg-[#227c42]',
+      'bg-[#2cbd60]',
+      'bg-[#39ff82]',
     ];
     return div(
       classes:
@@ -366,13 +371,14 @@ class _AppState extends State<App> {
 
   Component _mockHeatmapStat(String label, String value) {
     return div(
-      classes: 'rounded-lg border border-[#1f2937] bg-[#05070b] px-3 py-2',
+      classes: 'rounded-none border border-[#303030] bg-[#080808] px-3 py-2',
       [
-        div(
-          classes: 'text-[9px] text-[#64748b] tracking-[0.18em] uppercase',
-          [Component.text(label)],
-        ),
-        div(classes: 'mt-1 text-sm font-bold text-white', [Component.text(value)]),
+        div(classes: 'text-[9px] text-[#aaaaaa] tracking-[0.18em] uppercase', [
+          Component.text(label),
+        ]),
+        div(classes: 'mt-1 text-sm font-normal text-white', [
+          Component.text(value),
+        ]),
       ],
     );
   }
@@ -393,7 +399,7 @@ class _AppState extends State<App> {
           'flex justify-between py-2 border-b border-[#111] last:border-0 text-xs',
       [
         span(classes: 'text-[#666]', [Component.text(time)]),
-        span(classes: 'text-[#a1a1aa]', [Component.text(model)]),
+        span(classes: 'text-[#aaaaaa]', [Component.text(model)]),
         span(classes: 'text-white', [Component.text(cost)]),
       ],
     );
@@ -402,10 +408,10 @@ class _AppState extends State<App> {
   Component _mockSignalRow(String label, String value, String valueClass) {
     return div(
       classes:
-          'flex justify-between gap-6 py-3 border-b border-[#111827] last:border-0 text-xs',
+          'flex justify-between gap-6 py-3 border-b border-[#121212] last:border-0 text-xs',
       [
-        span(classes: 'text-[#64748b]', [Component.text(label)]),
-        span(classes: '$valueClass tracking-widest', [Component.text(value)]),
+        span(classes: 'text-[#aaaaaa]', [Component.text(label)]),
+        span(classes: '$valueClass tracking-wide', [Component.text(value)]),
       ],
     );
   }
@@ -413,23 +419,23 @@ class _AppState extends State<App> {
   Component _buildEnterprise() {
     return section(
       classes:
-          'p-6 md:p-12 border-b border-[#1f2937] grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-stretch',
+          'p-6 md:p-12 border-b border-[#303030] grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-stretch',
       [
         div(
           classes:
-              'rounded-3xl border border-[#2563eb]/40 bg-[#0f172a]/50 p-8 shadow-[0_30px_80px_rgba(37,99,235,0.12)]',
+              'rounded-none border border-[#39ff82]/40 bg-[#101811]/50 p-8 ',
           [
             h3(
               classes:
-                  'm-0 text-sm tracking-[0.2em] uppercase text-[#60a5fa] mb-6',
+                  'm-0 text-sm tracking-[0.06em] uppercase text-[#39ff82] mb-6',
               [Component.text(loc.sectionEnterprise)],
             ),
             h4(
               classes:
-                  'text-3xl md:text-4xl font-bold leading-tight mb-5 max-w-3xl',
+                  'text-3xl md:text-4xl font-normal leading-tight mb-5 max-w-3xl',
               [Component.text(loc.enterpriseTitle)],
             ),
-            p(classes: 'text-[#cbd5e1] leading-relaxed max-w-3xl mb-8', [
+            p(classes: 'text-[#c5c5c5] leading-relaxed max-w-3xl mb-8', [
               Component.text(loc.enterpriseBody),
             ]),
             div(classes: 'grid grid-cols-1 md:grid-cols-3 gap-4', [
@@ -446,8 +452,8 @@ class _AppState extends State<App> {
             _miniMetric('TEAM', '42 DEV'),
             _miniMetric('LATENCY', '812MS'),
           ]),
-          _mockSignalRow('finance view', 'LIVE', 'text-[#10b981]'),
-          _mockSignalRow('engineering view', 'FILTERED', 'text-[#60a5fa]'),
+          _mockSignalRow('finance view', 'LIVE', 'text-[#39ff82]'),
+          _mockSignalRow('engineering view', 'FILTERED', 'text-[#39ff82]'),
           _mockSignalRow('sensitive fields', 'BLOCKED', 'text-[#fbbf24]'),
         ]),
       ],
@@ -456,12 +462,12 @@ class _AppState extends State<App> {
 
   Component _enterprisePoint(String number, String text) {
     return div(
-      classes: 'border border-[#1f2937] bg-[#05070b]/80 rounded-2xl p-4',
+      classes: 'border border-[#303030] bg-[#080808]/80 rounded-none p-4',
       [
-        div(classes: 'text-[#60a5fa] text-xs tracking-[0.2em] mb-3', [
+        div(classes: 'text-[#39ff82] text-xs tracking-[0.06em] mb-3', [
           Component.text(number),
         ]),
-        p(classes: 'm-0 text-sm text-[#e5e7eb] leading-relaxed', [
+        p(classes: 'm-0 text-sm text-[#ffffff] leading-relaxed', [
           Component.text(text),
         ]),
       ],
@@ -469,12 +475,15 @@ class _AppState extends State<App> {
   }
 
   Component _miniMetric(String label, String value) {
-    return div(classes: 'border border-[#1f2937] bg-[#05070b] rounded-xl p-3', [
-      div(classes: 'text-[10px] text-[#64748b] tracking-[0.2em] mb-2', [
-        Component.text(label),
-      ]),
-      div(classes: 'text-lg text-white font-bold', [Component.text(value)]),
-    ]);
+    return div(
+      classes: 'border border-[#303030] bg-[#080808] rounded-none p-3',
+      [
+        div(classes: 'text-[10px] text-[#aaaaaa] tracking-[0.06em] mb-2', [
+          Component.text(label),
+        ]),
+        div(classes: 'text-lg text-white font-normal', [Component.text(value)]),
+      ],
+    );
   }
 
   Component _buildCompany() {
@@ -484,10 +493,10 @@ class _AppState extends State<App> {
       [
         div([
           h3(
-            classes: 'm-0 text-sm tracking-[0.2em] uppercase text-[#666] mb-6',
+            classes: 'm-0 text-sm tracking-[0.06em] uppercase text-[#666] mb-6',
             [Component.text(loc.sectionCompany)],
           ),
-          h4(classes: 'text-2xl font-bold mb-4', [
+          h4(classes: 'text-2xl font-normal mb-4', [
             Component.text(loc.companyTitle),
           ]),
           p(classes: 'text-[#888] mb-8 leading-relaxed max-w-md', [
@@ -522,7 +531,7 @@ class _AppState extends State<App> {
             ),
             p(
               classes:
-                  'text-sm text-[#888] tracking-widest uppercase m-0 group-hover:text-white transition-colors',
+                  'text-sm text-[#888] tracking-wide uppercase m-0 group-hover:text-white transition-colors',
               [Component.text('Code Growers')],
             ),
           ],

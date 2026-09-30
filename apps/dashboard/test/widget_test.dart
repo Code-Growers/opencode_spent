@@ -514,7 +514,10 @@ Future<void> _openDashboardSection(WidgetTester tester, String keyValue) async {
 
   final navLink = find.byKey(Key(keyValue));
   expect(navLink, findsOneWidget);
-  tester.widget<DashboardChipButton>(navLink).onTap!();
+  await tester.ensureVisible(navLink);
+  await tester.tap(navLink);
+  await tester.pumpAndSettle();
+  shellScrollState.outerController.jumpTo(0);
   await tester.pumpAndSettle();
 }
 

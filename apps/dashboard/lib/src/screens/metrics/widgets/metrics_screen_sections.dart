@@ -134,7 +134,7 @@ class MetricsDayPickerButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           key: const Key('metrics-day-picker-button'),
-          borderRadius: BorderRadius.circular(4.0),
+          borderRadius: BorderRadius.zero,
           hoverColor: dashboardPrimaryTextColor.withValues(alpha: 0.05),
           focusColor: dashboardPrimaryTextColor.withValues(alpha: 0.1),
           onTap: () async {
@@ -158,7 +158,7 @@ class MetricsDayPickerButton extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: dashboardBorderColor),
-              borderRadius: BorderRadius.circular(4.0),
+              borderRadius: BorderRadius.zero,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(

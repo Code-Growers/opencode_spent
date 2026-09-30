@@ -33,7 +33,7 @@ class DashboardHelpDialogContent extends StatelessWidget {
                   indicator: BoxDecoration(
                     color: dashboardSurfaceColor,
                     border: Border.all(color: dashboardBorderColor),
-                    borderRadius: BorderRadius.circular(4.0),
+                    borderRadius: BorderRadius.zero,
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,

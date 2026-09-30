@@ -107,7 +107,7 @@ class MetricsKpiCards extends StatelessWidget {
             _KpiCard(
               key: const Key('metrics-kpi-total-tool-calls'),
               width: width,
-              icon: Icons.build_circle_outlined,
+              icon: Icons.build_outlined,
               title: l10n.metricsKpiTotalToolCalls(
                 formatKpiValue(
                   value: base.totalToolCallCount.toDouble(),
@@ -171,7 +171,7 @@ class _KpiCard extends StatelessWidget {
         padding: const EdgeInsets.all(DashboardSpacing.primaryPanelPadding),
         backgroundColor: dashboardSurfaceElevatedColor,
         borderColor: dashboardBorderColor.withValues(alpha: 0.9),
-        showGlow: true,
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -184,7 +184,7 @@ class _KpiCard extends StatelessWidget {
                     border: Border.all(
                       color: dashboardAccentColor.withValues(alpha: 0.42),
                     ),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.zero,
                   ),
                   child: Icon(icon, color: dashboardAccentSoftColor, size: 20),
                 ),
@@ -194,7 +194,7 @@ class _KpiCard extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: dashboardStatusColor.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.zero,
                   ),
                 ),
               ],

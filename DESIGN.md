@@ -1,77 +1,68 @@
-# OpenSpent Dashboard Design System
+# OpenSpent Brand and Dashboard Design System
 
-This document is the canonical design and visual language guide for the OpenSpent Dashboard application. It defines the visual authority, theme tokens, and layout rules used across the dashboard.
+This is the canonical visual guide for OpenSpent. The dashboard and marketing site share the Code Growers brand, adapted from `cg_web/src/styles/global.css` and https://codegrowers.com/en/.
 
-## Purpose and Scope
+## Principles
 
-The OpenSpent Dashboard is a privacy-first tool for tracking AI usage metrics. The design goals are clarity, precision, and a "terminal-inspired" aesthetic that reflects the technical nature of the data while remaining accessible and modern.
-
-## Design Principles
-
-- **Precision over Decoration**: UI elements should be functional and lean.
-- **High Contrast / Low Fatigue**: A dark, monochromatic base with vibrant, purposeful accent colors.
-- **Terminal Roots**: Monospaced font fallback, distinct borders, and "chip" style interactive elements.
-- **Privacy by Design**: Sensitive data like prompts or raw tool outputs are never rendered.
+- Local-first and privacy-first: show only allowlisted metadata, never prompts, raw tool payloads, or absolute project roots.
+- Use the Code Growers near-black canvas, white typography, vivid green accents, thin rules, and square geometry.
+- Keep data readable: the dashboard uses compact brand typography and responsive panels rather than the marketing site's full-height sections.
+- Flat surfaces and deliberate spacing: no blue glows, decorative gradients, or rounded pill controls.
 
 ## Canonical Theme Tokens
 
-Theme tokens are defined in `apps/dashboard/lib/src/theme/dashboard_colors.dart`. All UI components must use these constants directly or via the `ColorScheme` provided in `OpenSpentApp`.
+Dashboard tokens live in `apps/dashboard/lib/src/theme/dashboard_colors.dart`.
 
-| Token | Hex Value | Intent |
-|-------|-----------|--------|
-| `dashboardBackgroundColor` | `#0D0E10` | Main application background. |
-| `dashboardSurfaceColor` | `#131417` | Card and panel surfaces. |
-| `dashboardSurfaceHighlightColor` | `#1C1D21` | Active/hover states for surfaces. |
-| `dashboardBorderColor` | `#2B2D31` | Dividers, borders, and outlines. |
-| `dashboardPrimaryTextColor` | `#E5E7EB` | Main headings and content text. |
-| `dashboardSecondaryTextColor` | `#9CA3AF` | Labels, captions, and secondary info. |
-| `dashboardStatusColor` | `#10B981` | Success states and active connections. |
-| `dashboardErrorColor` | `#EF4444` | Errors and critical alerts. |
-| `dashboardAccentColor` | `#3B82F6` | Primary action buttons and focus states. |
+| Token | Hex | Purpose |
+|-------|-----|---------|
+| `dashboardBackgroundColor` | `#080808` | Site and app canvas |
+| `dashboardSurfaceColor` | `#080808` | Flat outlined panels |
+| `dashboardSurfaceElevatedColor` | `#0C0C0C` | Subtle grouping for dense data |
+| `dashboardSurfaceHighlightColor` | `#101811` | Selected navigation and controls |
+| `dashboardBorderColor` | `#303030` | Grid lines, dividers, panel borders |
+| `dashboardPrimaryTextColor` | `#FFFFFF` | Headings and data |
+| `dashboardSecondaryTextColor` | `#AAAAAA` | Captions and secondary labels |
+| `dashboardAccentColor` | `#39FF82` | Primary actions, charts, focus |
+| `dashboardAccentSoftColor` | `#39FF82` | Brand accent compatibility alias |
+| `dashboardStatusColor` | `#39FF82` | Connected and successful states |
+| `dashboardErrorColor` | `#EF4444` | Errors |
+
+Use black text on filled green actions. Preserve semantic error colors and chart series distinctions.
 
 ## Typography
 
-Typography is configured in `apps/dashboard/lib/src/app/open_spent_app.dart`. The system defaults to system sans-serif fonts but uses a monospaced fallback stack (`Menlo`, `Courier`) to maintain the terminal aesthetic.
+Use the site's **Necto Mono** regular font, bundled locally for offline desktop use in `apps/dashboard/assets/fonts/NectoMono-Regular.ttf`. The original WOFF2 and OFL license are bundled in the website. No font service or runtime download is required.
 
-- **Headlines**: `headlineSmall` (700 weight, 2.4 letter spacing, uppercase by convention).
-- **Titles**: `titleLarge` (700 weight), `titleMedium` (600 weight, 1.4 letter spacing).
-- **Body**: `bodyLarge` (Primary text, 1.5 height), `bodyMedium` (Secondary text, 1.5 height).
-- **Labels**: `labelLarge` (600 weight, 1.2 letter spacing).
+- Headings: regular weight, slightly negative letter spacing, generous line height.
+- Hero: 46px on wide desktop layouts, 32px on compact layouts; green accent.
+- Panel titles: regular weight; avoid heavy or widely spaced uppercase headings.
+- Body: 1.5 line height, white primary and gray secondary text.
+- Eyebrows: small uppercase labels with modest tracking.
+- Navigation: regular monospaced labels and subdued two-digit section indices.
 
-## Layout and Shell
+## Layout and Controls
 
-The shell is defined in `apps/dashboard/lib/src/screens/dashboard/dashboard_shell_screen.dart`.
+- Keep the fixed dashboard header and scrolling hero/navigation/content structure.
+- Header: OpenSpent identity with the existing brand logo, local status, help, and settings.
+- Hero: flat framed introduction, fine registration crosses at the corners, and outlined metadata facts. Use a 3:1 split only when at least 900px of inner width is available.
+- Navigation: equal-width numbered cells on desktop and two columns below 640px; green top rule and dark green fill indicate selection.
+- `DashboardSurface`: one-pixel outline, square corners, solid background, no shadow or gradient. Use it for grouped content throughout all screens.
+- Controls: square outlines; white hover inversion, green focus outline, and green selected text. Focus must remain visible without relying on a glow.
+- Use `DashboardSpacing` for consistent shell gutters and internal padding. Responsive layouts must wrap labels and controls without clipping.
+- KPI cards and terminal panes use the same flat geometry. Charts inherit the green primary accent.
+- The marketing site uses the same font, colors, flat panels, outlined actions, and regular-weight headings.
 
-- **Shell Structure**: A vertical column containing a Header, Hero section, Navigation area, Content area, and Footer.
-- **Surface Pattern**: Use `DashboardSurface` from `dashboard_surface.dart` for all elevated or grouped content. Surfaces should have a `dashboardBorderColor` outline.
-- **Gutters**: Use `DashboardSpacing.shellGutter` for consistent padding across the application shell.
+## State and Privacy Boundaries
 
-## State Ownership Boundaries
+`DashboardShellScreen` owns cross-screen filters, probes, revisions, and settings loading. Feature cubits stay screen-local. This redesign changes presentation only; retain repository and adapter boundaries and the persisted settings contract.
 
-- **Shell-owned State**: Global filters (Time Window, Selected Day, Selected Hour, Model Filter), Server Probe status, and revision counters live in `DashboardShellScreenState`.
-- **Screen-local State**: Feature-specific logic (e.g., specific chart hover states, modal form inputs) belongs to the individual screen's Cubit or State.
-- **Composition**: Screens receive shell state via constructor parameters and update it via callbacks passed from the shell.
+## Branding and Localization
 
-## Chart and Panel Design
+- Existing logo: `apps/dashboard/web/logo.svg`.
+- Attribution and version: dashboard shell footer, using `dashboard_build_info.dart`.
+- Keep build version aligned with `apps/dashboard/pubspec.yaml`.
+- Edit ARB sources and run `dart run melos run generate:l10n` for translation changes. Never edit generated localization files manually.
 
-- **Charts**: Use `dashboardAccentColor` for primary series and `dashboardSecondaryTextColor` for axes and labels.
-- **KPI Panels**: Use `TerminalPane` for status and summary data. Each line should be clear and concise.
-- **Spacing**: Maintain generous internal padding (typically 16 or 24px) within surfaces to ensure readability of dense metrics.
+## Verification
 
-## Branding and Attribution
-
-- **Logo Source**: `apps/dashboard/web/logo.svg` (mirrored from the `apps/website` branding).
-- **Attribution**: The dashboard shell footer is the canonical location for versioning and company attribution.
-- **Build Info**: `apps/dashboard/lib/src/app/dashboard_build_info.dart` provides the canonical version string and company name.
-
-## Localization Workflow
-
-- **Tooling**: Use `dart run melos run generate:l10n`.
-- **Generated Files**: `apps/dashboard/lib/l10n/app_localizations*.dart` are autogenerated. **Never edit these files manually.**
-- **Source**: Edit `apps/dashboard/lib/l10n/app_*.arb` files to add or update strings.
-
-## Testing Expectations
-
-- **Visual Verification**: All UI changes must be verified across both "Real Data" and "Mock Data" modes.
-- **Widget Tests**: New UI components should have corresponding widget tests in `apps/dashboard/test/`.
-- **Responsiveness**: Ensure layouts degrade gracefully from desktop to tablet widths. Use `LayoutBuilder` for adaptive components.
+Run `flutter test` in `apps/dashboard`, including real and mock mode coverage. Verify metrics, sessions, exchange rates, settings, keyboard focus, and constrained desktop layouts. Run the workspace Melos analysis workflow and website tests when changing shared brand presentation. Inspect a rendered preview before delivery.

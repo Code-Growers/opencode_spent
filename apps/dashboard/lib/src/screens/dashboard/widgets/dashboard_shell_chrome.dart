@@ -5,7 +5,6 @@ import 'package:openspent_core/openspent_core.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../theme/dashboard_colors.dart';
 import '../../../app/dashboard_build_info.dart';
-import 'dashboard_chip_button.dart';
 import 'dashboard_surface.dart';
 
 class DashboardShellHeader extends StatelessWidget {
@@ -29,50 +28,55 @@ class DashboardShellHeader extends StatelessWidget {
       key: const Key('dashboard-shell-header'),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       backgroundColor: dashboardSurfaceElevatedColor,
-      showGlow: true,
+
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: dashboardAccentColor.withValues(alpha: 0.14),
-              border: Border.all(
-                color: dashboardAccentColor.withValues(alpha: 0.5),
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.query_stats,
-              color: dashboardAccentSoftColor,
-              size: 20,
+          Expanded(
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  'web/brand-symbol.svg',
+                  width: 24,
+                  height: 32,
+                  colorFilter: const ColorFilter.mode(
+                    dashboardPrimaryTextColor,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Flexible(
+                  child: Text(
+                    OpenSpentInfo.productName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.headlineSmall?.copyWith(height: 1),
+                  ),
+                ),
+                if (MediaQuery.sizeOf(context).width >= 600) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: dashboardBorderColor),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    child: Text(
+                      l10n.localLabel,
+                      style: textTheme.labelLarge?.copyWith(
+                        color: dashboardStatusColor,
+                        height: 1,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          const SizedBox(width: 14),
-          Text(
-            OpenSpentInfo.productName.toUpperCase(),
-            style: textTheme.headlineSmall?.copyWith(height: 1),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: dashboardStatusColor.withValues(alpha: 0.10),
-              border: Border.all(
-                color: dashboardStatusColor.withValues(alpha: 0.45),
-              ),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              l10n.localLabel,
-              style: textTheme.labelLarge?.copyWith(
-                color: dashboardStatusColor,
-                height: 1,
-              ),
-            ),
-          ),
-          const Spacer(),
           IconButton(
             key: const Key('help-open-button'),
             onPressed: onHelpPressed,
@@ -112,9 +116,9 @@ class _HeroMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        border: Border.all(color: color.withValues(alpha: 0.32)),
-        borderRadius: BorderRadius.circular(14),
+        color: Colors.transparent,
+        border: Border.all(color: dashboardBorderColor),
+        borderRadius: BorderRadius.zero,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -133,11 +137,13 @@ class _HeroMetric extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            value,
-            style: textTheme.labelLarge?.copyWith(
-              color: dashboardPrimaryTextColor,
-              height: 1,
+          Flexible(
+            child: Text(
+              value,
+              style: textTheme.labelLarge?.copyWith(
+                color: dashboardPrimaryTextColor,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -154,83 +160,115 @@ class DashboardShellHero extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return DashboardSurface(
-      key: const Key('dashboard-shell-hero'),
-      padding: const EdgeInsets.all(24),
-      backgroundColor: dashboardSurfaceElevatedColor,
-      showGlow: true,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 760;
-
-          return Flex(
-            direction: wide ? Axis.horizontal : Axis.vertical,
-            crossAxisAlignment: wide
-                ? CrossAxisAlignment.center
-                : CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: wide ? 3 : 0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l10n.heroEyebrow,
-                      style: textTheme.labelLarge?.copyWith(
-                        color: dashboardAccentSoftColor,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.heroTitle,
-                      style: textTheme.headlineSmall?.copyWith(
-                        fontSize: 32,
-                        letterSpacing: 0.4,
-                        height: 1.12,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 720),
-                      child: Text(
-                        l10n.heroDescription,
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: dashboardSecondaryTextColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: wide ? 24 : 0, height: wide ? 0 : 20),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _HeroMetric(
-                    label: l10n.heroMetricSyncLabel,
-                    value: l10n.heroMetricSyncValue,
-                    color: dashboardStatusColor,
-                  ),
-                  _HeroMetric(
-                    label: l10n.heroMetricDataLabel,
-                    value: l10n.heroMetricDataValue,
-                    color: dashboardAccentSoftColor,
-                  ),
-                  _HeroMetric(
-                    label: l10n.heroMetricFieldsLabel,
-                    value: l10n.heroMetricFieldsValue,
+    return CustomPaint(
+      foregroundPainter: const _BrandFramePainter(),
+      child: DashboardSurface(
+        key: const Key('dashboard-shell-hero'),
+        padding: const EdgeInsets.all(28),
+        backgroundColor: dashboardBackgroundColor,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 900;
+            final heading = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.heroEyebrow,
+                  style: textTheme.labelSmall?.copyWith(
                     color: dashboardSecondaryTextColor,
+                    letterSpacing: 0.7,
                   ),
-                ],
-              ),
-            ],
-          );
-        },
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.heroTitle,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontSize: wide ? 46 : 32,
+                    fontWeight: FontWeight.w400,
+                    color: dashboardAccentColor,
+                    letterSpacing: -1.2,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 680),
+                  child: Text(l10n.heroDescription, style: textTheme.bodyLarge),
+                ),
+              ],
+            );
+            final facts = Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _HeroMetric(
+                  label: l10n.heroMetricSyncLabel,
+                  value: l10n.heroMetricSyncValue,
+                  color: dashboardStatusColor,
+                ),
+                _HeroMetric(
+                  label: l10n.heroMetricDataLabel,
+                  value: l10n.heroMetricDataValue,
+                  color: dashboardAccentColor,
+                ),
+                _HeroMetric(
+                  label: l10n.heroMetricFieldsLabel,
+                  value: l10n.heroMetricFieldsValue,
+                  color: dashboardSecondaryTextColor,
+                ),
+              ],
+            );
+            if (!wide) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [heading, const SizedBox(height: 24), facts],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(flex: 3, child: heading),
+                const SizedBox(width: 40),
+                Expanded(child: facts),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
+}
+
+/// Registration marks echo the intersections in the Code Growers site frame.
+class _BrandFramePainter extends CustomPainter {
+  const _BrandFramePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = dashboardSecondaryTextColor
+      ..strokeWidth = 1;
+    for (final point in [
+      Offset.zero,
+      Offset(size.width, 0),
+      Offset(0, size.height),
+      Offset(size.width, size.height),
+    ]) {
+      canvas.drawLine(
+        point - const Offset(4, 0),
+        point + const Offset(4, 0),
+        paint,
+      );
+      canvas.drawLine(
+        point - const Offset(0, 4),
+        point + const Offset(0, 4),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _BrandFramePainter oldDelegate) => false;
 }
 
 class DashboardShellNav extends StatelessWidget {
@@ -257,45 +295,109 @@ class DashboardShellNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return DashboardSurface(
+    final entries =
+        <({String label, Key key, bool selected, VoidCallback onTap})>[
+          (
+            label: l10n.shellNavMetrics,
+            key: const Key('dashboard-nav-metrics'),
+            selected: selectedIndex == 0,
+            onTap: onMetricsNav,
+          ),
+          if (hasSessionsRoute)
+            (
+              label: l10n.shellNavSessions,
+              key: const Key('dashboard-nav-sessions'),
+              selected: selectedIndex == 1,
+              onTap: onSessionsNav,
+            ),
+          if (hasExchangeRatesRoute)
+            (
+              label: l10n.shellNavExchangeRates,
+              key: const Key('dashboard-nav-exchange-rates'),
+              selected: selectedIndex == 2,
+              onTap: onExchangeRatesNav,
+            ),
+          (
+            label: l10n.shellNavState,
+            key: const Key('dashboard-nav-state'),
+            selected: selectedIndex == 3,
+            onTap: onStateNav,
+          ),
+        ];
+    return LayoutBuilder(
       key: const Key('dashboard-shell-nav'),
-      padding: const EdgeInsets.all(12),
-      backgroundColor: dashboardSurfaceElevatedColor,
-      child: SizedBox(
-        width: double.infinity,
-        child: Wrap(
-          spacing: 16,
-          runSpacing: 8,
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 640 ? entries.length : 2;
+        return Wrap(
           children: [
-            DashboardChipButton(
-              key: const Key('dashboard-nav-metrics'),
-              label: l10n.shellNavMetrics,
-              isSelected: selectedIndex == 0,
-              onTap: onMetricsNav,
-            ),
-            if (hasSessionsRoute)
-              DashboardChipButton(
-                key: const Key('dashboard-nav-sessions'),
-                label: l10n.shellNavSessions,
-                isSelected: selectedIndex == 1,
-                onTap: onSessionsNav,
+            for (var index = 0; index < entries.length; index++)
+              SizedBox(
+                width: constraints.maxWidth / columns,
+                child: Semantics(
+                  button: true,
+                  selected: entries[index].selected,
+                  child: Material(
+                    color: entries[index].selected
+                        ? dashboardSurfaceHighlightColor
+                        : dashboardBackgroundColor,
+                    child: InkWell(
+                      key: entries[index].key,
+                      onTap: entries[index].onTap,
+                      hoverColor: dashboardAccentColor.withValues(alpha: 0.08),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 58),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: entries[index].selected
+                                  ? dashboardAccentColor
+                                  : dashboardBorderColor,
+                              width: entries[index].selected ? 2 : 1,
+                            ),
+                            bottom: const BorderSide(
+                              color: dashboardBorderColor,
+                            ),
+                            left: const BorderSide(color: dashboardBorderColor),
+                            right: const BorderSide(
+                              color: dashboardBorderColor,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                entries[index].label,
+                                style: Theme.of(context).textTheme.labelLarge
+                                    ?.copyWith(
+                                      color: entries[index].selected
+                                          ? dashboardAccentColor
+                                          : dashboardPrimaryTextColor,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '0${index + 1}',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: dashboardSecondaryTextColor,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            if (hasExchangeRatesRoute)
-              DashboardChipButton(
-                key: const Key('dashboard-nav-exchange-rates'),
-                label: l10n.shellNavExchangeRates,
-                isSelected: selectedIndex == 2,
-                onTap: onExchangeRatesNav,
-              ),
-            DashboardChipButton(
-              key: const Key('dashboard-nav-state'),
-              label: l10n.shellNavState,
-              isSelected: selectedIndex == 3,
-              onTap: onStateNav,
-            ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -324,8 +426,8 @@ class DashboardShellFooter extends StatelessWidget {
               SvgPicture.asset(
                 DashboardBuildInfo.dashboardLogoAssetPath,
                 key: const Key('dashboard-shell-brand-logo'),
-                width: 16,
-                height: 16,
+                width: 80,
+                height: 27,
                 colorFilter: const ColorFilter.mode(
                   dashboardSecondaryTextColor,
                   BlendMode.srcIn,

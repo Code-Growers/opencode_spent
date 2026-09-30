@@ -37,47 +37,28 @@ class _DashboardChipButtonState extends State<DashboardChipButton> {
     final Color borderColor;
     final Color backgroundColor;
     final Color textColor;
-    final List<BoxShadow>? boxShadow;
 
     if (widget.isEmphasized) {
-      backgroundColor = widget.activeColor.withValues(alpha: 0.14);
-      borderColor = widget.activeColor.withValues(alpha: 0.64);
+      backgroundColor = Colors.transparent;
+      borderColor = widget.activeColor;
       textColor = widget.activeColor;
     } else if (widget.isSelected) {
-      backgroundColor = widget.activeColor.withValues(alpha: 0.16);
-      borderColor = widget.activeColor.withValues(alpha: 0.72);
-      textColor = dashboardPrimaryTextColor;
+      backgroundColor = dashboardSurfaceHighlightColor;
+      borderColor = widget.activeColor;
+      textColor = widget.activeColor;
     } else if (_isFocused) {
       backgroundColor = Colors.transparent;
       borderColor = dashboardAccentColor;
       textColor = dashboardPrimaryTextColor;
     } else if (_isHovered) {
-      backgroundColor = dashboardSurfaceHighlightColor;
+      backgroundColor = dashboardPrimaryTextColor;
       borderColor = dashboardPrimaryTextColor;
-      textColor = dashboardPrimaryTextColor;
+      textColor = dashboardBackgroundColor;
     } else {
       backgroundColor = Colors.transparent;
       borderColor = dashboardBorderColor;
       textColor = dashboardSecondaryTextColor;
     }
-
-    boxShadow = widget.isSelected || widget.isEmphasized
-        ? [
-            BoxShadow(
-              color: widget.activeColor.withValues(alpha: 0.24),
-              blurRadius: 18,
-              spreadRadius: -6,
-            ),
-          ]
-        : _isFocused
-        ? [
-            BoxShadow(
-              color: dashboardAccentColor.withValues(alpha: 0.35),
-              blurRadius: 16,
-              spreadRadius: -4,
-            ),
-          ]
-        : null;
 
     return Semantics(
       button: true,
@@ -88,7 +69,7 @@ class _DashboardChipButtonState extends State<DashboardChipButton> {
         child: InkWell(
           onTap: widget.onTap,
           autofocus: widget.autofocus,
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.zero,
           onHover: (hovered) => setState(() => _isHovered = hovered),
           onFocusChange: (focused) => setState(() => _isFocused = focused),
           mouseCursor: widget.onTap != null
@@ -100,17 +81,14 @@ class _DashboardChipButtonState extends State<DashboardChipButton> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: backgroundColor,
-              border: Border.all(color: borderColor),
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: boxShadow,
+              border: Border.all(color: borderColor, width: _isFocused ? 2 : 1),
+              borderRadius: BorderRadius.zero,
             ),
             child: Text(
               widget.label,
               style: textTheme.labelLarge?.copyWith(
                 color: textColor,
-                fontWeight: widget.isSelected || widget.isEmphasized
-                    ? FontWeight.bold
-                    : FontWeight.normal,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ),

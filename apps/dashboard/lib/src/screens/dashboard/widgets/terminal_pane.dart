@@ -29,7 +29,7 @@ class TerminalPane extends StatelessWidget {
           const SizedBox(height: 16),
           DashboardSurface(
             backgroundColor: dashboardBackgroundColor,
-            radius: 14,
+            radius: 0,
             padding: const EdgeInsets.all(16),
             child: SizedBox(
               width: double.infinity,
