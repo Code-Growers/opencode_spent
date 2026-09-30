@@ -12,8 +12,7 @@ RUN flutter config --enable-web
 RUN flutter pub get
 
 WORKDIR /app/apps/website
-RUN dart pub global activate jaspr_cli 0.23.1
-RUN dart pub global run jaspr_cli:jaspr build
+RUN sh ../../tool/build_website.sh
 
 WORKDIR /app/apps/dashboard
 RUN flutter build web --release --base-href /demo/

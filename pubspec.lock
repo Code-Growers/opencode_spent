@@ -33,14 +33,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  archive:
-    dependency: transitive
-    description:
-      name: archive
-      sha256: a96e8b390886ee8abb49b7bd3ac8df6f451c621619f52a26e815fdcf568959ff
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.9"
   args:
     dependency: transitive
     description:
@@ -73,14 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.5.0"
-  bazel_worker:
-    dependency: transitive
-    description:
-      name: bazel_worker
-      sha256: "87cae9150fcf9942b8057e5f51c4848a3efde1289e97411e1c8f01e350120999"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.5"
   bloc:
     dependency: transitive
     description:
@@ -121,14 +105,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.1"
-  build_modules:
-    dependency: transitive
-    description:
-      name: build_modules
-      sha256: "63c56d2663da4bba51c56825169a5356dd8401240241217c8eba711b2e12be5c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.12"
   build_runner:
     dependency: transitive
     description:
@@ -137,14 +113,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.15.0"
-  build_web_compilers:
-    dependency: transitive
-    description:
-      name: build_web_compilers
-      sha256: "8a8a3d18b6b341df6dc61a65beaabc89fcd7c68dc10b02777fc31a35ffb6efa4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.19"
   built_collection:
     dependency: transitive
     description:
@@ -521,34 +489,18 @@ packages:
     dependency: transitive
     description:
       name: jaspr
-      sha256: "0a27800a0ae8c9f5c606c278d29ce535bfddde00932aa2b56a67c2b0bd86fd80"
+      sha256: c4e7459389fadb3f48ed7c2d5165b000ad93f4aaa08f86a490eaf5d3b652bb3e
       url: "https://pub.dev"
     source: hosted
-    version: "0.23.1"
-  jaspr_builder:
-    dependency: transitive
-    description:
-      name: jaspr_builder
-      sha256: "1b591b686dde54fec4f23dbe3cce5493545c4ee303325ab371d2de916e808d3f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.23.1"
-  jaspr_tailwind:
-    dependency: transitive
-    description:
-      name: jaspr_tailwind
-      sha256: ecc9c1d43d16b11e1f194b25122b7c56df3232cf4c0cf2ada11cad575a7c842f
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.6"
+    version: "0.23.5"
   jaspr_test:
     dependency: transitive
     description:
       name: jaspr_test
-      sha256: "2d8903b08a4d2c1921eb284a0f0cb12537506e4d8c9be80f38e49554dc480c9c"
+      sha256: "59ab57ee4c4b5e955c94c8fd98da8aa80cf0cebf55736ec17b86dfa9ff8df1ca"
       url: "https://pub.dev"
     source: hosted
-    version: "0.23.1"
+    version: "0.23.5"
   jni:
     dependency: transitive
     description:
@@ -805,14 +757,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.2"
-  posix:
-    dependency: transitive
-    description:
-      name: posix
-      sha256: "185ef7606574f789b40f289c233efa52e96dead518aed988e040a10737febb07"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.5.0"
   process:
     dependency: transitive
     description:
@@ -901,14 +845,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.2.5"
-  scratch_space:
-    dependency: transitive
-    description:
-      name: scratch_space
-      sha256: "3417e014d20b12cebc5bfb1c0b1f63806054177158596cc31cc4d9aaca767a60"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   shared_preferences:
     dependency: transitive
     description:
@@ -1154,14 +1090,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1+1"
-  uuid:
-    dependency: transitive
-    description:
-      name: uuid
-      sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.5.3"
   vector_graphics:
     dependency: transitive
     description:
