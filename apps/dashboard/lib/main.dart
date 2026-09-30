@@ -27,8 +27,12 @@ void main() async {
 
   final settingsRepository = LocalSettingsRepository(keyValueStore);
   final realExchangeRateRepository = LocalExchangeRateRepository(database);
+  final pricingRepository = LocalPricingRepository(keyValueStore);
   final realSessionRepository = LocalOpenCodeSessionRepository(database);
-  final realMetricsRepository = LocalMetricsRepository(realSessionRepository);
+  final realMetricsRepository = LocalMetricsRepository(
+    realSessionRepository,
+    pricingRepository: pricingRepository,
+  );
 
   late final ExchangeRateRepository exchangeRateRepository;
   late final OpenCodeSessionRepository sessionRepository;
@@ -47,7 +51,10 @@ void main() async {
     mockSessionRepository = MockOpenCodeSessionRepository(
       buildDashboardMockSessions(now),
     );
-    final mockMetricsRepository = LocalMetricsRepository(mockSessionRepository);
+    final mockMetricsRepository = LocalMetricsRepository(
+      mockSessionRepository,
+      pricingRepository: pricingRepository,
+    );
 
     exchangeRateRepository = DelegatingExchangeRateRepository(
       realExchangeRateRepository,
@@ -135,6 +142,12 @@ void main() async {
     DemoModeScope(
       controller: demoModeController,
       child: OpenSpentApp(
+        localUsageSources: platform_support.createLocalUsageSources(
+          keyValueStore,
+          realSessionRepository,
+        ),
+        pricingRepository: pricingRepository,
+        pickSourceDirectory: platform_support.pickSourceDirectory,
         metricsService: metricsService,
         settingsRepository: settingsRepository,
         exchangeRatesDependencies: exchangeRatesDependencies,

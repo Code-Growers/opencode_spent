@@ -59,6 +59,37 @@ List<OpenCodeSession> buildDashboardMockSessions(DateTime now) {
         ? 0.18 + ((index % 8) * 0.04)
         : 0.09 + ((index % 8) * 0.025);
 
+    if (index % 3 != 0) {
+      final harness = index % 3 == 1
+          ? UsageHarness.claudeCode
+          : UsageHarness.codex;
+      final id = '${harness.name}:mock_session_$index';
+      return sessionFromEvents(
+        id: id,
+        harness: harness,
+        events: [
+          UsageEvent(
+            id: '${harness.name}:mock_response_$index',
+            sessionId: id,
+            timestamp: createdAt,
+            provider: harness == UsageHarness.codex ? 'openai' : 'anthropic',
+            model: harness == UsageHarness.codex
+                ? 'gpt-6.1-sol'
+                : 'claude-opus-5-5',
+            contextInputTokens: inputTokens,
+            tokens: TokenUsage(
+              input: inputTokens,
+              output: outputTokens,
+              cachedInput: 80,
+              cacheWrite: 40,
+              cacheWrite5m: 40,
+              cacheWrite1h: 0,
+              reasoning: 20,
+            ),
+          ),
+        ],
+      );
+    }
     return OpenCodeSession(
       id: 'mock_session_$index',
       createdAt: createdAt,
@@ -186,12 +217,24 @@ class DelegatingExchangeRateRepository implements ExchangeRateRepository {
   }) => _current.writeExchangeRates(rates, effectiveDate: effectiveDate);
 }
 
-class DelegatingMetricsRepository implements MetricsRepository {
+class DelegatingMetricsRepository implements HarnessMetricsRepository {
   DelegatingMetricsRepository(this.real, this.mock, this.controller);
 
   final MetricsRepository real;
   final MetricsRepository mock;
   final DemoModeController controller;
+
+  @override
+  Future<AggregatedMetrics> readHarnessMetrics({
+    DateTime? from,
+    DateTime? to,
+    required UsageHarness harness,
+  }) {
+    final repository = _current;
+    return repository is HarnessMetricsRepository
+        ? repository.readHarnessMetrics(from: from, to: to, harness: harness)
+        : repository.readMetrics(from: from, to: to);
+  }
 
   MetricsRepository get _current =>
       controller.value == DashboardDataMode.real ? real : mock;

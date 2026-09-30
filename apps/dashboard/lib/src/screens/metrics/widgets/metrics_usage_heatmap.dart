@@ -222,9 +222,9 @@ class _HeatmapGrid extends StatelessWidget {
                       label,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: dashboardSecondaryTextColor,
-                            fontSize: 9,
-                          ),
+                        color: dashboardSecondaryTextColor,
+                        fontSize: 9,
+                      ),
                     ),
                   ),
                 )
@@ -239,19 +239,26 @@ class _HeatmapGrid extends StatelessWidget {
             child: Row(
               children: List.generate(weekCount, (columnIndex) {
                 return Padding(
-                  padding: EdgeInsets.only(right: columnIndex == weekCount - 1 ? 0 : 4),
+                  padding: EdgeInsets.only(
+                    right: columnIndex == weekCount - 1 ? 0 : 4,
+                  ),
                   child: Column(
                     children: List.generate(7, (rowIndex) {
                       final paddedIndex = (columnIndex * 7) + rowIndex;
-                      final cell = paddedIndex < padded.length ? padded[paddedIndex] : null;
+                      final cell = paddedIndex < padded.length
+                          ? padded[paddedIndex]
+                          : null;
                       return Padding(
                         padding: EdgeInsets.only(bottom: rowIndex == 6 ? 0 : 4),
                         child: _HeatmapCell(
                           data: cell,
-                          isSelected: cell != null &&
+                          isSelected:
+                              cell != null &&
                               selectedDay != null &&
                               isSameUtcDay(cell.day, selectedDay!),
-                          onTap: cell == null ? null : () => onDaySelected(cell.day),
+                          onTap: cell == null
+                              ? null
+                              : () => onDaySelected(cell.day),
                         ),
                       );
                     }),
@@ -332,8 +339,8 @@ class _HeatmapCell extends StatelessWidget {
                 color: isSelected
                     ? dashboardPrimaryTextColor
                     : data!.level == 0
-                        ? dashboardBorderColor
-                        : _resolveColor(),
+                    ? dashboardBorderColor
+                    : _resolveColor(),
                 width: isSelected ? 1.5 : 1,
               ),
             ),
@@ -355,7 +362,9 @@ class _Legend extends StatelessWidget {
       children: [
         Text(
           l10n.metricsHeatmapLegendLow,
-          style: textTheme.bodySmall?.copyWith(color: dashboardSecondaryTextColor),
+          style: textTheme.bodySmall?.copyWith(
+            color: dashboardSecondaryTextColor,
+          ),
         ),
         const SizedBox(width: 8),
         for (final level in [0, 1, 2, 3, 4]) ...[
@@ -379,7 +388,9 @@ class _Legend extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           l10n.metricsHeatmapLegendHigh,
-          style: textTheme.bodySmall?.copyWith(color: dashboardSecondaryTextColor),
+          style: textTheme.bodySmall?.copyWith(
+            color: dashboardSecondaryTextColor,
+          ),
         ),
       ],
     );

@@ -18,10 +18,13 @@ import '../../sessions/import_selection.dart';
 import '../metrics/metrics_screen.dart';
 import '../metrics/metrics_utils.dart';
 import '../settings/settings_screen.dart';
+import '../settings/widgets/usage_sources_section.dart';
+import '../metrics/widgets/metrics_screen_sections.dart';
+import '../../usage/harness_filter.dart';
+import '../../theme/dashboard_colors.dart';
 import 'widgets/dashboard_shell_chrome.dart';
 import 'widgets/dashboard_shell_dialogs.dart';
 import 'widgets/dashboard_state_panel.dart';
-import 'widgets/dashboard_surface.dart';
 
 enum ServerProbeState { unknown, disconnected, connected, error }
 
@@ -91,6 +94,7 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   int _sessionsRevision = 0;
   int _exchangeRatesRevision = 0;
   int _windowUpdateSerial = 0;
+  UsageHarness? _selectedHarness;
   String? _selectedModelFilter;
   DateTime? _selectedDay;
   int? _selectedUtcHour;
@@ -156,7 +160,38 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
 
     _didInitializeScopeState = true;
     _loadSettings();
+    _refreshLocalSources();
   }
+
+  Future<void> _refreshLocalSources() async {
+    final sources = OpenSpentAppScope.of(context).localUsageSources;
+    if (sources == null || _isMockDataMode) return;
+    try {
+      await sources.refresh();
+    } catch (_) {
+      /* Source status contains sanitized failures. */
+    }
+    if (mounted) _usageChanged();
+  }
+
+  void _usageChanged() {
+    if (!mounted) return;
+    setState(() => _sessionsRevision++);
+    _invalidateMetrics(reloadExchangeRates: true);
+  }
+
+  Widget _harnessFilter() => HarnessFilter(
+    selected: _selectedHarness,
+    onSelected: (harness) {
+      setState(() {
+        _selectedHarness = harness;
+        _selectedModelFilter = null;
+        _selectedDay = null;
+        _selectedUtcHour = null;
+        _metricsRevision++;
+      });
+    },
+  );
 
   void _onDemoModeChanged() {
     if (!mounted) {
@@ -459,6 +494,14 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     await _showDashboardDialog(
       keyValue: 'settings-modal-overlay',
       child: SettingsScreen(
+        bounded: true,
+        localUsageSources: _isMockDataMode
+            ? null
+            : OpenSpentAppScope.of(context).localUsageSources,
+        pricingRepository: OpenSpentAppScope.of(context).pricingRepository,
+        sessionRepository: _sessionsDependencies?.localRepository,
+        pickSourceDirectory: OpenSpentAppScope.of(context).pickSourceDirectory,
+        onUsageChanged: _usageChanged,
         settingsRepository: _settingsRepository!,
         currentSettings: _settings,
         onSettingsSaved: (settings) async {
@@ -499,9 +542,15 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
                 ),
               ),
               Center(
-                child: SingleChildScrollView(
+                child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: KeyedSubtree(key: Key(keyValue), child: child),
+                  child:
+                      keyValue == 'settings-modal-overlay' ||
+                          keyValue == 'help-modal-overlay'
+                      ? KeyedSubtree(key: Key(keyValue), child: child)
+                      : SingleChildScrollView(
+                          child: KeyedSubtree(key: Key(keyValue), child: child),
+                        ),
                 ),
               ),
             ],
@@ -590,34 +639,42 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
   Widget _buildMetricsContent() {
     return SingleChildScrollView(
       key: const Key('metrics-scroll-view'),
-      child: MetricsScreen(
-        metricsService: _metricsService,
-        metricsRevision: _metricsRevision,
-        selectedCurrency: _effectiveSettings.selectedCurrency,
-        selectedModelFilter: _selectedModelFilter,
-        selectedDay: _selectedDay,
-        selectedWindow: _selectedWindow,
-        onWindowSelected: _handleWindowChanged,
-        onCustomWindowRequested: _handleCustomWindowRequested,
-        from: _windowFrom,
-        to: _windowTo,
-        onModelSelected: (model) {
-          setState(() {
-            _selectedModelFilter = model;
-          });
-        },
-        onDaySelected: (day) {
-          setState(() {
-            _selectedDay = day;
-            _selectedUtcHour = null;
-          });
-        },
-        selectedUtcHour: _selectedUtcHour,
-        onHourSelected: (hour) {
-          setState(() {
-            _selectedUtcHour = _selectedUtcHour == hour ? null : hour;
-          });
-        },
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _harnessFilter(),
+          MetricsScreen(
+            harness: _selectedHarness,
+            metricsService: _metricsService,
+            metricsRevision: _metricsRevision,
+            selectedCurrency: _effectiveSettings.selectedCurrency,
+            selectedModelFilter: _selectedModelFilter,
+            selectedDay: _selectedDay,
+            selectedWindow: _selectedWindow,
+            onWindowSelected: _handleWindowChanged,
+            onCustomWindowRequested: _handleCustomWindowRequested,
+            from: _windowFrom,
+            to: _windowTo,
+            onModelSelected: (model) {
+              setState(() {
+                _selectedModelFilter = model;
+              });
+            },
+            onDaySelected: (day) {
+              setState(() {
+                _selectedDay = day;
+                _selectedUtcHour = null;
+              });
+            },
+            selectedUtcHour: _selectedUtcHour,
+            onHourSelected: (hour) {
+              setState(() {
+                _selectedUtcHour = _selectedUtcHour == hour ? null : hour;
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -631,26 +688,49 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     }
 
     return SingleChildScrollView(
-      child: SessionsScreen(
-        dependencies: sessionsDependencies,
-        dataRevision: _sessionsRevision,
-        serverSettings: _effectiveSettings,
-        isConnected:
-            _isMockDataMode || _probeState == ServerProbeState.connected,
-        pickImportSource: pickImportSource,
-        selectedModelFilter: _selectedModelFilter,
-        selectedDay: _selectedDay,
-        selectedUtcHour: _selectedUtcHour,
-        onClearModelFilter: () {
-          setState(() {
-            _selectedModelFilter = null;
-          });
-        },
-        windowFrom: _windowFrom,
-        windowTo: _windowTo,
-        onDataChanged: () {
-          _invalidateMetrics(reloadExchangeRates: true);
-        },
+      key: const PageStorageKey('sessions-scroll-view'),
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _harnessFilter(),
+          MetricsWindowControls(
+            selectedWindow: _selectedWindow,
+            onWindowSelected: _handleWindowChanged,
+            onCustomWindowRequested: _handleCustomWindowRequested,
+          ),
+          MetricsVisibleWindowLine(
+            selectedWindow: _selectedWindow,
+            from: _windowFrom,
+            to: _windowTo,
+          ),
+          const SizedBox(height: 16),
+          SessionsScreen(
+            selectedHarness: _selectedHarness,
+            pricingRepository: OpenSpentAppScope.of(context).pricingRepository,
+            dependencies: sessionsDependencies,
+            dataRevision: _sessionsRevision,
+            serverSettings: _effectiveSettings,
+            isConnected:
+                _isMockDataMode || _probeState == ServerProbeState.connected,
+            pickImportSource: pickImportSource,
+            selectedModelFilter: _selectedModelFilter,
+            selectedDay: _selectedDay,
+            selectedUtcHour: _selectedUtcHour,
+            onClearModelFilter: () {
+              setState(() {
+                _selectedModelFilter = null;
+                _selectedDay = null;
+                _selectedUtcHour = null;
+              });
+            },
+            windowFrom: _windowFrom,
+            windowTo: _windowTo,
+            onDataChanged: () {
+              _invalidateMetrics(reloadExchangeRates: true);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -662,6 +742,8 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
     }
 
     return SingleChildScrollView(
+      key: const PageStorageKey('exchange-rates-scroll-view'),
+      padding: const EdgeInsets.only(bottom: 24),
       child: ExchangeRatesScreen(
         dependencies: dependencies,
         exchangeRatesRevision: _exchangeRatesRevision,
@@ -697,14 +779,32 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
       ServerProbeState.unknown => l10n.statusProbeUnknown,
     };
 
-    return DashboardStatePanel(
-      isMockData: _isMockDataMode,
-      settingsLoaded: _settingsLoaded,
-      serverLabel: serverLabel,
-      probeState: _probeState,
-      displayProbe: displayProbe,
-      demoModeController: demoModeController,
-      allowlistCount: OpenSpentInfo.persistedMetadataAllowlist.length,
+    return SingleChildScrollView(
+      key: const PageStorageKey('state-scroll-view'),
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DashboardStatePanel(
+            isMockData: _isMockDataMode,
+            settingsLoaded: _settingsLoaded,
+            serverLabel: serverLabel,
+            probeState: _probeState,
+            displayProbe: displayProbe,
+            demoModeController: demoModeController,
+            allowlistCount: OpenSpentInfo.persistedMetadataAllowlist.length,
+          ),
+          if (!_isMockDataMode) ...[
+            const SizedBox(height: 24),
+            UsageSourcesSection(
+              key: ValueKey(_sessionsRevision),
+              sources: OpenSpentAppScope.of(context).localUsageSources,
+              pickDirectory: OpenSpentAppScope.of(context).pickSourceDirectory,
+              onChanged: _usageChanged,
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -733,114 +833,127 @@ class _DashboardShellScreenState extends State<DashboardShellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final selectedIndex = _resolveNavIndex(context);
-
-            final shellScopeData = _buildShellScopeData();
-
+            final wide = constraints.maxWidth >= 1180;
+            final gutter = constraints.maxWidth < 640 ? 12.0 : 24.0;
+            final titles = [
+              l10n.shellNavMetrics,
+              l10n.shellNavSessions,
+              l10n.shellNavExchangeRates,
+              l10n.shellNavState,
+            ];
+            final purposes = [
+              l10n.overviewPurpose,
+              l10n.sessionsPurpose,
+              l10n.exchangePurpose,
+              l10n.sourcesPurpose,
+            ];
+            final nav = DashboardShellNav(
+              vertical: wide,
+              selectedIndex: selectedIndex,
+              hasSessionsRoute: _hasSessionsRoute,
+              hasExchangeRatesRoute: _hasExchangeRatesRoute,
+              onMetricsNav: () =>
+                  context.navigateTo(const DashboardMetricsRoute()),
+              onSessionsNav: () =>
+                  context.navigateTo(const DashboardSessionsRoute()),
+              onExchangeRatesNav: () =>
+                  context.navigateTo(const DashboardExchangeRatesRoute()),
+              onStateNav: () => context.navigateTo(const DashboardStateRoute()),
+            );
+            final content = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: constraints.maxHeight < 600 ? 8 : 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          titles[selectedIndex],
+                          key: const Key('dashboard-page-title'),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                color: dashboardAccentColor,
+                                fontSize: 26,
+                              ),
+                        ),
+                      ),
+                      if (constraints.maxHeight >= 600) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          purposes[selectedIndex],
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SizedBox(
+                    key: const Key('dashboard-shell-route-area'),
+                    width: double.infinity,
+                    child: _DashboardShellScope(
+                      data: _buildShellScopeData(),
+                      // Confine the child navigator's semantic modal barrier
+                      // to its content, keeping shell navigation accessible.
+                      child: Semantics(
+                        container: true,
+                        explicitChildNodes: true,
+                        child: const AutoRouter(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1600),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        DashboardSpacing.shellGutter,
-                        DashboardSpacing.shellGutter,
-                        DashboardSpacing.shellGutter,
-                        0,
-                      ),
-                      child: DashboardShellHeader(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(gutter, gutter, gutter, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      DashboardShellHeader(
                         hasSettingsRoute: _hasSettingsRoute,
+                        isMockData: _isMockDataMode,
+                        onModeChanged: _demoModeController?.toggle,
                         onHelpPressed: _openHelpDialog,
                         onSettingsPressed: _openSettingsDialog,
                       ),
-                    ),
-                    Expanded(
-                      child: NestedScrollView(
-                        key: const Key('dashboard-shell-scroll-view'),
-                        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                          const SliverToBoxAdapter(
-                            child: SizedBox(
-                              height: DashboardSpacing.shellGutter,
-                            ),
-                          ),
-                          const SliverPadding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: DashboardSpacing.shellGutter,
-                            ),
-                            sliver: SliverToBoxAdapter(
-                              child: DashboardShellHero(),
-                            ),
-                          ),
-                          const SliverToBoxAdapter(
-                            child: SizedBox(
-                              height: DashboardSpacing.shellGutter,
-                            ),
-                          ),
-                          SliverPadding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: DashboardSpacing.shellGutter,
-                            ),
-                            sliver: SliverToBoxAdapter(
-                              child: DashboardShellNav(
-                                selectedIndex: selectedIndex,
-                                hasSessionsRoute: _hasSessionsRoute,
-                                hasExchangeRatesRoute: _hasExchangeRatesRoute,
-                                onMetricsNav: () => context.navigateTo(
-                                  const DashboardMetricsRoute(),
-                                ),
-                                onSessionsNav: () => context.navigateTo(
-                                  const DashboardSessionsRoute(),
-                                ),
-                                onExchangeRatesNav: () => context.navigateTo(
-                                  const DashboardExchangeRatesRoute(),
-                                ),
-                                onStateNav: () => context.navigateTo(
-                                  const DashboardStateRoute(),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                        ],
-                        body: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: DashboardSpacing.shellGutter,
-                                ),
-                                child: SizedBox(
-                                  key: const Key('dashboard-shell-route-area'),
-                                  width: double.infinity,
-                                  child: _DashboardShellScope(
-                                    data: shellScopeData,
-                                    child: const AutoRouter(),
+                      if (!wide) ...[const SizedBox(height: 12), nav],
+                      Expanded(
+                        child: wide
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 210,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: nav,
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: DashboardSpacing.shellGutter,
-                              ),
-                              child: DashboardShellFooter(),
-                            ),
-                            const SizedBox(
-                              height: DashboardSpacing.shellGutter,
-                            ),
-                          ],
-                        ),
+                                  const SizedBox(width: 24),
+                                  Expanded(child: content),
+                                ],
+                              )
+                            : content,
                       ),
-                    ),
-                  ],
+                      const Divider(height: 16, color: dashboardBorderColor),
+                      const DashboardShellFooter(),
+                    ],
+                  ),
                 ),
               ),
             );

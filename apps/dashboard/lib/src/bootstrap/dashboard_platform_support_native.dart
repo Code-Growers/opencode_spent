@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:openspent_core/openspent_core.dart';
 import 'package:openspent_local/openspent_local_native.dart';
 import 'package:path/path.dart' as p;
@@ -52,3 +52,34 @@ importedSqliteBytesRepositoryFactory;
 bool _isJsonFile(String fileName) {
   return p.extension(fileName).toLowerCase() == '.json';
 }
+
+const _usageFolderChannel = MethodChannel('openspent/local_usage_folders');
+LocalUsageSources? createLocalUsageSources(
+  KeyValueStore store,
+  OpenCodeSessionRepository repository,
+) => NativeLocalUsageSources(
+  store: store,
+  sessions: repository,
+  resolveHomeDirectory: Platform.isMacOS
+      ? () => _usageFolderChannel.invokeMethod<String>('homeDirectory')
+      : null,
+  restoreDirectoryAccess: Platform.isMacOS
+      ? (directories) async {
+          await _usageFolderChannel.invokeMethod<void>(
+            'restoreAccess',
+            directories,
+          );
+        }
+      : null,
+  releaseDirectoryAccess: Platform.isMacOS
+      ? (directories, retained) async {
+          await _usageFolderChannel.invokeMethod<void>('releaseAccess', {
+            'directories': directories,
+            'retained': retained,
+          });
+        }
+      : null,
+);
+Future<String?> pickSourceDirectory() => Platform.isMacOS
+    ? _usageFolderChannel.invokeMethod<String>('pickDirectory')
+    : FilePicker.platform.getDirectoryPath();

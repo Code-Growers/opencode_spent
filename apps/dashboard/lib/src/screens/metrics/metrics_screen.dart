@@ -12,6 +12,7 @@ import 'widgets/metrics_usage_heatmap.dart';
 import '../dashboard/widgets/dashboard_surface.dart';
 import 'widgets/metrics_screen_sections.dart';
 import 'widgets/metrics_text_summary.dart';
+import 'widgets/harness_usage_panel.dart';
 
 class MetricsScreen extends StatefulWidget {
   const MetricsScreen({
@@ -28,6 +29,7 @@ class MetricsScreen extends StatefulWidget {
     required this.selectedWindow,
     required this.onWindowSelected,
     required this.onCustomWindowRequested,
+    this.harness,
     this.from,
     this.to,
   });
@@ -44,6 +46,7 @@ class MetricsScreen extends StatefulWidget {
   final TimeWindow selectedWindow;
   final ValueChanged<TimeWindow> onWindowSelected;
   final VoidCallback onCustomWindowRequested;
+  final UsageHarness? harness;
   final DateTime? from;
   final DateTime? to;
 
@@ -59,7 +62,11 @@ class _MetricsScreenState extends State<MetricsScreen> {
   bool _pendingMissingModelFilterClear = false;
 
   void _loadMetrics() {
-    _metricsCubit.load(from: widget.from, to: widget.to);
+    _metricsCubit.load(
+      from: widget.from,
+      to: widget.to,
+      harness: widget.harness,
+    );
   }
 
   @override
@@ -76,7 +83,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
       _metricsCubit.close();
       _metricsCubit = MetricsCubit(metricsService: widget.metricsService);
       _loadMetrics();
-    } else if (oldWidget.metricsRevision != widget.metricsRevision ||
+    } else if (oldWidget.harness != widget.harness ||
+        oldWidget.metricsRevision != widget.metricsRevision ||
         oldWidget.from != widget.from ||
         oldWidget.to != widget.to ||
         oldWidget.selectedCurrency != widget.selectedCurrency) {
@@ -258,6 +266,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
                       displayCurrency: displayCurrency,
                     ),
                   ),
+                  const SizedBox(height: 24),
+                  HarnessUsagePanel(metrics: metrics),
                   const SizedBox(height: 24),
                   MetricsUsageHeatmap(
                     visibleDays: visibleDays,

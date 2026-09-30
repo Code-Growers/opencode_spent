@@ -128,6 +128,15 @@ OpenCodeSession _mapSessionRow(Row row, List<_SessionMessage> messages) {
     (sum, message) => sum + message.toolCallCount,
   );
   final responseCount = assistantMessages.length;
+  final tokenUsage = assistantMessages.any((m) => m.tokenUsage != null)
+      ? TokenUsage.sum(
+          assistantMessages.map(
+            (m) =>
+                m.tokenUsage ??
+                TokenUsage(input: m.inputTokens, output: m.outputTokens),
+          ),
+        )
+      : null;
   final inputTokens = _sumAssistantInts(
     assistantMessages,
     (message) => message.inputTokens,
@@ -146,9 +155,10 @@ OpenCodeSession _mapSessionRow(Row row, List<_SessionMessage> messages) {
   return OpenCodeSession(
     id: id,
     createdAt: createdAt,
+    tokenUsage: tokenUsage,
     provider: latestAssistant.provider,
     modelName: latestAssistant.modelName,
-    inputTokens: inputTokens,
+    inputTokens: tokenUsage?.input ?? inputTokens,
     outputTokens: outputTokens,
     totalCostUsd: totalCostUsd,
     requestCount: requestCount,
@@ -248,7 +258,8 @@ List<SessionUsageSlice> _buildUsageSlices(
     );
     usageSlice.responseCount += 1;
     usageSlice.toolCallCount += message.toolCallCount;
-    usageSlice.addInputTokens(message.inputTokens);
+    usageSlice.addTokenUsage(message.tokenUsage);
+    usageSlice.addInputTokens(message.tokenUsage?.input ?? message.inputTokens);
     usageSlice.addOutputTokens(message.outputTokens);
     usageSlice.addTotalCostUsd(message.totalCostUsd);
 
@@ -348,6 +359,7 @@ final class _SessionMessage {
     required this.role,
     required this.createdAt,
     required this.toolCallCount,
+    this.tokenUsage,
     this.provider,
     this.modelName,
     required this.inputTokens,
@@ -359,6 +371,7 @@ final class _SessionMessage {
   final String role;
   final DateTime createdAt;
   final int toolCallCount;
+  final TokenUsage? tokenUsage;
   final String? provider;
   final String? modelName;
   final int? inputTokens;
@@ -422,6 +435,7 @@ final class _SessionMessage {
     }
 
     return _SessionMessage(
+      tokenUsage: readOpenCodeTokenUsage(decoded['tokens']),
       messageId: messageId,
       role: role,
       createdAt: _parseUnixMillisecondsUtc(
@@ -514,6 +528,8 @@ final class _MutableUsageSlice {
 
   final String provider;
   final String modelName;
+  final List<TokenUsage?> _tokens = [];
+  void addTokenUsage(TokenUsage? value) => _tokens.add(value);
   int? _inputTokens = 0;
   int? _outputTokens = 0;
   double? _totalCostUsd = 0;
@@ -552,6 +568,9 @@ final class _MutableUsageSlice {
 
   SessionUsageSlice build() {
     return SessionUsageSlice(
+      tokenUsage: _tokens.any((u) => u != null)
+          ? TokenUsage.sum(_tokens.map((u) => u ?? const TokenUsage()))
+          : null,
       provider: provider,
       modelName: modelName,
       inputTokens: _inputTokens,

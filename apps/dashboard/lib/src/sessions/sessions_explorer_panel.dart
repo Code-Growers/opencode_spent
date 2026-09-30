@@ -11,6 +11,7 @@ import '../theme/dashboard_colors.dart';
 import '../screens/dashboard/widgets/dashboard_chip_button.dart';
 import '../screens/dashboard/widgets/dashboard_surface.dart';
 import 'import_selection.dart';
+import '../usage/harness_labels.dart';
 
 const _backgroundColor = dashboardBackgroundColor;
 const _borderColor = dashboardBorderColor;
@@ -54,10 +55,6 @@ DateTime _normalizeUtcDay(DateTime value) {
   return DateTime.utc(utc.year, utc.month, utc.day);
 }
 
-bool _isSameUtcDay(DateTime left, DateTime right) {
-  return _normalizeUtcDay(left) == _normalizeUtcDay(right);
-}
-
 String _searchableIsoTimestamp(DateTime value) {
   final iso = value.toUtc().toIso8601String();
   return iso.replaceFirst(RegExp(r'\.000Z$'), 'Z');
@@ -97,6 +94,9 @@ class SessionsExplorerPanel extends StatefulWidget {
     required this.isConnected,
     required this.onDataChanged,
     required this.pickImportSource,
+    this.dataRevision = 0,
+    this.selectedHarness,
+    this.pricingRepository,
     this.selectedModelFilter,
     this.selectedDay,
     this.selectedUtcHour,
@@ -110,6 +110,9 @@ class SessionsExplorerPanel extends StatefulWidget {
   final bool isConnected;
   final VoidCallback onDataChanged;
   final Future<ImportSelection?> Function() pickImportSource;
+  final int dataRevision;
+  final UsageHarness? selectedHarness;
+  final PricingRepository? pricingRepository;
   final String? selectedModelFilter;
   final DateTime? selectedDay;
   final int? selectedUtcHour;
@@ -122,6 +125,59 @@ class SessionsExplorerPanel extends StatefulWidget {
 }
 
 class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
+  @override
+  void didUpdateWidget(covariant SessionsExplorerPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedHarness != widget.selectedHarness ||
+        oldWidget.selectedModelFilter != widget.selectedModelFilter ||
+        oldWidget.selectedDay != widget.selectedDay ||
+        oldWidget.selectedUtcHour != widget.selectedUtcHour ||
+        oldWidget.windowFrom != widget.windowFrom ||
+        oldWidget.windowTo != widget.windowTo ||
+        oldWidget.dataRevision != widget.dataRevision) {
+      _page = 0;
+    }
+    if (oldWidget.dataRevision != widget.dataRevision ||
+        oldWidget.pricingRepository != widget.pricingRepository) {
+      _loadPricing();
+    }
+  }
+
+  String _sessionEstimateLabel(OpenCodeSession session, AppLocalizations l) {
+    final estimates = usageEventsForPricing(
+      session,
+    ).map(_pricing.estimate).toList();
+    final known = estimates.where((e) => e.usd != null).toList();
+    final value = known.isEmpty
+        ? l.usageUnknown
+        : 'USD ${known.fold<double>(0, (a, e) => a + e.usd!).toStringAsFixed(4)}';
+    return '${l.usageApiEstimate}: $value · ${l.usagePricingCoverage(known.length, estimates.length)}';
+  }
+
+  PricingConfig _pricing = PricingConfig();
+  Future<void> _loadPricing() async {
+    final pricing =
+        await widget.pricingRepository?.readPricing() ?? PricingConfig();
+    if (mounted) setState(() => _pricing = pricing);
+  }
+
+  static const _pageSize = 25;
+  int _page = 0;
+  final _listHeaderKey = GlobalKey();
+
+  void _changePage(int page) {
+    setState(() => _page = page);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final headerContext = _listHeaderKey.currentContext;
+      if (mounted && headerContext != null) {
+        Scrollable.ensureVisible(
+          headerContext,
+          duration: const Duration(milliseconds: 180),
+        );
+      }
+    });
+  }
+
   String? _statusMessage;
   _SessionSort _sortMode = _SessionSort.latest;
 
@@ -132,9 +188,11 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
   @override
   void initState() {
     super.initState();
+    _loadPricing();
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.trim();
+        _page = 0;
       });
     });
   }
@@ -264,33 +322,40 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
         final rawSessions = state.sessions;
         var sessions = rawSessions.toList();
 
-        if (selectedModelFilter != null) {
-          sessions = sessions.where((s) {
-            return _normalizeModelName(s.modelName) == selectedModelFilter;
-          }).toList();
+        final day = widget.selectedDay == null
+            ? null
+            : _normalizeUtcDay(widget.selectedDay!);
+        var from = day ?? widget.windowFrom;
+        var to =
+            day
+                ?.add(const Duration(days: 1))
+                .subtract(const Duration(microseconds: 1)) ??
+            widget.windowTo;
+        if (widget.windowFrom != null &&
+            (from == null || from.isBefore(widget.windowFrom!))) {
+          from = widget.windowFrom;
         }
-
-        if (widget.windowFrom != null && widget.windowTo != null) {
-          final from = widget.windowFrom!;
-          final to = widget.windowTo!;
-          sessions = sessions.where((s) {
-            final d = _normalizeUtcDay(s.createdAt);
-            return (d.isAfter(from) || _isSameUtcDay(d, from)) &&
-                (d.isBefore(to) || _isSameUtcDay(d, to));
-          }).toList();
+        if (widget.windowTo != null &&
+            (to == null || to.isAfter(widget.windowTo!))) {
+          to = widget.windowTo;
         }
-
-        if (widget.selectedDay != null) {
-          sessions = sessions.where((s) {
-            return _isSameUtcDay(s.createdAt, widget.selectedDay!);
-          }).toList();
-        }
-
-        if (hasActiveHourFilter) {
-          sessions = sessions.where((s) {
-            return s.createdAt.toUtc().hour == widget.selectedUtcHour;
-          }).toList();
-        }
+        sessions = sessions
+            .where(
+              (s) =>
+                  widget.selectedHarness == null ||
+                  s.harness == widget.selectedHarness,
+            )
+            .map(
+              (s) => selectSessionUsage(
+                s,
+                from: from,
+                to: to,
+                model: selectedModelFilter,
+                utcHour: hasActiveHourFilter ? widget.selectedUtcHour : null,
+              ),
+            )
+            .whereType<OpenCodeSession>()
+            .toList();
 
         if (_searchQuery.isNotEmpty) {
           final query = _searchQuery.toLowerCase();
@@ -359,6 +424,13 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
         }
 
         final topSessions = sessions.take(3).toList();
+        final pageCount = ((sessions.length + _pageSize - 1) ~/ _pageSize)
+            .clamp(1, 1 << 30);
+        final page = _page.clamp(0, pageCount - 1);
+        final pageSessions = sessions
+            .skip(page * _pageSize)
+            .take(_pageSize)
+            .toList();
 
         Widget buildSessionRow(
           OpenCodeSession session,
@@ -367,9 +439,10 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
         }) {
           final tokens =
               (session.inputTokens ?? 0) + (session.outputTokens ?? 0);
-          final sessionId = session.id.length > 8
-              ? session.id.substring(0, 8)
-              : session.id;
+          final opaqueId = session.id.split(':').last;
+          final sessionId = opaqueId.length > 8
+              ? opaqueId.substring(0, 8)
+              : opaqueId;
           final modelName =
               session.modelName ?? l10n.sessionsExplorerUnknownModel;
 
@@ -393,11 +466,32 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                       ),
                     ),
                     Text(
-                      'USD ${(session.totalCostUsd ?? 0).toStringAsFixed(4)}',
+                      '${l10n.usageReportedCost}: ${session.totalCostUsd == null ? l10n.usageUnknown : 'USD ${session.totalCostUsd!.toStringAsFixed(4)}'}',
                       style: textTheme.bodyLarge,
                     ),
                   ],
                 ),
+                Text(harnessLabel(session.harness)),
+                if (session.usageEvents.isNotEmpty ||
+                    session.tokenUsage != null) ...[
+                  Text(
+                    '${l10n.usageInput}: ${session.tokens.input ?? l10n.usageUnknown} · '
+                    '${l10n.usageOutput}: ${session.tokens.output ?? l10n.usageUnknown}',
+                  ),
+                  Text(
+                    '${l10n.usageCacheRead}: ${session.tokens.cachedInput ?? l10n.usageUnknown} · '
+                    '${l10n.usageCacheWrite}: ${session.tokens.cacheWrite ?? l10n.usageUnknown}',
+                  ),
+                  Text(
+                    '${l10n.usageReasoning}: ${session.tokens.reasoning ?? l10n.usageUnknown}',
+                  ),
+                  if (session.tokens.cacheWrite5m != null ||
+                      session.tokens.cacheWrite1h != null)
+                    Text(
+                      '${l10n.usageCacheWrite}: 5m ${session.tokens.cacheWrite5m ?? l10n.usageUnknown} · 1h ${session.tokens.cacheWrite1h ?? l10n.usageUnknown}',
+                    ),
+                  Text(_sessionEstimateLabel(session, l10n)),
+                ],
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -437,7 +531,6 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
 
         return LayoutBuilder(
           builder: (context, constraints) {
-            final isBounded = constraints.hasBoundedHeight;
             final isDesktop = constraints.maxWidth >= 1100;
 
             Widget listContent = DashboardSurface(
@@ -461,19 +554,24 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                         ),
                       ),
                     )
-                  : ListView.separated(
+                  : Column(
                       key: const Key("sessions-list"),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: sessions.length,
-                      separatorBuilder: (_, index) =>
-                          const Divider(height: 1, color: _borderColor),
-                      itemBuilder: (context, index) {
-                        return buildSessionRow(sessions[index], index);
-                      },
+                      children: [
+                        for (
+                          var index = 0;
+                          index < pageSessions.length;
+                          index++
+                        ) ...[
+                          if (index > 0)
+                            const Divider(height: 1, color: _borderColor),
+                          buildSessionRow(pageSessions[index], index),
+                        ],
+                      ],
                     ),
             );
 
             Widget listToolbar = DashboardSurface(
+              key: _listHeaderKey,
               padding: const EdgeInsets.all(12),
               child: Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
@@ -481,6 +579,39 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                 runSpacing: 16,
                 alignment: WrapAlignment.spaceBetween,
                 children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      DashboardChipButton(
+                        key: const Key("sessions-sort-latest"),
+                        label: l10n.sessionsSortLatest,
+                        isSelected: _sortMode == _SessionSort.latest,
+                        onTap: () => setState(() {
+                          _sortMode = _SessionSort.latest;
+                          _page = 0;
+                        }),
+                      ),
+                      DashboardChipButton(
+                        key: const Key("sessions-sort-cost"),
+                        label: l10n.sessionsSortCost,
+                        isSelected: _sortMode == _SessionSort.cost,
+                        onTap: () => setState(() {
+                          _sortMode = _SessionSort.cost;
+                          _page = 0;
+                        }),
+                      ),
+                      DashboardChipButton(
+                        key: const Key("sessions-sort-tokens"),
+                        label: l10n.sessionsSortTokens,
+                        isSelected: _sortMode == _SessionSort.tokens,
+                        onTap: () => setState(() {
+                          _sortMode = _SessionSort.tokens;
+                          _page = 0;
+                        }),
+                      ),
+                    ],
+                  ),
                   Text(
                     l10n.sessionsListHeader,
                     key: const Key("sessions-list-header"),
@@ -557,10 +688,36 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
               children: [
                 listToolbar,
                 const SizedBox(height: 8),
-                if (isBounded)
-                  Expanded(child: listContent)
-                else
-                  SizedBox(height: 500, child: listContent),
+                listContent,
+                if (pageCount > 1)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          l10n.sessionsPage(page + 1, pageCount),
+                          key: const Key('sessions-page-label'),
+                        ),
+                        OutlinedButton(
+                          key: const Key('sessions-previous-page'),
+                          onPressed: page > 0
+                              ? () => _changePage(page - 1)
+                              : null,
+                          child: Text(l10n.previousPage),
+                        ),
+                        OutlinedButton(
+                          key: const Key('sessions-next-page'),
+                          onPressed: page + 1 < pageCount
+                              ? () => _changePage(page + 1)
+                              : null,
+                          child: Text(l10n.nextPage),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             );
 
@@ -683,11 +840,11 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                               ],
                             ),
                           ),
-                          if (selectedModelFilterLabel != null) ...[
+                          if (widget.onClearModelFilter != null) ...[
                             const SizedBox(width: 12),
                             DashboardChipButton(
                               key: const Key("sessions-clear-filter"),
-                              label: l10n.clearFilterAction,
+                              label: l10n.clearScopeFilters,
                               onTap: widget.onClearModelFilter,
                             ),
                           ],
@@ -803,61 +960,7 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isNarrow = constraints.maxWidth < 450;
-                        final titleWidget = Text(
-                          "-- TOP SESSIONS --",
-                          style: textTheme.bodyMedium,
-                        );
-                        final buttonsWidget = Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            DashboardChipButton(
-                              key: const Key("sessions-sort-latest"),
-                              label: "[ LATEST ]",
-                              isSelected: _sortMode == _SessionSort.latest,
-                              onTap: () => setState(
-                                () => _sortMode = _SessionSort.latest,
-                              ),
-                            ),
-                            DashboardChipButton(
-                              key: const Key("sessions-sort-cost"),
-                              label: "[ COST ]",
-                              isSelected: _sortMode == _SessionSort.cost,
-                              onTap: () =>
-                                  setState(() => _sortMode = _SessionSort.cost),
-                            ),
-                            DashboardChipButton(
-                              key: const Key("sessions-sort-tokens"),
-                              label: "[ TOKENS ]",
-                              isSelected: _sortMode == _SessionSort.tokens,
-                              onTap: () => setState(
-                                () => _sortMode = _SessionSort.tokens,
-                              ),
-                            ),
-                          ],
-                        );
-
-                        if (isNarrow) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              titleWidget,
-                              const SizedBox(height: 12),
-                              buttonsWidget,
-                            ],
-                          );
-                        } else {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [titleWidget, buttonsWidget],
-                          );
-                        }
-                      },
-                    ),
+                    Text("-- TOP SESSIONS --", style: textTheme.bodyMedium),
                     const SizedBox(height: 8),
                     !isDesktop
                         ? Column(
@@ -957,8 +1060,6 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
               key: const Key("sessions-sidebar-column"),
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                sidebarSummary,
-                const SizedBox(height: 8),
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
@@ -969,7 +1070,7 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
               ],
             );
 
-            return DashboardSurface(
+            final panel = DashboardSurface(
               key: const Key("sessions-panel"),
               padding: const EdgeInsets.all(
                 DashboardSpacing.primaryPanelPadding,
@@ -977,12 +1078,17 @@ class _SessionsExplorerPanelState extends State<SessionsExplorerPanel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  sidebarColumn,
+                  sidebarSummary,
                   const SizedBox(height: 16),
-                  if (isBounded) Expanded(child: listColumn) else listColumn,
+                  listColumn,
+                  const SizedBox(height: 24),
+                  sidebarColumn,
                 ],
               ),
             );
+            return constraints.hasBoundedHeight
+                ? SingleChildScrollView(child: panel)
+                : panel;
           },
         );
       },

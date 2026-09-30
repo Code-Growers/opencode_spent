@@ -47,7 +47,11 @@ final class MetricsCubit extends Cubit<MetricsState> {
 
   int _activeRequestId = 0;
 
-  Future<void> load({DateTime? from, DateTime? to}) async {
+  Future<void> load({
+    DateTime? from,
+    DateTime? to,
+    UsageHarness? harness,
+  }) async {
     final requestId = ++_activeRequestId;
     emit(const MetricsState(isLoading: true));
 
@@ -55,6 +59,7 @@ final class MetricsCubit extends Cubit<MetricsState> {
       final currentMetrics = await _metricsService.readMonetizedMetrics(
         from: from,
         to: to,
+        harness: harness,
       );
 
       MonetizedAggregatedMetrics? priorMetrics;
@@ -62,6 +67,7 @@ final class MetricsCubit extends Cubit<MetricsState> {
       if (priorWindow != null) {
         try {
           priorMetrics = await _metricsService.readMonetizedMetrics(
+            harness: harness,
             from: priorWindow.$1,
             to: priorWindow.$2,
           );

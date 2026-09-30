@@ -15,11 +15,13 @@ class SpendTrendChart extends StatelessWidget {
     required this.displayCurrency,
     required this.dailyBreakdown,
     required this.visibleDays,
+    this.showDailyValueLabels = true,
   });
 
   final String displayCurrency;
   final List<MonetizedDailyMetrics> dailyBreakdown;
   final List<DateTime> visibleDays;
+  final bool showDailyValueLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +83,18 @@ class SpendTrendChart extends StatelessWidget {
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
               maxY: maxY,
-              barTouchData: BarTouchData(enabled: false),
+              barTouchData: BarTouchData(
+                enabled: !showDailyValueLabels,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                      BarTooltipItem(
+                        '${formatDateKey(context, visibleDays[group.x])}\n$displayCurrency ${rod.toY.toStringAsFixed(2)}',
+                        Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color: dashboardPrimaryTextColor,
+                        ),
+                      ),
+                ),
+              ),
               extraLinesData: ExtraLinesData(
                 horizontalLines: [
                   if (avgCost > 0)
@@ -118,6 +131,9 @@ class SpendTrendChart extends StatelessWidget {
                         return const SizedBox.shrink();
                       }
                       final isPeak = index == peakIndex;
+                      if (!showDailyValueLabels && !isPeak) {
+                        return const SizedBox.shrink();
+                      }
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
@@ -990,97 +1006,93 @@ class ModelUsagePieChart extends StatelessWidget {
           ),
         );
 
-        final legendWidget = SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...List.generate(legendItems.length, (i) {
-                final entry = legendItems[i];
-                final percentage = total == 0
-                    ? 0.0
-                    : (entry.value / total) * 100;
-                final formattedValue = compactNumber(entry.value.toDouble());
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        margin: const EdgeInsets.only(top: 2),
-                        decoration: BoxDecoration(
-                          color: colors[i],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+        final legendWidget = Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...List.generate(legendItems.length, (i) {
+              final entry = legendItems[i];
+              final percentage = total == 0 ? 0.0 : (entry.value / total) * 100;
+              final formattedValue = compactNumber(entry.value.toDouble());
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      margin: const EdgeInsets.only(top: 2),
+                      decoration: BoxDecoration(
+                        color: colors[i],
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.key,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: dashboardPrimaryTextColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${percentage.toStringAsFixed(1)}% • $formattedValue',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: dashboardSecondaryTextColor,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              if (showOverflow)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text(
-                    l10n.pieLegendOverflow(overflowCount),
-                    key: const Key('metrics-pie-legend-overflow'),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: dashboardSecondaryTextColor,
-                      fontStyle: FontStyle.italic,
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            entry.key,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: dashboardPrimaryTextColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${percentage.toStringAsFixed(1)}% • $formattedValue',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: dashboardSecondaryTextColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            if (showOverflow)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  l10n.pieLegendOverflow(overflowCount),
+                  key: const Key('metrics-pie-legend-overflow'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: dashboardSecondaryTextColor,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         );
 
         return DashboardSurface(
           key: chartKey,
-          child: SizedBox(
-            height: height,
-            child: isNarrow
-                ? Column(
-                    children: [
-                      Expanded(child: pieWidget),
-                      const SizedBox(height: 16),
-                      Expanded(child: legendWidget),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(flex: 2, child: pieWidget),
-                      const SizedBox(width: 24),
-                      Expanded(flex: 3, child: legendWidget),
-                    ],
-                  ),
-          ),
+          child: isNarrow
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: expanded ? 240 : 200, child: pieWidget),
+                    const SizedBox(height: 16),
+                    legendWidget,
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(height: height, child: pieWidget),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(flex: 3, child: legendWidget),
+                  ],
+                ),
         );
       },
     );

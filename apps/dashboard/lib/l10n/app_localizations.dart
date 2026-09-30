@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @heroTitle.
   ///
   /// In en, this message translates to:
-  /// **'Monitor OpenCode. Locally.'**
+  /// **'Monitor coding usage. Locally.'**
   String get heroTitle;
 
   /// No description provided for @heroDescription.
@@ -311,31 +311,31 @@ abstract class AppLocalizations {
   /// No description provided for @metricsTitle.
   ///
   /// In en, this message translates to:
-  /// **'METRICS'**
+  /// **'Time window'**
   String get metricsTitle;
 
   /// No description provided for @shellNavMetrics.
   ///
   /// In en, this message translates to:
-  /// **'[ METRICS ]'**
+  /// **'Overview'**
   String get shellNavMetrics;
 
   /// No description provided for @shellNavSessions.
   ///
   /// In en, this message translates to:
-  /// **'[ SESSIONS ]'**
+  /// **'Sessions'**
   String get shellNavSessions;
 
   /// No description provided for @shellNavExchangeRates.
   ///
   /// In en, this message translates to:
-  /// **'[ EXCHANGE ]'**
+  /// **'Exchange rates'**
   String get shellNavExchangeRates;
 
   /// No description provided for @shellNavState.
   ///
   /// In en, this message translates to:
-  /// **'[ STATE ]'**
+  /// **'Sources & status'**
   String get shellNavState;
 
   /// No description provided for @metricsLoad.
@@ -585,31 +585,31 @@ abstract class AppLocalizations {
   /// No description provided for @metricsKpiTotalPrice.
   ///
   /// In en, this message translates to:
-  /// **'> TOTAL PRICE ....... {currency} {value}'**
+  /// **'Reported cost · {currency} {value}'**
   String metricsKpiTotalPrice(String currency, String value);
 
   /// No description provided for @metricsKpiTotalRequests.
   ///
   /// In en, this message translates to:
-  /// **'> TOTAL REQUESTS .... {value}'**
+  /// **'Requests · {value}'**
   String metricsKpiTotalRequests(String value);
 
   /// No description provided for @metricsKpiTotalToolCalls.
   ///
   /// In en, this message translates to:
-  /// **'> TOTAL TOOL CALLS .. {value}'**
+  /// **'Tool calls · {value}'**
   String metricsKpiTotalToolCalls(String value);
 
   /// No description provided for @metricsKpiAvgResponseTime.
   ///
   /// In en, this message translates to:
-  /// **'> AVG RESPONSE TIME . {value}'**
+  /// **'Avg. response time · {value}'**
   String metricsKpiAvgResponseTime(String value);
 
   /// No description provided for @metricsKpiTotalTokens.
   ///
   /// In en, this message translates to:
-  /// **'> TOTAL TOKENS ...... {value}'**
+  /// **'Tokens · {value}'**
   String metricsKpiTotalTokens(String value);
 
   /// No description provided for @metricsKpiNotAvailable.
@@ -1536,6 +1536,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{day}\n{sessions} sessions • {tokens} tokens'**
   String metricsHeatmapCellTooltip(String day, int sessions, String tokens);
+
+  /// No description provided for @usageSourcesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local usage sources'**
+  String get usageSourcesTitle;
+
+  /// No description provided for @usageConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect'**
+  String get usageConnect;
+
+  /// No description provided for @usageRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get usageRefresh;
+
+  /// No description provided for @usageDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get usageDisconnect;
+
+  /// No description provided for @usageConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get usageConnected;
+
+  /// No description provided for @usageNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get usageNotConnected;
+
+  /// No description provided for @usageChooseFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose folder'**
+  String get usageChooseFolder;
+
+  /// No description provided for @usageSourceError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read this source. Previously imported usage is retained.'**
+  String get usageSourceError;
+
+  /// No description provided for @usageSourceResult.
+  ///
+  /// In en, this message translates to:
+  /// **'{sessions} sessions · {skipped} skipped records · {failed} unreadable files'**
+  String usageSourceResult(int sessions, int skipped, int failed);
+
+  /// No description provided for @usageLastRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Last refresh: {time}'**
+  String usageLastRefresh(String time);
+
+  /// No description provided for @usageNeverRefreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not refreshed yet'**
+  String get usageNeverRefreshed;
+
+  /// No description provided for @usageSourcesBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Local source connections are available in the desktop app.'**
+  String get usageSourcesBrowser;
+
+  /// No description provided for @usagePricingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'API estimate pricing'**
+  String get usagePricingTitle;
+
+  /// No description provided for @usagePricingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard API token rates, USD per million tokens. Subscription fees, taxes, tools and fast-mode premiums are excluded.'**
+  String get usagePricingHelp;
+
+  /// No description provided for @usagePricingSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Published rate snapshot: {version}'**
+  String usagePricingSnapshot(String version);
+
+  /// No description provided for @usagePricingModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage model'**
+  String get usagePricingModel;
+
+  /// No description provided for @usagePricingMapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Use published model rates'**
+  String get usagePricingMapping;
+
+  /// No description provided for @usagePricingCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom rates'**
+  String get usagePricingCustom;
+
+  /// No description provided for @usagePricingReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to published rates'**
+  String get usagePricingReset;
+
+  /// No description provided for @usagePricingSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save rates'**
+  String get usagePricingSave;
+
+  /// No description provided for @usagePricingInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter finite, nonnegative rates. Input and output rates are required.'**
+  String get usagePricingInvalid;
+
+  /// No description provided for @usageInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Input'**
+  String get usageInput;
+
+  /// No description provided for @usageOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get usageOutput;
+
+  /// No description provided for @usageCacheRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache reads'**
+  String get usageCacheRead;
+
+  /// No description provided for @usageCacheWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache writes'**
+  String get usageCacheWrite;
+
+  /// No description provided for @usageCacheWrite1h.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache writes (1 hour)'**
+  String get usageCacheWrite1h;
+
+  /// No description provided for @usageReasoning.
+  ///
+  /// In en, this message translates to:
+  /// **'Reasoning (included in output)'**
+  String get usageReasoning;
+
+  /// No description provided for @usageHarnessAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All harnesses'**
+  String get usageHarnessAll;
+
+  /// No description provided for @usageComparisonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage by harness'**
+  String get usageComparisonTitle;
+
+  /// No description provided for @usageApiEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated API cost'**
+  String get usageApiEstimate;
+
+  /// No description provided for @usageReportedCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported cost'**
+  String get usageReportedCost;
+
+  /// No description provided for @usageUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get usageUnknown;
+
+  /// No description provided for @usagePricingCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{priced} of {total} usage records priced'**
+  String usagePricingCoverage(int priced, int total);
+
+  /// No description provided for @usageCustomPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom pricing'**
+  String get usageCustomPrice;
+
+  /// No description provided for @usageApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate: uses short-context or 5-minute cache-write rates where metadata is unavailable.'**
+  String get usageApproximate;
+
+  /// No description provided for @usageTokensHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Input includes cache reads and writes across all requests, including repeated conversation context. Reasoning is included in output. Hover over token totals for exact counts.'**
+  String get usageTokensHelp;
+
+  /// No description provided for @usagePartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial'**
+  String get usagePartial;
+
+  /// No description provided for @usageNoMapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep original model'**
+  String get usageNoMapping;
+
+  /// No description provided for @usagePricingNoModels.
+  ///
+  /// In en, this message translates to:
+  /// **'Import usage to configure model prices.'**
+  String get usagePricingNoModels;
+
+  /// No description provided for @usagePricingPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published rates'**
+  String get usagePricingPublished;
+
+  /// No description provided for @usageSourcesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect once to load local token metadata. Refresh on launch or on demand; disconnect keeps imported history.'**
+  String get usageSourcesHelp;
+
+  /// No description provided for @usagePricingRatesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank cache rates leave events using that category unpriced. A zero rate is an explicit free category.'**
+  String get usagePricingRatesHelp;
+
+  /// No description provided for @usageSourceBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing local usage…'**
+  String get usageSourceBusy;
+
+  /// No description provided for @overviewPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Your spending, usage and models in one place.'**
+  String get overviewPurpose;
+
+  /// No description provided for @sessionsPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a session. Compare usage. Trace the cost.'**
+  String get sessionsPurpose;
+
+  /// No description provided for @exchangePurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage the rates used to convert your spending.'**
+  String get exchangePurpose;
+
+  /// No description provided for @sourcesPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your local data, connection and privacy.'**
+  String get sourcesPurpose;
+
+  /// No description provided for @mockDataNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data · switch to Real to see your usage'**
+  String get mockDataNotice;
+
+  /// No description provided for @realDataNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data'**
+  String get realDataNotice;
+
+  /// No description provided for @sessionsPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {pages}'**
+  String sessionsPage(int page, int pages);
+
+  /// No description provided for @previousPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get previousPage;
+
+  /// No description provided for @nextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get nextPage;
+
+  /// No description provided for @mockDataLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data'**
+  String get mockDataLabel;
+
+  /// No description provided for @sessionsSortLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get sessionsSortLatest;
+
+  /// No description provided for @sessionsSortCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported cost'**
+  String get sessionsSortCost;
+
+  /// No description provided for @sessionsSortTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens'**
+  String get sessionsSortTokens;
+
+  /// No description provided for @clearScopeFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearScopeFilters;
 }
 
 class _AppLocalizationsDelegate

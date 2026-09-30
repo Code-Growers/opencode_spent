@@ -20,8 +20,14 @@ class OpenSpentApp extends StatefulWidget {
     this.exchangeRatesDependencies,
     this.sessionsDependencies,
     this.pickImportSource,
+    this.localUsageSources,
+    this.pricingRepository,
+    this.pickSourceDirectory,
   });
 
+  final LocalUsageSources? localUsageSources;
+  final PricingRepository? pricingRepository;
+  final Future<String?> Function()? pickSourceDirectory;
   final MonetizedMetricsService metricsService;
   final SettingsRepository? settingsRepository;
   final Future<ServerProbeState> Function(OpenCodeSettings settings)?
@@ -65,6 +71,9 @@ class _OpenSpentAppState extends State<OpenSpentApp> {
   @override
   Widget build(BuildContext context) {
     return OpenSpentAppScope(
+      localUsageSources: widget.localUsageSources,
+      pricingRepository: widget.pricingRepository,
+      pickSourceDirectory: widget.pickSourceDirectory,
       metricsService: widget.metricsService,
       onLocaleChanged: _handleLocaleChanged,
       settingsRepository: widget.settingsRepository,

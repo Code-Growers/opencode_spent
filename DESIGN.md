@@ -42,10 +42,12 @@ Use the site's **Necto Mono** regular font, bundled locally for offline desktop 
 
 ## Layout and Controls
 
-- Keep the fixed dashboard header and scrolling hero/navigation/content structure.
-- Header: OpenSpent identity with the existing brand logo, local status, help, and settings.
-- Hero: flat framed introduction, fine registration crosses at the corners, and outlined metadata facts. Use a 3:1 split only when at least 900px of inner width is available.
-- Navigation: equal-width numbered cells on desktop and two columns below 640px; green top rule and dark green fill indicate selection.
+- Keep dashboard navigation and the header visible. Each route owns exactly one vertical scroll area; the shell does not scroll. Paginate long session lists instead of creating a second vertical viewport.
+- Header: OpenSpent identity with the existing brand logo, active Real/Mock mode, help, and settings.
+- Page heading: compact title and purpose. Reserve large framed heroes and registration crosses for the marketing site.
+- Navigation: left column from 1180px, equal-width numbered cells on smaller windows and two columns below 640px; green rule and dark green fill indicate selection.
+- Lead the overview with time controls and headline totals, followed by harness comparison and detailed charts. Show active filters near the data they affect.
+- Settings dialogs use a bounded scrolling form with a fixed heading and save/close actions.
 - `DashboardSurface`: one-pixel outline, square corners, solid background, no shadow or gradient. Use it for grouped content throughout all screens.
 - Controls: square outlines; white hover inversion, green focus outline, and green selected text. Focus must remain visible without relying on a glow.
 - Use `DashboardSpacing` for consistent shell gutters and internal padding. Responsive layouts must wrap labels and controls without clipping.

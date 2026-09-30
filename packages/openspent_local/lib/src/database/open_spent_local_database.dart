@@ -31,6 +31,10 @@ class ExchangeRates extends Table {
 class OpenCodeSessions extends Table {
   TextColumn get id => text()();
 
+  TextColumn get tokenUsageJson => text().nullable()();
+
+  TextColumn get harness => text().withDefault(const Constant('openCode'))();
+
   DateTimeColumn get createdAtUtc => dateTime().named('created_at_utc')();
 
   TextColumn get provider => text().nullable()();
@@ -66,7 +70,16 @@ class OpenCodeSessions extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
-@DriftDatabase(tables: <Type>[ExchangeRates, OpenCodeSessions])
+@DataClassName('LocalUsageEventRow')
+class UsageEvents extends Table {
+  TextColumn get id => text()();
+  TextColumn get sessionId => text().references(OpenCodeSessions, #id)();
+  TextColumn get metadataJson => text()();
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: <Type>[ExchangeRates, OpenCodeSessions, UsageEvents])
 final class OpenSpentLocalDatabase extends _$OpenSpentLocalDatabase {
   OpenSpentLocalDatabase(super.e);
 
@@ -86,15 +99,26 @@ final class OpenSpentLocalDatabase extends _$OpenSpentLocalDatabase {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator migrator) async {
       await migrator.createTable(exchangeRates);
       await migrator.createTable(openCodeSessions);
+      await migrator.createTable(usageEvents);
     },
-    onUpgrade: (Migrator _, int from, int to) async {
+    onUpgrade: (Migrator migrator, int from, int to) async {
+      if (from < 4) {
+        await customStatement(
+          "ALTER TABLE $openCodeSessionsTable ADD COLUMN harness TEXT NOT NULL DEFAULT 'openCode'",
+        );
+        await migrator.addColumn(
+          openCodeSessions,
+          openCodeSessions.tokenUsageJson,
+        );
+        await migrator.createTable(usageEvents);
+      }
       if (from < 2) {
         await customStatement('''
               CREATE TABLE ${exchangeRatesTable}_next (

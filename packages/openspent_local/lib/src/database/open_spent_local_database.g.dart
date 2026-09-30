@@ -357,6 +357,29 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _tokenUsageJsonMeta = const VerificationMeta(
+    'tokenUsageJson',
+  );
+  @override
+  late final GeneratedColumn<String> tokenUsageJson = GeneratedColumn<String>(
+    'token_usage_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _harnessMeta = const VerificationMeta(
+    'harness',
+  );
+  @override
+  late final GeneratedColumn<String> harness = GeneratedColumn<String>(
+    'harness',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('openCode'),
+  );
   static const VerificationMeta _createdAtUtcMeta = const VerificationMeta(
     'createdAtUtc',
   );
@@ -491,6 +514,8 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    tokenUsageJson,
+    harness,
     createdAtUtc,
     provider,
     modelName,
@@ -520,6 +545,21 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('token_usage_json')) {
+      context.handle(
+        _tokenUsageJsonMeta,
+        tokenUsageJson.isAcceptableOrUnknown(
+          data['token_usage_json']!,
+          _tokenUsageJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('harness')) {
+      context.handle(
+        _harnessMeta,
+        harness.isAcceptableOrUnknown(data['harness']!, _harnessMeta),
+      );
     }
     if (data.containsKey('created_at_utc')) {
       context.handle(
@@ -641,6 +681,14 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
+      tokenUsageJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_usage_json'],
+      ),
+      harness: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}harness'],
+      )!,
       createdAtUtc: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at_utc'],
@@ -701,6 +749,8 @@ class $OpenCodeSessionsTable extends OpenCodeSessions
 class LocalOpenCodeSessionRow extends DataClass
     implements Insertable<LocalOpenCodeSessionRow> {
   final String id;
+  final String? tokenUsageJson;
+  final String harness;
   final DateTime createdAtUtc;
   final String? provider;
   final String? modelName;
@@ -715,6 +765,8 @@ class LocalOpenCodeSessionRow extends DataClass
   final String? usageSlicesJson;
   const LocalOpenCodeSessionRow({
     required this.id,
+    this.tokenUsageJson,
+    required this.harness,
     required this.createdAtUtc,
     this.provider,
     this.modelName,
@@ -732,6 +784,10 @@ class LocalOpenCodeSessionRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || tokenUsageJson != null) {
+      map['token_usage_json'] = Variable<String>(tokenUsageJson);
+    }
+    map['harness'] = Variable<String>(harness);
     map['created_at_utc'] = Variable<DateTime>(createdAtUtc);
     if (!nullToAbsent || provider != null) {
       map['provider'] = Variable<String>(provider);
@@ -772,6 +828,10 @@ class LocalOpenCodeSessionRow extends DataClass
   OpenCodeSessionsCompanion toCompanion(bool nullToAbsent) {
     return OpenCodeSessionsCompanion(
       id: Value(id),
+      tokenUsageJson: tokenUsageJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tokenUsageJson),
+      harness: Value(harness),
       createdAtUtc: Value(createdAtUtc),
       provider: provider == null && nullToAbsent
           ? const Value.absent()
@@ -816,6 +876,8 @@ class LocalOpenCodeSessionRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocalOpenCodeSessionRow(
       id: serializer.fromJson<String>(json['id']),
+      tokenUsageJson: serializer.fromJson<String?>(json['tokenUsageJson']),
+      harness: serializer.fromJson<String>(json['harness']),
       createdAtUtc: serializer.fromJson<DateTime>(json['createdAtUtc']),
       provider: serializer.fromJson<String?>(json['provider']),
       modelName: serializer.fromJson<String?>(json['modelName']),
@@ -837,6 +899,8 @@ class LocalOpenCodeSessionRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'tokenUsageJson': serializer.toJson<String?>(tokenUsageJson),
+      'harness': serializer.toJson<String>(harness),
       'createdAtUtc': serializer.toJson<DateTime>(createdAtUtc),
       'provider': serializer.toJson<String?>(provider),
       'modelName': serializer.toJson<String?>(modelName),
@@ -854,6 +918,8 @@ class LocalOpenCodeSessionRow extends DataClass
 
   LocalOpenCodeSessionRow copyWith({
     String? id,
+    Value<String?> tokenUsageJson = const Value.absent(),
+    String? harness,
     DateTime? createdAtUtc,
     Value<String?> provider = const Value.absent(),
     Value<String?> modelName = const Value.absent(),
@@ -868,6 +934,10 @@ class LocalOpenCodeSessionRow extends DataClass
     Value<String?> usageSlicesJson = const Value.absent(),
   }) => LocalOpenCodeSessionRow(
     id: id ?? this.id,
+    tokenUsageJson: tokenUsageJson.present
+        ? tokenUsageJson.value
+        : this.tokenUsageJson,
+    harness: harness ?? this.harness,
     createdAtUtc: createdAtUtc ?? this.createdAtUtc,
     provider: provider.present ? provider.value : this.provider,
     modelName: modelName.present ? modelName.value : this.modelName,
@@ -894,6 +964,10 @@ class LocalOpenCodeSessionRow extends DataClass
   LocalOpenCodeSessionRow copyWithCompanion(OpenCodeSessionsCompanion data) {
     return LocalOpenCodeSessionRow(
       id: data.id.present ? data.id.value : this.id,
+      tokenUsageJson: data.tokenUsageJson.present
+          ? data.tokenUsageJson.value
+          : this.tokenUsageJson,
+      harness: data.harness.present ? data.harness.value : this.harness,
       createdAtUtc: data.createdAtUtc.present
           ? data.createdAtUtc.value
           : this.createdAtUtc,
@@ -933,6 +1007,8 @@ class LocalOpenCodeSessionRow extends DataClass
   String toString() {
     return (StringBuffer('LocalOpenCodeSessionRow(')
           ..write('id: $id, ')
+          ..write('tokenUsageJson: $tokenUsageJson, ')
+          ..write('harness: $harness, ')
           ..write('createdAtUtc: $createdAtUtc, ')
           ..write('provider: $provider, ')
           ..write('modelName: $modelName, ')
@@ -952,6 +1028,8 @@ class LocalOpenCodeSessionRow extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    tokenUsageJson,
+    harness,
     createdAtUtc,
     provider,
     modelName,
@@ -970,6 +1048,8 @@ class LocalOpenCodeSessionRow extends DataClass
       identical(this, other) ||
       (other is LocalOpenCodeSessionRow &&
           other.id == this.id &&
+          other.tokenUsageJson == this.tokenUsageJson &&
+          other.harness == this.harness &&
           other.createdAtUtc == this.createdAtUtc &&
           other.provider == this.provider &&
           other.modelName == this.modelName &&
@@ -987,6 +1067,8 @@ class LocalOpenCodeSessionRow extends DataClass
 class OpenCodeSessionsCompanion
     extends UpdateCompanion<LocalOpenCodeSessionRow> {
   final Value<String> id;
+  final Value<String?> tokenUsageJson;
+  final Value<String> harness;
   final Value<DateTime> createdAtUtc;
   final Value<String?> provider;
   final Value<String?> modelName;
@@ -1002,6 +1084,8 @@ class OpenCodeSessionsCompanion
   final Value<int> rowid;
   const OpenCodeSessionsCompanion({
     this.id = const Value.absent(),
+    this.tokenUsageJson = const Value.absent(),
+    this.harness = const Value.absent(),
     this.createdAtUtc = const Value.absent(),
     this.provider = const Value.absent(),
     this.modelName = const Value.absent(),
@@ -1018,6 +1102,8 @@ class OpenCodeSessionsCompanion
   });
   OpenCodeSessionsCompanion.insert({
     required String id,
+    this.tokenUsageJson = const Value.absent(),
+    this.harness = const Value.absent(),
     required DateTime createdAtUtc,
     this.provider = const Value.absent(),
     this.modelName = const Value.absent(),
@@ -1035,6 +1121,8 @@ class OpenCodeSessionsCompanion
        createdAtUtc = Value(createdAtUtc);
   static Insertable<LocalOpenCodeSessionRow> custom({
     Expression<String>? id,
+    Expression<String>? tokenUsageJson,
+    Expression<String>? harness,
     Expression<DateTime>? createdAtUtc,
     Expression<String>? provider,
     Expression<String>? modelName,
@@ -1051,6 +1139,8 @@ class OpenCodeSessionsCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (tokenUsageJson != null) 'token_usage_json': tokenUsageJson,
+      if (harness != null) 'harness': harness,
       if (createdAtUtc != null) 'created_at_utc': createdAtUtc,
       if (provider != null) 'provider': provider,
       if (modelName != null) 'model_name': modelName,
@@ -1070,6 +1160,8 @@ class OpenCodeSessionsCompanion
 
   OpenCodeSessionsCompanion copyWith({
     Value<String>? id,
+    Value<String?>? tokenUsageJson,
+    Value<String>? harness,
     Value<DateTime>? createdAtUtc,
     Value<String?>? provider,
     Value<String?>? modelName,
@@ -1086,6 +1178,8 @@ class OpenCodeSessionsCompanion
   }) {
     return OpenCodeSessionsCompanion(
       id: id ?? this.id,
+      tokenUsageJson: tokenUsageJson ?? this.tokenUsageJson,
+      harness: harness ?? this.harness,
       createdAtUtc: createdAtUtc ?? this.createdAtUtc,
       provider: provider ?? this.provider,
       modelName: modelName ?? this.modelName,
@@ -1107,6 +1201,12 @@ class OpenCodeSessionsCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (tokenUsageJson.present) {
+      map['token_usage_json'] = Variable<String>(tokenUsageJson.value);
+    }
+    if (harness.present) {
+      map['harness'] = Variable<String>(harness.value);
     }
     if (createdAtUtc.present) {
       map['created_at_utc'] = Variable<DateTime>(createdAtUtc.value);
@@ -1154,6 +1254,8 @@ class OpenCodeSessionsCompanion
   String toString() {
     return (StringBuffer('OpenCodeSessionsCompanion(')
           ..write('id: $id, ')
+          ..write('tokenUsageJson: $tokenUsageJson, ')
+          ..write('harness: $harness, ')
           ..write('createdAtUtc: $createdAtUtc, ')
           ..write('provider: $provider, ')
           ..write('modelName: $modelName, ')
@@ -1172,6 +1274,279 @@ class OpenCodeSessionsCompanion
   }
 }
 
+class $UsageEventsTable extends UsageEvents
+    with TableInfo<$UsageEventsTable, LocalUsageEventRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UsageEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES open_code_sessions (id)',
+    ),
+  );
+  static const VerificationMeta _metadataJsonMeta = const VerificationMeta(
+    'metadataJson',
+  );
+  @override
+  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
+    'metadata_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, sessionId, metadataJson];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'usage_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalUsageEventRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('metadata_json')) {
+      context.handle(
+        _metadataJsonMeta,
+        metadataJson.isAcceptableOrUnknown(
+          data['metadata_json']!,
+          _metadataJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_metadataJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalUsageEventRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalUsageEventRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      metadataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metadata_json'],
+      )!,
+    );
+  }
+
+  @override
+  $UsageEventsTable createAlias(String alias) {
+    return $UsageEventsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalUsageEventRow extends DataClass
+    implements Insertable<LocalUsageEventRow> {
+  final String id;
+  final String sessionId;
+  final String metadataJson;
+  const LocalUsageEventRow({
+    required this.id,
+    required this.sessionId,
+    required this.metadataJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['session_id'] = Variable<String>(sessionId);
+    map['metadata_json'] = Variable<String>(metadataJson);
+    return map;
+  }
+
+  UsageEventsCompanion toCompanion(bool nullToAbsent) {
+    return UsageEventsCompanion(
+      id: Value(id),
+      sessionId: Value(sessionId),
+      metadataJson: Value(metadataJson),
+    );
+  }
+
+  factory LocalUsageEventRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalUsageEventRow(
+      id: serializer.fromJson<String>(json['id']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      metadataJson: serializer.fromJson<String>(json['metadataJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'metadataJson': serializer.toJson<String>(metadataJson),
+    };
+  }
+
+  LocalUsageEventRow copyWith({
+    String? id,
+    String? sessionId,
+    String? metadataJson,
+  }) => LocalUsageEventRow(
+    id: id ?? this.id,
+    sessionId: sessionId ?? this.sessionId,
+    metadataJson: metadataJson ?? this.metadataJson,
+  );
+  LocalUsageEventRow copyWithCompanion(UsageEventsCompanion data) {
+    return LocalUsageEventRow(
+      id: data.id.present ? data.id.value : this.id,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      metadataJson: data.metadataJson.present
+          ? data.metadataJson.value
+          : this.metadataJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalUsageEventRow(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('metadataJson: $metadataJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, sessionId, metadataJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalUsageEventRow &&
+          other.id == this.id &&
+          other.sessionId == this.sessionId &&
+          other.metadataJson == this.metadataJson);
+}
+
+class UsageEventsCompanion extends UpdateCompanion<LocalUsageEventRow> {
+  final Value<String> id;
+  final Value<String> sessionId;
+  final Value<String> metadataJson;
+  final Value<int> rowid;
+  const UsageEventsCompanion({
+    this.id = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.metadataJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UsageEventsCompanion.insert({
+    required String id,
+    required String sessionId,
+    required String metadataJson,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sessionId = Value(sessionId),
+       metadataJson = Value(metadataJson);
+  static Insertable<LocalUsageEventRow> custom({
+    Expression<String>? id,
+    Expression<String>? sessionId,
+    Expression<String>? metadataJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sessionId != null) 'session_id': sessionId,
+      if (metadataJson != null) 'metadata_json': metadataJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UsageEventsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? sessionId,
+    Value<String>? metadataJson,
+    Value<int>? rowid,
+  }) {
+    return UsageEventsCompanion(
+      id: id ?? this.id,
+      sessionId: sessionId ?? this.sessionId,
+      metadataJson: metadataJson ?? this.metadataJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (metadataJson.present) {
+      map['metadata_json'] = Variable<String>(metadataJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UsageEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('metadataJson: $metadataJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$OpenSpentLocalDatabase extends GeneratedDatabase {
   _$OpenSpentLocalDatabase(QueryExecutor e) : super(e);
   $OpenSpentLocalDatabaseManager get managers =>
@@ -1180,6 +1555,7 @@ abstract class _$OpenSpentLocalDatabase extends GeneratedDatabase {
   late final $OpenCodeSessionsTable openCodeSessions = $OpenCodeSessionsTable(
     this,
   );
+  late final $UsageEventsTable usageEvents = $UsageEventsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1187,6 +1563,7 @@ abstract class _$OpenSpentLocalDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     exchangeRates,
     openCodeSessions,
+    usageEvents,
   ];
 }
 
@@ -1390,6 +1767,8 @@ typedef $$ExchangeRatesTableProcessedTableManager =
 typedef $$OpenCodeSessionsTableCreateCompanionBuilder =
     OpenCodeSessionsCompanion Function({
       required String id,
+      Value<String?> tokenUsageJson,
+      Value<String> harness,
       required DateTime createdAtUtc,
       Value<String?> provider,
       Value<String?> modelName,
@@ -1407,6 +1786,8 @@ typedef $$OpenCodeSessionsTableCreateCompanionBuilder =
 typedef $$OpenCodeSessionsTableUpdateCompanionBuilder =
     OpenCodeSessionsCompanion Function({
       Value<String> id,
+      Value<String?> tokenUsageJson,
+      Value<String> harness,
       Value<DateTime> createdAtUtc,
       Value<String?> provider,
       Value<String?> modelName,
@@ -1422,6 +1803,42 @@ typedef $$OpenCodeSessionsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
+final class $$OpenCodeSessionsTableReferences
+    extends
+        BaseReferences<
+          _$OpenSpentLocalDatabase,
+          $OpenCodeSessionsTable,
+          LocalOpenCodeSessionRow
+        > {
+  $$OpenCodeSessionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$UsageEventsTable, List<LocalUsageEventRow>>
+  _usageEventsRefsTable(_$OpenSpentLocalDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.usageEvents,
+        aliasName: $_aliasNameGenerator(
+          db.openCodeSessions.id,
+          db.usageEvents.sessionId,
+        ),
+      );
+
+  $$UsageEventsTableProcessedTableManager get usageEventsRefs {
+    final manager = $$UsageEventsTableTableManager(
+      $_db,
+      $_db.usageEvents,
+    ).filter((f) => f.sessionId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_usageEventsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
 class $$OpenCodeSessionsTableFilterComposer
     extends Composer<_$OpenSpentLocalDatabase, $OpenCodeSessionsTable> {
   $$OpenCodeSessionsTableFilterComposer({
@@ -1433,6 +1850,16 @@ class $$OpenCodeSessionsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tokenUsageJson => $composableBuilder(
+    column: $table.tokenUsageJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get harness => $composableBuilder(
+    column: $table.harness,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1495,6 +1922,31 @@ class $$OpenCodeSessionsTableFilterComposer
     column: $table.usageSlicesJson,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> usageEventsRefs(
+    Expression<bool> Function($$UsageEventsTableFilterComposer f) f,
+  ) {
+    final $$UsageEventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.usageEvents,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsageEventsTableFilterComposer(
+            $db: $db,
+            $table: $db.usageEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$OpenCodeSessionsTableOrderingComposer
@@ -1508,6 +1960,16 @@ class $$OpenCodeSessionsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tokenUsageJson => $composableBuilder(
+    column: $table.tokenUsageJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get harness => $composableBuilder(
+    column: $table.harness,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1584,6 +2046,14 @@ class $$OpenCodeSessionsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<String> get tokenUsageJson => $composableBuilder(
+    column: $table.tokenUsageJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get harness =>
+      $composableBuilder(column: $table.harness, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAtUtc => $composableBuilder(
     column: $table.createdAtUtc,
     builder: (column) => column,
@@ -1639,6 +2109,31 @@ class $$OpenCodeSessionsTableAnnotationComposer
     column: $table.usageSlicesJson,
     builder: (column) => column,
   );
+
+  Expression<T> usageEventsRefs<T extends Object>(
+    Expression<T> Function($$UsageEventsTableAnnotationComposer a) f,
+  ) {
+    final $$UsageEventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.usageEvents,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsageEventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.usageEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$OpenCodeSessionsTableTableManager
@@ -1652,16 +2147,9 @@ class $$OpenCodeSessionsTableTableManager
           $$OpenCodeSessionsTableAnnotationComposer,
           $$OpenCodeSessionsTableCreateCompanionBuilder,
           $$OpenCodeSessionsTableUpdateCompanionBuilder,
-          (
-            LocalOpenCodeSessionRow,
-            BaseReferences<
-              _$OpenSpentLocalDatabase,
-              $OpenCodeSessionsTable,
-              LocalOpenCodeSessionRow
-            >,
-          ),
+          (LocalOpenCodeSessionRow, $$OpenCodeSessionsTableReferences),
           LocalOpenCodeSessionRow,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool usageEventsRefs})
         > {
   $$OpenCodeSessionsTableTableManager(
     _$OpenSpentLocalDatabase db,
@@ -1679,6 +2167,8 @@ class $$OpenCodeSessionsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
+                Value<String?> tokenUsageJson = const Value.absent(),
+                Value<String> harness = const Value.absent(),
                 Value<DateTime> createdAtUtc = const Value.absent(),
                 Value<String?> provider = const Value.absent(),
                 Value<String?> modelName = const Value.absent(),
@@ -1694,6 +2184,8 @@ class $$OpenCodeSessionsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => OpenCodeSessionsCompanion(
                 id: id,
+                tokenUsageJson: tokenUsageJson,
+                harness: harness,
                 createdAtUtc: createdAtUtc,
                 provider: provider,
                 modelName: modelName,
@@ -1711,6 +2203,8 @@ class $$OpenCodeSessionsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
+                Value<String?> tokenUsageJson = const Value.absent(),
+                Value<String> harness = const Value.absent(),
                 required DateTime createdAtUtc,
                 Value<String?> provider = const Value.absent(),
                 Value<String?> modelName = const Value.absent(),
@@ -1726,6 +2220,8 @@ class $$OpenCodeSessionsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => OpenCodeSessionsCompanion.insert(
                 id: id,
+                tokenUsageJson: tokenUsageJson,
+                harness: harness,
                 createdAtUtc: createdAtUtc,
                 provider: provider,
                 modelName: modelName,
@@ -1741,9 +2237,43 @@ class $$OpenCodeSessionsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$OpenCodeSessionsTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({usageEventsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (usageEventsRefs) db.usageEvents],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (usageEventsRefs)
+                    await $_getPrefetchedData<
+                      LocalOpenCodeSessionRow,
+                      $OpenCodeSessionsTable,
+                      LocalUsageEventRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$OpenCodeSessionsTableReferences
+                          ._usageEventsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$OpenCodeSessionsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).usageEventsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.sessionId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -1758,16 +2288,299 @@ typedef $$OpenCodeSessionsTableProcessedTableManager =
       $$OpenCodeSessionsTableAnnotationComposer,
       $$OpenCodeSessionsTableCreateCompanionBuilder,
       $$OpenCodeSessionsTableUpdateCompanionBuilder,
-      (
-        LocalOpenCodeSessionRow,
+      (LocalOpenCodeSessionRow, $$OpenCodeSessionsTableReferences),
+      LocalOpenCodeSessionRow,
+      PrefetchHooks Function({bool usageEventsRefs})
+    >;
+typedef $$UsageEventsTableCreateCompanionBuilder =
+    UsageEventsCompanion Function({
+      required String id,
+      required String sessionId,
+      required String metadataJson,
+      Value<int> rowid,
+    });
+typedef $$UsageEventsTableUpdateCompanionBuilder =
+    UsageEventsCompanion Function({
+      Value<String> id,
+      Value<String> sessionId,
+      Value<String> metadataJson,
+      Value<int> rowid,
+    });
+
+final class $$UsageEventsTableReferences
+    extends
         BaseReferences<
           _$OpenSpentLocalDatabase,
-          $OpenCodeSessionsTable,
-          LocalOpenCodeSessionRow
-        >,
-      ),
-      LocalOpenCodeSessionRow,
-      PrefetchHooks Function()
+          $UsageEventsTable,
+          LocalUsageEventRow
+        > {
+  $$UsageEventsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $OpenCodeSessionsTable _sessionIdTable(_$OpenSpentLocalDatabase db) =>
+      db.openCodeSessions.createAlias(
+        $_aliasNameGenerator(db.usageEvents.sessionId, db.openCodeSessions.id),
+      );
+
+  $$OpenCodeSessionsTableProcessedTableManager get sessionId {
+    final $_column = $_itemColumn<String>('session_id')!;
+
+    final manager = $$OpenCodeSessionsTableTableManager(
+      $_db,
+      $_db.openCodeSessions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sessionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UsageEventsTableFilterComposer
+    extends Composer<_$OpenSpentLocalDatabase, $UsageEventsTable> {
+  $$UsageEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metadataJson => $composableBuilder(
+    column: $table.metadataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$OpenCodeSessionsTableFilterComposer get sessionId {
+    final $$OpenCodeSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.openCodeSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OpenCodeSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.openCodeSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UsageEventsTableOrderingComposer
+    extends Composer<_$OpenSpentLocalDatabase, $UsageEventsTable> {
+  $$UsageEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metadataJson => $composableBuilder(
+    column: $table.metadataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$OpenCodeSessionsTableOrderingComposer get sessionId {
+    final $$OpenCodeSessionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.openCodeSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OpenCodeSessionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.openCodeSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UsageEventsTableAnnotationComposer
+    extends Composer<_$OpenSpentLocalDatabase, $UsageEventsTable> {
+  $$UsageEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get metadataJson => $composableBuilder(
+    column: $table.metadataJson,
+    builder: (column) => column,
+  );
+
+  $$OpenCodeSessionsTableAnnotationComposer get sessionId {
+    final $$OpenCodeSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.openCodeSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OpenCodeSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.openCodeSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UsageEventsTableTableManager
+    extends
+        RootTableManager<
+          _$OpenSpentLocalDatabase,
+          $UsageEventsTable,
+          LocalUsageEventRow,
+          $$UsageEventsTableFilterComposer,
+          $$UsageEventsTableOrderingComposer,
+          $$UsageEventsTableAnnotationComposer,
+          $$UsageEventsTableCreateCompanionBuilder,
+          $$UsageEventsTableUpdateCompanionBuilder,
+          (LocalUsageEventRow, $$UsageEventsTableReferences),
+          LocalUsageEventRow,
+          PrefetchHooks Function({bool sessionId})
+        > {
+  $$UsageEventsTableTableManager(
+    _$OpenSpentLocalDatabase db,
+    $UsageEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UsageEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UsageEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UsageEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<String> metadataJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UsageEventsCompanion(
+                id: id,
+                sessionId: sessionId,
+                metadataJson: metadataJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String sessionId,
+                required String metadataJson,
+                Value<int> rowid = const Value.absent(),
+              }) => UsageEventsCompanion.insert(
+                id: id,
+                sessionId: sessionId,
+                metadataJson: metadataJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UsageEventsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({sessionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (sessionId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.sessionId,
+                                referencedTable: $$UsageEventsTableReferences
+                                    ._sessionIdTable(db),
+                                referencedColumn: $$UsageEventsTableReferences
+                                    ._sessionIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UsageEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$OpenSpentLocalDatabase,
+      $UsageEventsTable,
+      LocalUsageEventRow,
+      $$UsageEventsTableFilterComposer,
+      $$UsageEventsTableOrderingComposer,
+      $$UsageEventsTableAnnotationComposer,
+      $$UsageEventsTableCreateCompanionBuilder,
+      $$UsageEventsTableUpdateCompanionBuilder,
+      (LocalUsageEventRow, $$UsageEventsTableReferences),
+      LocalUsageEventRow,
+      PrefetchHooks Function({bool sessionId})
     >;
 
 class $OpenSpentLocalDatabaseManager {
@@ -1777,4 +2590,6 @@ class $OpenSpentLocalDatabaseManager {
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
   $$OpenCodeSessionsTableTableManager get openCodeSessions =>
       $$OpenCodeSessionsTableTableManager(_db, _db.openCodeSessions);
+  $$UsageEventsTableTableManager get usageEvents =>
+      $$UsageEventsTableTableManager(_db, _db.usageEvents);
 }

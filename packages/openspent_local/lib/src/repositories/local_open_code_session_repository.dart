@@ -22,45 +22,141 @@ final class LocalOpenCodeSessionRepository
               ]))
             .get();
 
+    final eventRows = await _database.select(_database.usageEvents).get();
+    final eventsBySession = <String, List<UsageEvent>>{};
+    for (final row in eventRows) {
+      final event = UsageEvent.fromJson(
+        jsonDecode(row.metadataJson) as Map<String, dynamic>,
+      );
+      eventsBySession.putIfAbsent(row.sessionId, () => []).add(event);
+    }
     return List<OpenCodeSession>.unmodifiable(
-      rows.map(_mapRow).toList(growable: false),
+      rows.map((row) {
+        final events = eventsBySession[row.id];
+        if (events != null && events.isNotEmpty) {
+          return sessionFromEvents(
+            id: row.id,
+            harness: UsageHarness.values.byName(row.harness),
+            createdAt: row.createdAtUtc,
+            events: events,
+          );
+        }
+        return _mapRow(row);
+      }),
     );
   }
 
   @override
   Future<void> writeSessions(Iterable<OpenCodeSession> sessions) async {
+    final snapshots = sessions.toList();
     await _database.transaction(() async {
-      final sessionCompanions = sessions
-          .map((OpenCodeSession session) {
-            _validateSession(session);
-            return OpenCodeSessionsCompanion.insert(
-              id: session.id,
-              createdAtUtc: session.createdAt.toUtc(),
-              provider: Value<String?>(
-                _normalizeNullableText(session.provider),
-              ),
-              modelName: Value<String?>(session.modelName),
-              inputTokens: Value<int?>(session.inputTokens),
-              outputTokens: Value<int?>(session.outputTokens),
-              totalCostUsd: Value<double?>(session.totalCostUsd),
-              requestCount: Value<int?>(session.requestCount),
-              toolCallCount: Value<int?>(session.toolCallCount),
-              responseCount: Value<int?>(session.responseCount),
-              totalResponseTimeMs: Value<int?>(session.totalResponseTimeMs),
-              subagentCategory: Value<String?>(
-                _sanitizeSubagentCategory(session.subagentCategory),
-              ),
-              usageSlicesJson: Value<String?>(_encodeUsageSlices(session)),
+      final oldSessions = {
+        for (final row
+            in await _database.select(_database.openCodeSessions).get())
+          row.id: row,
+      };
+      final oldEvents = {
+        for (final row in await _database.select(_database.usageEvents).get())
+          row.id: row,
+      };
+      final mergedEvents = <String, UsageEvent>{};
+      // Merge by response identity, including duplicate files and streaming revisions.
+      for (final session in snapshots) {
+        _validateSession(session);
+        for (final event in session.usageEvents) {
+          if (event.sessionId != session.id) {
+            throw const FormatException('Usage event session mismatch.');
+          }
+          final oldRow = oldEvents[event.id];
+          final old =
+              mergedEvents[event.id] ??
+              (oldRow == null
+                  ? null
+                  : UsageEvent.fromJson(
+                      jsonDecode(oldRow.metadataJson) as Map<String, dynamic>,
+                    ));
+          if (old != null && old.sessionId != event.sessionId) continue;
+          var merged = event;
+          if (old != null) {
+            final previous = old.tokens.toJson();
+            final tokens = TokenUsage.fromJson(
+              event.tokens.toJson().map((k, v) {
+                final before = previous[k] as int?, after = v as int?;
+                return MapEntry(
+                  k,
+                  after == null
+                      ? before
+                      : before == null || after > before
+                      ? after
+                      : before,
+                );
+              }),
             );
-          })
-          .toList(growable: false);
-
-      await _database.batch((Batch batch) {
-        batch.insertAll(
-          _database.openCodeSessions,
-          sessionCompanions,
-          mode: InsertMode.insertOrReplace,
+            merged = UsageEvent(
+              id: event.id,
+              sessionId: event.sessionId,
+              timestamp: old.timestamp,
+              provider: event.provider,
+              model: event.model ?? old.model,
+              tokens: tokens,
+              contextInputTokens:
+                  event.contextInputTokens ?? old.contextInputTokens,
+            );
+          }
+          mergedEvents[event.id] = merged;
+        }
+      }
+      final companions = <String, OpenCodeSessionsCompanion>{};
+      for (final session in snapshots) {
+        final previousDate = oldSessions[session.id]?.createdAtUtc;
+        companions[session.id] = OpenCodeSessionsCompanion.insert(
+          id: session.id,
+          harness: Value(session.harness.name),
+          tokenUsageJson: Value(
+            session.tokenUsage == null
+                ? null
+                : jsonEncode(session.tokenUsage!.toJson()),
+          ),
+          createdAtUtc:
+              previousDate != null && previousDate.isBefore(session.createdAt)
+              ? previousDate
+              : session.createdAt.toUtc(),
+          provider: Value(_normalizeNullableText(session.provider)),
+          modelName: Value(session.modelName),
+          inputTokens: Value(session.inputTokens),
+          outputTokens: Value(session.outputTokens),
+          totalCostUsd: Value(session.totalCostUsd),
+          requestCount: Value(session.requestCount),
+          toolCallCount: Value(session.toolCallCount),
+          responseCount: Value(session.responseCount),
+          totalResponseTimeMs: Value(session.totalResponseTimeMs),
+          subagentCategory: Value(
+            _sanitizeSubagentCategory(session.subagentCategory),
+          ),
+          // Event slices are reconstructed on read; avoid duplicating per-response data.
+          usageSlicesJson: Value(
+            session.usageEvents.isEmpty ? _encodeUsageSlices(session) : null,
+          ),
         );
+      }
+      final eventCompanions = <UsageEventsCompanion>[];
+      for (final event in mergedEvents.values) {
+        final encoded = jsonEncode(event.toJson());
+        if (oldEvents[event.id]?.metadataJson == encoded) continue;
+        eventCompanions.add(
+          UsageEventsCompanion.insert(
+            id: event.id,
+            sessionId: event.sessionId,
+            metadataJson: encoded,
+          ),
+        );
+      }
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.openCodeSessions,
+          companions.values.toList(),
+        );
+        batch.insertAllOnConflictUpdate(_database.usageEvents, eventCompanions);
       });
     });
   }
@@ -68,6 +164,12 @@ final class LocalOpenCodeSessionRepository
   OpenCodeSession _mapRow(LocalOpenCodeSessionRow row) {
     return OpenCodeSession(
       id: row.id,
+      harness: UsageHarness.values.byName(row.harness),
+      tokenUsage: row.tokenUsageJson == null
+          ? null
+          : TokenUsage.fromJson(
+              jsonDecode(row.tokenUsageJson!) as Map<String, dynamic>,
+            ),
       createdAt: row.createdAtUtc.toUtc(),
       provider: _normalizeNullableText(row.provider),
       modelName: row.modelName,
@@ -220,6 +322,8 @@ final class LocalOpenCodeSessionRepository
       session.usageSlices
           .map(
             (usageSlice) => <String, Object?>{
+              'tokenUsage': usageSlice.tokenUsage?.toJson(),
+              'createdAt': usageSlice.createdAt?.toUtc().toIso8601String(),
               'provider': usageSlice.provider,
               'modelName': usageSlice.modelName,
               'inputTokens': usageSlice.inputTokens,
@@ -271,6 +375,12 @@ final class LocalOpenCodeSessionRepository
     }
 
     return SessionUsageSlice(
+      tokenUsage: value['tokenUsage'] is Map<String, dynamic>
+          ? TokenUsage.fromJson(value['tokenUsage'] as Map<String, dynamic>)
+          : null,
+      createdAt: value['createdAt'] is String
+          ? DateTime.parse(value['createdAt'] as String)
+          : null,
       provider: provider,
       modelName: modelName,
       inputTokens: _readNullableNonNegativeInt(

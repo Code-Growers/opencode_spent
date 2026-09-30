@@ -1,123 +1,160 @@
 class Loc {
-  final String languageCode;
-
   const Loc(this.languageCode);
-
+  final String languageCode;
   static const en = Loc('en');
   static const cs = Loc('cs');
+  String _t(String en, String cs) => languageCode == 'cs' ? cs : en;
 
-  // Nav / Header
   String get title => 'OpenSpent';
-  String get langSwitch => this == cs ? 'EN / [CS]' : '[EN] / CS';
-
-  // Hero
-  String get heroTitle => this == cs
-      ? 'Řídicí věž pro OpenCode spend.'
-      : 'The control room for OpenCode spend.';
-  String get heroSubtitle => this == cs
-      ? 'Moderní lokální dashboard pro týmy, které chtějí vidět náklady, modely a relace z jednoho místa bez úniku promptů nebo raw payloadů.'
-      : 'A modern local dashboard for teams that need usage, models, sessions, and spend in one place without exposing prompts or raw payloads.';
-
-  // Badges
-  String get badgeAlpha => 'ALPHA';
-  String get badgeFree => this == cs ? 'ZDARMA' : 'FREE';
-  String get badgePrivacy => this == cs ? 'SOUKROMÍ' : 'PRIVACY FIRST';
-  String get badgeOpenSource => 'OPEN SOURCE';
-  String get badgeRealtime => this == cs ? 'REALTIME' : 'REALTIME';
-
-  // What it does
-  String get sectionFeatures =>
-      this == cs ? '// Co to dělá' : '// What it does';
-  String get sectionFeaturesBody => this == cs
-      ? 'Pro týmy, které potřebují ostrý dashboard místo dalšího log souboru.'
-      : 'Built for operators who need a crisp dashboard, not another log file.';
-
-  String get featPrivacyTitle =>
-      this == cs ? 'Stoprocentně lokální' : '100% Local';
-  String get featPrivacyBody => this == cs
-      ? 'Všechna data zůstávají u vás. Žádné prompty, žádné kódy, žádné cloud servery.'
-      : 'All data stays on your machine. No prompts, no code, no cloud servers.';
-
+  String get langSwitch => _t('[EN] / CS', 'EN / [CS]');
+  String get languageSwitchLabel =>
+      _t('Switch to Czech', 'Přepnout do angličtiny');
+  String get skipContent => _t('Skip to content', 'Přejít na obsah');
+  String get navigation => _t('Sections', 'Sekce');
+  String get navProduct => _t('Product', 'Produkt');
+  String get navStart => _t('Get started', 'Jak začít');
+  String get navPrivacy => _t('Privacy', 'Soukromí');
+  String get heroEyebrow => _t(
+    'LOCAL PROCESSING. ZERO USAGE UPLOADS.',
+    'LOKÁLNÍ ZPRACOVÁNÍ. ŽÁDNÉ ODESÍLÁNÍ DAT.',
+  );
+  String get heroTitle => _t('Your AI coding costs.', 'Vaše náklady na AI.');
+  String get heroAccent => _t('On your machine.', 'Na vašem počítači.');
+  String get heroSubtitle => _t(
+    'OpenSpent reads your OpenCode, Claude Code and Codex logs and calculates spending on your device. Explore costs, models and sessions while your usage data stays with you.',
+    'OpenSpent čte lokální záznamy OpenCode, Claude Code a Codex a počítá náklady přímo na vašem zařízení. Prozkoumejte náklady, modely a relace. Data o využití zůstávají u vás.',
+  );
+  String get localProcessing =>
+      _t('Processed on your device', 'Zpracování na vašem zařízení');
+  String get noUploads => _t('No usage uploads', 'Bez odesílání dat o využití');
+  String get noAccount => _t('No account needed', 'Bez registrace');
+  String get heroNote => _t(
+    'Free and open source. Cost estimates work offline, with no model API calls or API keys.',
+    'Zdarma a open source. Odhady nákladů fungují offline, bez volání API modelů a bez API klíčů.',
+  );
+  String get linkDemo => _t('Try the demo', 'Vyzkoušet demo');
+  String get openDemo => _t('Open demo', 'Otevřít demo');
+  String get setupAction => _t('Use your own data', 'Použít vlastní data');
+  String get supportedSources => _t('Supported sources', 'Podporované zdroje');
+  String get badgeOpenSource => 'MIT / OPEN SOURCE';
+  String get sampleData => _t('Sample data', 'Ukázková data');
+  String get samplePeriod =>
+      _t('Last 30 days · USD', 'Posledních 30 dní · USD');
+  String get estimateLabel => _t('Estimated API cost', 'Odhad API nákladů');
+  String get estimateNote => _t(
+    'Token-based estimate. Not a subscription bill.',
+    'Odhad podle tokenů. Nejde o účet za předplatné.',
+  );
+  String get productTitle =>
+      _t('From a total to the details.', 'Od celku k detailům.');
+  String get productBody => _t(
+    'Start with your spending. Filter by harness and time, then explore models, activity and individual sessions.',
+    'Začněte náklady. Vyberte nástroj a období, potom prozkoumejte modely, aktivitu a jednotlivé relace.',
+  );
+  String get previewLabel =>
+      _t('Illustrative dashboard preview', 'Ilustrační náhled dashboardu');
+  String get previewMetrics => _t('Spending overview', 'Přehled nákladů');
+  String get previewSessions => _t('Recent sessions', 'Poslední relace');
+  String get previewHeatmapRuns => _t('Sessions', 'Relace');
+  String get previewHeatmapActiveDays => _t('Active days', 'Aktivní dny');
+  String get spendTrend => _t('Spending over time', 'Náklady v čase');
+  String get chartDescription => _t(
+    'Illustrative spending bars over 30 days',
+    'Ilustrační graf nákladů za 30 dní',
+  );
+  String get periodStart => _t('30 days ago', 'Před 30 dny');
+  String get periodEnd => _t('Today', 'Dnes');
+  String get previewExplanation => _t(
+    'Find a session by model, date or identifier. Your prompts stay private.',
+    'Vyhledejte relaci podle modelu, data nebo identifikátoru. Prompty zůstávají soukromé.',
+  );
+  String get exploreDemo =>
+      _t('Explore the interactive demo ↗', 'Prozkoumat interaktivní demo ↗');
   String get featCostTitle =>
-      this == cs ? 'Chytré sledování nákladů' : 'Smart Cost Tracking';
-  String get featCostBody => this == cs
-      ? 'Zjistěte přesně, kolik stojí jednotlivé běhy a modely. Podpora USD i CZK.'
-      : 'Know exactly how much individual runs and models cost. USD & CZK support.';
-
+      _t('Know what the numbers mean', 'Rozumějte jednotlivým číslům');
+  String get featCostBody => _t(
+    'Reported spend and API estimates are shown separately, with pricing coverage. View dashboard totals in USD, CZK or EUR.',
+    'Vykázané náklady a API odhady jsou oddělené, včetně pokrytí cenami. Dashboard podporuje USD, CZK a EUR.',
+  );
   String get featMonitorTitle =>
-      this == cs ? 'Metriky v reálném čase' : 'Real-time Metrics';
-  String get featMonitorBody => this == cs
-      ? 'Dashboard inspirovaný terminálem s živým stavem serveru, drilldowny a přehledy pro rychlé rozhodování.'
-      : 'A terminal-inspired dashboard with live server state, drilldowns, and executive-ready summaries.';
-  String get featCompanyTitle =>
-      this == cs ? 'Firemní OpenCode cockpit' : 'Company OpenCode cockpit';
-  String get featCompanyBody => this == cs
-      ? 'Připojte dashboard k firemnímu OpenCode serveru a sledujte týmovou útratu z jednoho lokálního místa v reálném čase.'
-      : 'Point the dashboard at a company-owned OpenCode server and watch team spend from one local place in realtime.';
-
-  // Previews
-  String get sectionPreview =>
-      this == cs ? '// Jak to vypadá' : '// What it looks like';
-  String get previewMetrics =>
-      this == cs ? 'Metriky a Grafy' : 'Metrics & Charts';
-  String get previewSessions =>
-      this == cs ? 'Přehled Relací' : 'Sessions Overview';
-  String get previewRates => this == cs ? 'Měnové Kurzy' : 'Exchange Rates';
-  String get previewSettings => this == cs ? 'Nastavení' : 'Settings';
-  String get previewCompany =>
-      this == cs ? 'Firemní Cockpit' : 'Company Cockpit';
-  String get previewHeatmap =>
-      this == cs ? 'Teplotní Mapa Aktivity' : 'Activity Heatmap';
-  String get previewHeatmapRuns => this == cs ? 'Celkem běhů' : 'Total runs';
-  String get previewHeatmapActiveDays =>
-      this == cs ? 'Aktivní dny' : 'Active days';
-  String get previewHeatmapCurrentStreak =>
-      this == cs ? 'Aktuální šňůra' : 'Current streak';
-  String get previewHeatmapPeak => this == cs ? 'Špička' : 'Peak';
-  String get previewHeatmapLegendLess => this == cs ? 'Méně' : 'Less';
-  String get previewHeatmapLegendMore => this == cs ? 'Více' : 'More';
-
-  // Enterprise use case
-  String get sectionEnterprise =>
-      this == cs ? '// Firemní použití' : '// Company use case';
-  String get enterpriseTitle => this == cs
-      ? 'Jeden lokální dashboard pro celý týmový OpenCode server.'
-      : 'One local dashboard for your team-owned OpenCode server.';
-  String get enterpriseBody => this == cs
-      ? 'OpenSpent může běžet vedle interního OpenCode serveru a dávat engineering leadům realtime přehled o nákladech, modelech, relacích a trendech. Data zůstávají u vás: UI zobrazuje jen allowlistovaná metadata, ne prompty, vstupy nástrojů ani raw výstupy.'
-      : 'OpenSpent can sit next to an internal OpenCode server and give engineering leads a realtime view of spend, models, sessions, and trends. Data stays with you: the UI renders allowlisted metadata only, not prompts, tool inputs, or raw outputs.';
-  String get enterprisePointRealtime => this == cs
-      ? 'Realtime pohled na týmové náklady'
-      : 'Realtime team spend visibility';
-  String get enterprisePointLocal => this == cs
-      ? 'Lokální cache a soukromá metadata'
-      : 'Local cache and private metadata';
-  String get enterprisePointOps => this == cs
-      ? 'Jedno místo pro finance i engineering'
-      : 'One place for finance and engineering';
-
-  // Open Source / Company
-  String get sectionCompany =>
-      this == cs ? '// Kdo za tím stojí' : '// Built by';
+      _t('Find the expensive patterns', 'Odhalte nákladné vzorce');
+  String get featMonitorBody => _t(
+    'Compare models and harnesses, inspect activity by day and hour, and search sessions without digging through logs.',
+    'Porovnávejte modely a nástroje, prohlížejte denní a hodinovou aktivitu a hledejte relace bez procházení logů.',
+  );
+  String get featPrivacyTitle =>
+      _t('Local analysis. Private data.', 'Lokální analýza. Soukromá data.');
+  String get featPrivacyBody => _t(
+    'Your device does the processing and stores only allowlisted usage metadata. No hosted analytics service receives your data. Prompts, tool payloads and project paths never enter the dashboard.',
+    'Zpracování probíhá na vašem zařízení a ukládají se pouze povolená metadata o využití. Data neposíláme do hostované analytické služby. Prompty, obsah nástrojů a cesty k projektům se do dashboardu nedostanou.',
+  );
+  String get startTitle =>
+      _t('Choose how you work.', 'Vyberte si svůj způsob práce.');
+  String get startBody => _t(
+    'A workspace for exploring. A browser for trying it out. A command for a quick answer.',
+    'Desktop pro analýzu. Prohlížeč pro vyzkoušení. Příkaz pro rychlou odpověď.',
+  );
+  String get desktopTitle => _t('On your desktop', 'Na vašem desktopu');
+  String get desktopBody => _t(
+    'Run the Flutter app, connect local Claude Code and Codex folders in Settings, and sync or import OpenCode data.',
+    'Spusťte Flutter aplikaci, připojte lokální složky Claude Code a Codex v nastavení a synchronizujte nebo importujte OpenCode.',
+  );
+  String get desktopAction => _t('Desktop setup', 'Návod pro desktop');
+  String get browserTitle => _t('In your browser', 'V prohlížeči');
+  String get browserBody => _t(
+    'Explore sample data first. Switch to Real to import OpenCode JSON or SQLite, or connect an accessible OpenCode server. Local folder scans require desktop.',
+    'Začněte ukázkovými daty. Přepněte na Real, importujte OpenCode JSON či SQLite nebo připojte dostupný OpenCode server. Skenování složek vyžaduje desktop.',
+  );
+  String get cliTitle => _t('In your terminal', 'V terminálu');
+  String get cliBody => _t(
+    'Run openspent on demand to read local OpenCode, Claude Code and Codex usage. Filter the period, inspect pricing coverage or export JSON.',
+    'Příkaz openspent na požádání načte lokální využití OpenCode, Claude Code a Codex. Vyberte období, ověřte pokrytí cenami nebo exportujte JSON.',
+  );
+  String get cliAction => _t('CLI setup', 'Návod pro CLI');
+  String get cliNote => _t(
+    'Example after compiling the CLI. USD estimates use the same offline pricing rules as the app; unknown prices remain unknown.',
+    'Ukázka po kompilaci CLI. Odhady v USD používají stejné offline ceny jako aplikace; neznámé ceny zůstávají neznámé.',
+  );
+  String get privacyTitle => _t(
+    'Local by design. Private by default.',
+    'Lokálně od základu. Soukromí samozřejmostí.',
+  );
+  String get privacyBody => _t(
+    'The desktop app and CLI read local records, calculate costs offline and keep usage metadata on your device. There is no OpenSpent cloud backend, account or analytics upload. Optional network features fetch usage from your configured OpenCode server or currency exchange rates; they do not upload your local usage.',
+    'Desktopová aplikace a CLI čtou lokální záznamy, počítají náklady offline a ukládají metadata o využití na vašem zařízení. OpenSpent nemá cloudový backend, účet ani odesílání analytiky. Volitelné síťové funkce načítají využití z vašeho OpenCode serveru nebo měnové kurzy; lokální data o využití neodesílají.',
+  );
+  String get privacyPrompts => _t('Prompts stored', 'Uložené prompty');
+  String get privacyPayloads => _t('Raw tool payloads', 'Obsah nástrojů');
+  String get privacyPaths =>
+      _t('Project paths displayed', 'Zobrazené cesty projektů');
+  String get privacyStorage => _t('Usage storage', 'Úložiště využití');
+  String get never => _t('Never', 'Nikdy');
+  String get onYourDevice => _t('On your device', 'Na vašem zařízení');
+  String get dataLimits => _t(
+    'Totals cover available local records. Missing logs and cloud-only work are outside the totals. API estimates exclude subscriptions, taxes and extra service charges.',
+    'Součty pokrývají dostupné lokální záznamy. Chybějící logy a cloudová práce nejsou zahrnuté. API odhady nezahrnují předplatné, daně a poplatky za další služby.',
+  );
+  String get enterpriseTitle => _t(
+    'An OpenCode server for the whole team.',
+    'OpenCode server pro celý tým.',
+  );
+  String get enterpriseBody => _t(
+    'Connect a team-owned OpenCode server and explore its usage from the same local dashboard. Your team keeps control of the server and its data.',
+    'Připojte týmový OpenCode server a prohlížejte využití ze stejného lokálního dashboardu. Server a jeho data zůstávají pod kontrolou vašeho týmu.',
+  );
+  String get serverSetup =>
+      _t('Read the data-source guide', 'Návod ke zdrojům dat');
+  String get sectionCompany => _t('Built by', 'Vytvořili');
   String get companyTitle => 'Code Growers s.r.o.';
-  String get companyBody => this == cs
-      ? 'Jsme vývojářské studio, které věří v lokální AI nástroje a ochranu soukromí. Vytvořili jsme OpenSpent jako open-source (MIT).'
-      : 'We are a development studio that believes in local-first AI tools and privacy. We built OpenSpent as open-source (MIT).';
-  String get linkDemo => this == cs ? 'Vyzkoušet Demo' : 'Try the Demo';
-  String get linkGithub => 'GitHub Repository';
-  String get linkLinkedin => 'LinkedIn';
-
-  // Terminal ASCII
-  String get terminalCommand =>
-      this == cs ? '\$ openspent stav' : '\$ openspent status';
-  String get terminalUsage =>
-      this == cs ? 'VYUŽITÍ (30 DNÍ)' : 'USAGE (30 DAYS)';
-  String get terminalCost => this == cs ? 'NÁKLADY' : 'COST';
-  String get terminalTotal => this == cs ? 'CELKEM' : 'TOTAL';
-  String get terminalTrend => 'TREND';
-
-  // Footer
-  String get footer => this == cs
-      ? '© 2026 Code Growers s.r.o. Licence MIT.'
-      : '© 2026 Code Growers s.r.o. MIT Licensed.';
+  String get companyBody => _t(
+    'We build web, mobile and AI products. OpenSpent is our open-source tool for making AI usage easier to understand, with privacy built in.',
+    'Vyvíjíme webové, mobilní a AI produkty. OpenSpent je náš open-source nástroj pro lepší přehled o využití AI s důrazem na soukromí.',
+  );
+  String get visitCodeGrowers =>
+      _t('Meet Code Growers', 'Poznejte Code Growers');
+  String get backToTop => _t('Back to top ↑', 'Zpět nahoru ↑');
+  String get footer => _t(
+    '© 2026 Code Growers s.r.o. MIT Licensed.',
+    '© 2026 Code Growers s.r.o. Licence MIT.',
+  );
 }

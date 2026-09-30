@@ -1,6 +1,10 @@
+import '../usage/harness_usage.dart';
+
 final class SessionUsageSlice {
   const SessionUsageSlice({
     required this.provider,
+    this.createdAt,
+    this.tokenUsage,
     required this.modelName,
     this.inputTokens,
     this.outputTokens,
@@ -11,6 +15,8 @@ final class SessionUsageSlice {
     this.totalResponseTimeMs,
   });
 
+  final DateTime? createdAt;
+  final TokenUsage? tokenUsage;
   final String provider;
   final String modelName;
   final int? inputTokens;
@@ -25,6 +31,8 @@ final class SessionUsageSlice {
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is SessionUsageSlice &&
+            other.tokenUsage == tokenUsage &&
+            other.createdAt == createdAt &&
             other.provider == provider &&
             other.modelName == modelName &&
             other.inputTokens == inputTokens &&
@@ -38,6 +46,8 @@ final class SessionUsageSlice {
 
   @override
   int get hashCode => Object.hash(
+    tokenUsage,
+    createdAt,
     provider,
     modelName,
     inputTokens,

@@ -6,6 +6,14 @@ final class OpenSpentInfo {
   static const bool isLocalOnly = true;
 
   static const List<String> persistedMetadataAllowlist = <String>[
+    'tokenUsage',
+    'harness',
+    'usageEvents',
+    'cachedInputTokens',
+    'cacheWriteTokens',
+    'cacheWrite5mTokens',
+    'cacheWrite1hTokens',
+    'reasoningOutputTokens',
     'provider',
     'modelName',
     'inputTokens',
@@ -29,6 +37,14 @@ final class OpenSpentInfo {
 
   static const List<String> ingestedSessionFieldAllowlist = <String>[
     'id',
+    'tokenUsage',
+    'harness',
+    'usageEvents',
+    'cachedInputTokens',
+    'cacheWriteTokens',
+    'cacheWrite5mTokens',
+    'cacheWrite1hTokens',
+    'reasoningOutputTokens',
     'provider',
     'modelName',
     'inputTokens',

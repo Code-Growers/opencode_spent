@@ -65,7 +65,7 @@ class MetricsKpiCards extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final spacing = DashboardSpacing.nestedPanelPadding;
-        final minCardWidth = 230.0;
+        final minCardWidth = 180.0;
         int crossAxisCount = (constraints.maxWidth / minCardWidth).floor();
         if (crossAxisCount == 0) crossAxisCount = 1;
         if (crossAxisCount > 5) crossAxisCount = 5;
@@ -178,7 +178,7 @@ class _KpiCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: dashboardAccentColor.withValues(alpha: 0.12),
                     border: Border.all(
@@ -199,7 +199,7 @@ class _KpiCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               title,
               style: textTheme.bodyMedium?.copyWith(

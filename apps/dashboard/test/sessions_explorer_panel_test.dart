@@ -209,6 +209,60 @@ Future<void> _expectSpotlightMatchesListFirstThree(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets(
+    'pagination reaches every record and search resets to the first page',
+    (tester) async {
+      final sessions = List.generate(
+        60,
+        (index) => _session(
+          id: '$index',
+          createdAt: DateTime.utc(2026, 9, 1).add(Duration(minutes: index)),
+          modelName: index < 10 ? 'rare-model' : 'common-model',
+        ),
+      );
+      final cubit = await _buildLoadedCubit(sessions: sessions);
+      addTearDown(cubit.close);
+      await _pumpPanel(tester, cubit: cubit, isConnected: false);
+      expect(_listRowIds(tester), hasLength(25));
+      expect(_listRowIds(tester).first, 'ID: 59');
+      expect(find.text('Page 1 of 3'), findsOneWidget);
+      expect(
+        find
+            .byType(Scrollable)
+            .evaluate()
+            .where((e) => (e.widget as Scrollable).axis == Axis.vertical),
+        hasLength(1),
+      );
+      for (final page in [2, 3]) {
+        final next = find.byKey(const Key('sessions-next-page'));
+        await tester.ensureVisible(next);
+        await tester.tap(next);
+        await tester.pumpAndSettle();
+        expect(find.text('Page $page of 3'), findsOneWidget);
+      }
+      expect(_listRowIds(tester), hasLength(10));
+      expect(_listRowIds(tester).last, 'ID: 0');
+      await tester.ensureVisible(
+        find.byKey(const Key('sessions-search-field')),
+      );
+      await tester.enterText(
+        find.byKey(const Key('sessions-search-field')),
+        'rare-model',
+      );
+      await tester.pumpAndSettle();
+      expect(_listRowIds(tester), hasLength(10));
+      expect(find.byKey(const Key('sessions-page-label')), findsNothing);
+      await tester.enterText(
+        find.byKey(const Key('sessions-search-field')),
+        '',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Page 1 of 3'), findsOneWidget);
+      expect(_listRowIds(tester).first, 'ID: 59');
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('shows disconnected empty state and disabled sync', (
     WidgetTester tester,
   ) async {
@@ -628,7 +682,7 @@ void main() {
 
     // The clear filter banner should be visible
     expect(find.text('> Model filter ...... gpt-4o'), findsOneWidget);
-    expect(find.text('[ CLEAR ]'), findsOneWidget);
+    expect(find.text('Clear filters'), findsOneWidget);
 
     // Only 'gpt-4o' session should be shown
     expect(find.textContaining('ses_gpt'), findsWidgets);
@@ -1016,7 +1070,7 @@ void main() {
     },
   );
   testWidgets(
-    'SessionsExplorerPanel wide layout stacks explorer above full-width records and enlarges spotlight pie',
+    'SessionsExplorerPanel wide layout shows records before supporting analysis with a single scroll owner',
     (tester) async {
       final cubit = await _buildLoadedCubit(
         sessions: [_session(id: '1', createdAt: DateTime.now())],
@@ -1063,7 +1117,7 @@ void main() {
       final listRect = tester.getRect(listColumn);
       final pieSize = tester.getSize(spotlightPie);
 
-      expect(sidebarRect.top, lessThan(listRect.top));
+      expect(sidebarRect.top, greaterThan(listRect.bottom));
       expect(
         listRect.left,
         closeTo(panelRect.left + DashboardSpacing.primaryPanelPadding + 1, 1),

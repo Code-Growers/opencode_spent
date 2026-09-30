@@ -15,7 +15,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get localLabel => '[ LOKÁLNÍ ]';
 
   @override
-  String get heroTitle => 'Monitorujte OpenCode. Lokálně.';
+  String get heroTitle => 'Monitorujte využití AI. Lokálně.';
 
   @override
   String get heroDescription =>
@@ -125,19 +125,19 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get metricsTitle => 'METRIKY';
+  String get metricsTitle => 'Období';
 
   @override
-  String get shellNavMetrics => '[ METRIKY ]';
+  String get shellNavMetrics => 'Přehled';
 
   @override
-  String get shellNavSessions => '[ RELACE ]';
+  String get shellNavSessions => 'Relace';
 
   @override
-  String get shellNavExchangeRates => '[ KURZY ]';
+  String get shellNavExchangeRates => 'Měnové kurzy';
 
   @override
-  String get shellNavState => '[ STAV ]';
+  String get shellNavState => 'Zdroje a stav';
 
   @override
   String get metricsLoad => '_ čekám na první data metrik ...';
@@ -314,27 +314,27 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String metricsKpiTotalPrice(String currency, String value) {
-    return '> CELKOVÁ CENA ...... $value $currency';
+    return 'Vykázané náklady · $value $currency';
   }
 
   @override
   String metricsKpiTotalRequests(String value) {
-    return '> CELKEM POŽADAVKŮ .. $value';
+    return 'Požadavky · $value';
   }
 
   @override
   String metricsKpiTotalToolCalls(String value) {
-    return '> CELKEM TOOL CALLŮ . $value';
+    return 'Volání nástrojů · $value';
   }
 
   @override
   String metricsKpiAvgResponseTime(String value) {
-    return '> PRŮM. ODEZVA ...... $value';
+    return 'Průměrná odezva · $value';
   }
 
   @override
   String metricsKpiTotalTokens(String value) {
-    return '> CELKEM TOKENŮ ..... $value';
+    return 'Tokeny · $value';
   }
 
   @override
@@ -933,4 +933,196 @@ class AppLocalizationsCs extends AppLocalizations {
   String metricsHeatmapCellTooltip(String day, int sessions, String tokens) {
     return '$day\n$sessions relací • $tokens tokenů';
   }
+
+  @override
+  String get usageSourcesTitle => 'Lokální zdroje využití';
+
+  @override
+  String get usageConnect => 'Připojit';
+
+  @override
+  String get usageRefresh => 'Obnovit';
+
+  @override
+  String get usageDisconnect => 'Odpojit';
+
+  @override
+  String get usageConnected => 'Připojeno';
+
+  @override
+  String get usageNotConnected => 'Nepřipojeno';
+
+  @override
+  String get usageChooseFolder => 'Vybrat složku';
+
+  @override
+  String get usageSourceError =>
+      'Zdroj se nepodařilo načíst. Dříve importovaná data zůstávají zachována.';
+
+  @override
+  String usageSourceResult(int sessions, int skipped, int failed) {
+    return '$sessions relací · $skipped přeskočených záznamů · $failed nečitelných souborů';
+  }
+
+  @override
+  String usageLastRefresh(String time) {
+    return 'Poslední obnovení: $time';
+  }
+
+  @override
+  String get usageNeverRefreshed => 'Zatím neobnoveno';
+
+  @override
+  String get usageSourcesBrowser =>
+      'Připojení lokálních zdrojů je dostupné v desktopové aplikaci.';
+
+  @override
+  String get usagePricingTitle => 'Ceny pro odhad API';
+
+  @override
+  String get usagePricingHelp =>
+      'Standardní ceny API tokenů v USD za milion tokenů. Předplatné, daně, nástroje a příplatky za rychlý režim nejsou zahrnuty.';
+
+  @override
+  String usagePricingSnapshot(String version) {
+    return 'Verze zveřejněných cen: $version';
+  }
+
+  @override
+  String get usagePricingModel => 'Použitý model';
+
+  @override
+  String get usagePricingMapping => 'Použít ceny zveřejněného modelu';
+
+  @override
+  String get usagePricingCustom => 'Vlastní ceny';
+
+  @override
+  String get usagePricingReset => 'Obnovit zveřejněné ceny';
+
+  @override
+  String get usagePricingSave => 'Uložit ceny';
+
+  @override
+  String get usagePricingInvalid =>
+      'Zadejte konečné nezáporné ceny. Ceny vstupu a výstupu jsou povinné.';
+
+  @override
+  String get usageInput => 'Vstup';
+
+  @override
+  String get usageOutput => 'Výstup';
+
+  @override
+  String get usageCacheRead => 'Čtení cache';
+
+  @override
+  String get usageCacheWrite => 'Zápis cache';
+
+  @override
+  String get usageCacheWrite1h => 'Zápis cache (1 hodina)';
+
+  @override
+  String get usageReasoning => 'Uvažování (zahrnuto ve výstupu)';
+
+  @override
+  String get usageHarnessAll => 'Všechny nástroje';
+
+  @override
+  String get usageComparisonTitle => 'Využití podle nástroje';
+
+  @override
+  String get usageApiEstimate => 'Odhad nákladů API';
+
+  @override
+  String get usageReportedCost => 'Vykázané náklady';
+
+  @override
+  String get usageUnknown => 'Nedostupné';
+
+  @override
+  String usagePricingCoverage(int priced, int total) {
+    return 'Oceněno $priced z $total záznamů využití';
+  }
+
+  @override
+  String get usageCustomPrice => 'Vlastní ceny';
+
+  @override
+  String get usageApproximate =>
+      'Přibližný odhad: bez příslušných metadat používá ceny krátkého kontextu nebo pětiminutového zápisu cache.';
+
+  @override
+  String get usageTokensHelp =>
+      'Vstup zahrnuje čtení a zápisy cache ve všech požadavcích, včetně opakovaného kontextu konverzace. Uvažování je součástí výstupu. Přesné počty tokenů zobrazíte najetím kurzoru.';
+
+  @override
+  String get usagePartial => 'Částečné';
+
+  @override
+  String get usageNoMapping => 'Ponechat původní model';
+
+  @override
+  String get usagePricingNoModels =>
+      'Pro nastavení cen modelů nejprve importujte využití.';
+
+  @override
+  String get usagePricingPublished => 'Zveřejněné ceny';
+
+  @override
+  String get usageSourcesHelp =>
+      'Připojte zdroj pro načtení lokálních metadat tokenů. Obnovuje se při spuštění nebo ručně; odpojení zachová historii.';
+
+  @override
+  String get usagePricingRatesHelp =>
+      'Prázdné ceny cache ponechají příslušné záznamy bez odhadu. Nula znamená výslovně bezplatnou kategorii.';
+
+  @override
+  String get usageSourceBusy => 'Obnovování lokálního využití…';
+
+  @override
+  String get overviewPurpose => 'Náklady, využití a modely na jednom místě.';
+
+  @override
+  String get sessionsPurpose => 'Najděte relaci. Porovnejte využití a náklady.';
+
+  @override
+  String get exchangePurpose => 'Správa kurzů pro přepočet vašich nákladů.';
+
+  @override
+  String get sourcesPurpose =>
+      'Zkontrolujte lokální data, připojení a soukromí.';
+
+  @override
+  String get mockDataNotice =>
+      'Ukázková data · pro své využití přepněte na Real';
+
+  @override
+  String get realDataNotice => 'Lokální data';
+
+  @override
+  String sessionsPage(int page, int pages) {
+    return 'Strana $page z $pages';
+  }
+
+  @override
+  String get previousPage => 'Předchozí strana';
+
+  @override
+  String get nextPage => 'Další strana';
+
+  @override
+  String get mockDataLabel => 'Ukázková data';
+
+  @override
+  String get sessionsSortLatest => 'Nejnovější';
+
+  @override
+  String get sessionsSortCost => 'Vykázané náklady';
+
+  @override
+  String get sessionsSortTokens => 'Tokeny';
+
+  @override
+  String get clearScopeFilters => 'Zrušit filtry';
 }

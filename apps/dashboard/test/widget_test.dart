@@ -506,18 +506,9 @@ Future<void> _pumpDashboardWithLocale(
 }
 
 Future<void> _openDashboardSection(WidgetTester tester, String keyValue) async {
-  final shellScrollView = find.byKey(const Key('dashboard-shell-scroll-view'));
-  expect(shellScrollView, findsOneWidget);
-  final shellScrollState = tester.state<NestedScrollViewState>(shellScrollView);
-  shellScrollState.outerController.jumpTo(0);
-  await tester.pumpAndSettle();
-
   final navLink = find.byKey(Key(keyValue));
   expect(navLink, findsOneWidget);
-  await tester.ensureVisible(navLink);
   await tester.tap(navLink);
-  await tester.pumpAndSettle();
-  shellScrollState.outerController.jumpTo(0);
   await tester.pumpAndSettle();
 }
 
@@ -531,7 +522,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('_ awaiting first metrics payload ...'), findsNothing);
-    expect(find.text('METRICS'), findsOneWidget);
+    expect(find.text('Time window'), findsOneWidget);
 
     await _openDashboardSection(tester, 'dashboard-nav-state');
     expect(find.text('> Mode .............. LOCAL CACHE'), findsOneWidget);
@@ -741,8 +732,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('METRIKY'), findsOneWidget);
-    expect(find.text('[ STAV ]'), findsOneWidget);
+    expect(find.text('Přehled'), findsNWidgets(2));
+    expect(find.text('Zdroje a stav'), findsOneWidget);
     await _openDashboardSection(tester, 'dashboard-nav-state');
     expect(find.text('> Sonda ............. PŘIPOJENO'), findsOneWidget);
     expect(find.text('[ NASTAVENÍ ]'), findsNothing);
@@ -783,7 +774,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('METRIKY'), findsOneWidget);
+    expect(find.text('Přehled'), findsNWidgets(2));
     await _openDashboardSection(tester, 'dashboard-nav-state');
     expect(find.text('> Sonda ............. PŘIPOJENO'), findsOneWidget);
   });
@@ -817,7 +808,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect((await settingsRepo.readSettings())!.languageCode, 'cs');
-    expect(find.text('METRIKY'), findsOneWidget);
+    expect(find.text('Přehled'), findsNWidgets(2));
     await _openDashboardSection(tester, 'dashboard-nav-state');
     expect(find.text('> Sonda ............. PŘIPOJENO'), findsOneWidget);
   });
@@ -3324,6 +3315,9 @@ void main() {
         findsOneWidget,
       );
 
+      await tester.ensureVisible(
+        find.byKey(const Key('metrics-compare-driver-line')),
+      );
       await tester.tap(find.byKey(const Key('metrics-compare-driver-line')));
       await tester.pumpAndSettle();
 
@@ -3916,7 +3910,9 @@ void main() {
 
       await _openDashboardSection(tester, 'dashboard-nav-sessions');
       expect(find.byKey(const Key('sessions-panel')), findsOneWidget);
-      expect(find.byKey(const Key('metrics-window-line')), findsNothing);
+      // The shell's time filter remains visible in the sessions route.
+      expect(find.byKey(const Key('metrics-window-line')), findsOneWidget);
+      expect(find.byKey(const Key('metrics-scroll-view')), findsNothing);
 
       await _openDashboardSection(tester, 'dashboard-nav-exchange-rates');
       expect(find.byKey(const Key('exchange-rates-panel')), findsOneWidget);
@@ -4110,13 +4106,13 @@ void main() {
     expect(
       routeAreaSize.width,
       equals(
-        1440.0 - 48.0,
+        1440.0 - 48.0 - 234.0,
       ), // 1440 physical width minus 24px gutter on each side
     ); // From physicalSize set in tests
   });
 
   testWidgets(
-    'Dashboard shell composition regression: only header stays fixed while nav scrolls with body',
+    'Dashboard navigation and header remain fixed while route content scrolls',
     (WidgetTester tester) async {
       tester.view.physicalSize = const Size(800, 400);
       tester.view.devicePixelRatio = 1.0;
@@ -4140,22 +4136,29 @@ void main() {
       final headerLocationBefore = tester.getTopLeft(headerFinder);
       final navLocationBefore = tester.getTopLeft(navFinder);
 
-      final shellScrollable = find.byKey(
-        const Key('dashboard-shell-scroll-view'),
+      expect(find.byType(NestedScrollView), findsNothing);
+      final routeArea = find.byKey(const Key('dashboard-shell-route-area'));
+      final verticalScrollables = find
+          .descendant(of: routeArea, matching: find.byType(Scrollable))
+          .evaluate()
+          .where((e) => (e.widget as Scrollable).axis == Axis.vertical);
+      expect(verticalScrollables, hasLength(1));
+      await tester.drag(
+        find
+            .descendant(
+              of: routeArea,
+              matching: find.byType(SingleChildScrollView),
+            )
+            .first,
+        const Offset(0, -100),
       );
-      expect(shellScrollable, findsOneWidget);
-      final shellScrollState = tester.state<NestedScrollViewState>(
-        shellScrollable,
-      );
-
-      shellScrollState.outerController.jumpTo(60);
       await tester.pumpAndSettle();
 
       final headerLocationAfter = tester.getTopLeft(headerFinder);
       final navLocationAfter = tester.getTopLeft(navFinder);
 
       expect(headerLocationAfter, equals(headerLocationBefore));
-      expect(navLocationAfter.dy, lessThan(navLocationBefore.dy));
+      expect(navLocationAfter, equals(navLocationBefore));
     },
   );
 

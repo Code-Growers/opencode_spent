@@ -1,6 +1,6 @@
 # OpenSpent
 
-OpenSpent is a privacy-first, local-only monorepo for tracking, analyzing, and visualizing OpenCode AI usage and cost data.
+OpenSpent is a privacy-first, local-only monorepo for tracking, analyzing, and visualizing OpenCode, Claude Code, and Codex AI usage and cost data.
 
 The repository is organized into five workspace members:
 
@@ -28,6 +28,35 @@ OpenSpent is designed to avoid sensitive data exposure:
 - Real-time connection to a local OpenCode server.
 - Manual SQLite and JSON log ingestion.
 - A monochromatic, terminal-inspired dashboard and marketing site.
+
+## Local Claude Code and Codex usage
+
+In the desktop dashboard, open **Settings → Local usage sources** and connect
+Claude Code or Codex. OpenSpent discovers local transcript folders, including
+Codex archives; **Choose folder** supports custom installations. Connections
+refresh at launch and with **Refresh**. Disconnecting keeps imported history.
+`CLAUDE_CONFIG_DIR` and `CODEX_HOME` are respected when set in the app's environment.
+The browser dashboard retains its existing OpenCode imports and does not scan
+local source directories.
+
+The harness filter applies to Metrics and Sessions. Usage includes input, output,
+cache reads/writes (with Claude's cache lifetimes), and available reasoning counts.
+Input includes cached tokens; reasoning is already included in output. New
+transcript usage is attributed to its occurrence time, rather than session start.
+Prompts, tool payloads, account details, and project paths are never imported.
+Only locally recorded usage is available; missing logs and cloud-only work are
+outside the totals.
+
+**Estimated API cost** is separate from **reported cost**. It uses an offline,
+versioned snapshot of standard [OpenAI API prices](https://developers.openai.com/api/docs/pricing)
+and [Anthropic API prices](https://platform.claude.com/docs/en/about-claude/pricing),
+including cache prices and supported context tiers. It excludes subscriptions,
+taxes, tool-service charges, and fast-mode premiums. Missing prices are shown as
+unavailable, with coverage for partially priced totals. Settings also supports
+explicit model mappings and custom USD-per-million-token rates; changes immediately
+recalculate estimates from stored token metadata. Blank cache rates leave usage
+in that category unpriced; zero is an explicit free rate. Missing context or cache
+lifetime metadata is disclosed where a standard-rate fallback is used.
 
 ## Workspace Layout
 
@@ -107,3 +136,62 @@ If you enable browser-origin CORS for the OpenCode server, allow the page origin
 ## License
 
 OpenSpent is available under the MIT License. See [`LICENSE`](./LICENSE).
+
+## CLI spending summary
+
+The CLI scans local **OpenCode, Claude Code and Codex** records on demand.
+It uses the dashboard's parsers, deduplication and offline pricing calculator,
+without starting the app, saving transcripts or sending usage over the network.
+Use the workspace's pinned Dart SDK (3.11.5).
+
+From the repository root:
+
+```bash
+dart run packages/openspent_local/bin/openspent.dart --days 30
+```
+
+For a standalone executable:
+
+```bash
+mkdir -p build/cli
+dart compile exe packages/openspent_local/bin/openspent.dart -o build/cli/openspent
+./build/cli/openspent --days 30
+./build/cli/openspent --harness codex --from 2026-09-01 --to 2026-09-30 --json
+```
+
+Put the compiled executable on your PATH to use `openspent` from any directory.
+The default window is all available local usage. `--days` uses a rolling UTC
+window; `--from` and `--to` are inclusive UTC calendar dates.
+
+Discovery reads OpenCode's `opencode.db` under `XDG_DATA_HOME/opencode` (default
+`~/.local/share/opencode`), Claude's `projects` under `CLAUDE_CONFIG_DIR` (default
+`~/.claude`) and Codex's `sessions` and `archived_sessions` under `CODEX_HOME`
+(default `~/.codex`). For custom installations, pass `--opencode-db FILE`,
+`--claude-dir DIR` or `--codex-dir DIR`. A Codex home includes both current and
+archived sessions; a direct sessions folder scans only that folder. The CLI
+uses fresh source records rather than the dashboard's retained cache or server.
+
+`--pricing FILE` accepts the same pricing configuration shape as the dashboard:
+
+```json
+{
+  "overrides": {
+    "openai/my-model": {"input": 2, "output": 10, "cachedInput": 0.1}
+  },
+  "mappings": {}
+}
+```
+
+Rates are USD per million tokens. CLI pricing is configured independently from
+app settings. Both **reported USD spend** and **estimated API cost** are printed;
+these are separate views and must not be added together. The priced-record count
+shows coverage, and unpriced usage stays unknown. Known amounts are subtotals
+when coverage is incomplete. Estimates exclude subscriptions, taxes and extra
+service charges. Missing installations are labelled `not-found`; partial or
+unreadable sources show sanitized counts without file or project paths.
+
+Exit codes: `0` for a successful scan (including no installed sources), `1` for
+read failures or an explicitly unavailable source, and `64` for invalid options.
+Run `openspent --help` for all options. The existing import CLI remains available.
+
+The redesign plan and acceptance checks are in [docs/UX_REDESIGN.md](docs/UX_REDESIGN.md).

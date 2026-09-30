@@ -5,6 +5,7 @@
 - `pubspec.yaml` at the repo root is the workspace toolchain package. It owns Melos/dev tooling and the root `pubspec.lock`.
 - `apps/dashboard` is the Flutter desktop dashboard.
 - `apps/website` is the Jaspr static marketing site.
+- Website component state and lifecycle logic use `jaspr_hooks`; reusable hooks live in `apps/website/lib/hooks`. Keep hook calls unconditional, initial state deterministic for hydration, and presentation/pure helpers separate from hooks. Align website runtime dependencies with `tool/website_build/pubspec.yaml` and regenerate both lockfiles.
 - `packages/core` is pure Dart domain logic, contracts, parsers, privacy constants, and sync services.
 - `packages/openspent_local` contains local adapters: Drift/SQLite repositories plus shared-preferences-backed settings storage.
 - `packages/openspent_remote` contains remote adapters: Dio/Retrofit clients and repositories.

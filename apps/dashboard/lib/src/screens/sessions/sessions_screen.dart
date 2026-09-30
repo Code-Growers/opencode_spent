@@ -15,6 +15,8 @@ class SessionsScreen extends StatefulWidget {
     required this.isConnected,
     required this.onDataChanged,
     required this.pickImportSource,
+    this.selectedHarness,
+    this.pricingRepository,
     this.selectedModelFilter,
     this.selectedDay,
     this.selectedUtcHour,
@@ -29,6 +31,8 @@ class SessionsScreen extends StatefulWidget {
   final bool isConnected;
   final VoidCallback onDataChanged;
   final Future<ImportSelection?> Function() pickImportSource;
+  final UsageHarness? selectedHarness;
+  final PricingRepository? pricingRepository;
   final String? selectedModelFilter;
   final DateTime? selectedDay;
   final int? selectedUtcHour;
@@ -80,6 +84,9 @@ class _SessionsScreenState extends State<SessionsScreen> {
         isConnected: widget.isConnected,
         onDataChanged: widget.onDataChanged,
         pickImportSource: widget.pickImportSource,
+        dataRevision: widget.dataRevision,
+        selectedHarness: widget.selectedHarness,
+        pricingRepository: widget.pricingRepository,
         selectedModelFilter: widget.selectedModelFilter,
         selectedDay: widget.selectedDay,
         selectedUtcHour: widget.selectedUtcHour,

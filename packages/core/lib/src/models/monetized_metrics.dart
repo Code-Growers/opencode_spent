@@ -1,3 +1,4 @@
+import '../usage/harness_usage.dart';
 import 'aggregated_metrics.dart';
 import 'daily_metrics.dart';
 import 'hourly_metrics.dart';
@@ -48,6 +49,8 @@ final class MonetizedHourlyMetrics {
 
 final class MonetizedAggregatedMetrics {
   MonetizedAggregatedMetrics({
+    Map<UsageHarness, double?> displayHarnessEstimates = const {},
+    Map<UsageHarness, Map<DateTime, double>?> displayEstimatedDaily = const {},
     required this.baseMetrics,
     required this.displayCurrency,
     required this.displayTotalCost,
@@ -58,7 +61,16 @@ final class MonetizedAggregatedMetrics {
     Map<String, Iterable<MonetizedHourlyMetrics>>? perModelHourlyBreakdown,
     Map<String, MonetizedUsageBreakdown>? providerBreakdowns,
     Map<String, Map<String, MonetizedUsageBreakdown>>? providerModelBreakdowns,
-  }) : dailyBreakdown = List<MonetizedDailyMetrics>.unmodifiable(
+  }) : displayHarnessEstimates = Map.unmodifiable(displayHarnessEstimates),
+       displayEstimatedDaily = Map.unmodifiable(
+         displayEstimatedDaily.map(
+           (k, v) => MapEntry(
+             k,
+             v == null ? null : Map<DateTime, double>.unmodifiable(v),
+           ),
+         ),
+       ),
+       dailyBreakdown = List<MonetizedDailyMetrics>.unmodifiable(
          dailyBreakdown,
        ),
        hourlyBreakdown = List<MonetizedHourlyMetrics>.unmodifiable(
@@ -103,6 +115,8 @@ final class MonetizedAggregatedMetrics {
                  ),
            );
 
+  final Map<UsageHarness, double?> displayHarnessEstimates;
+  final Map<UsageHarness, Map<DateTime, double>?> displayEstimatedDaily;
   final AggregatedMetrics baseMetrics;
   final SupportedCurrency displayCurrency;
   final double displayTotalCost;
@@ -118,6 +132,14 @@ final class MonetizedAggregatedMetrics {
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is MonetizedAggregatedMetrics &&
+            _mapEquals(
+              other.displayHarnessEstimates,
+              displayHarnessEstimates,
+            ) &&
+            _estimateDaysEqual(
+              other.displayEstimatedDaily,
+              displayEstimatedDaily,
+            ) &&
             other.baseMetrics == baseMetrics &&
             other.displayCurrency == displayCurrency &&
             other.displayTotalCost == displayTotalCost &&
@@ -140,6 +162,12 @@ final class MonetizedAggregatedMetrics {
 
   @override
   int get hashCode => Object.hash(
+    _mapHash(displayHarnessEstimates),
+    Object.hashAllUnordered(
+      displayEstimatedDaily.entries.map(
+        (e) => Object.hash(e.key, e.value == null ? null : _mapHash(e.value!)),
+      ),
+    ),
     baseMetrics,
     displayCurrency,
     displayTotalCost,
@@ -221,7 +249,7 @@ int _mapOfListsHash<T>(Map<String, List<T>> map) {
   );
 }
 
-bool _mapEquals<T>(Map<String, T> left, Map<String, T> right) {
+bool _mapEquals<K, T>(Map<K, T> left, Map<K, T> right) {
   if (identical(left, right)) {
     return true;
   }
@@ -261,7 +289,7 @@ bool _nestedMapEquals<T>(
   return true;
 }
 
-int _mapHash<T>(Map<String, T> map) {
+int _mapHash<K, T>(Map<K, T> map) {
   return Object.hashAllUnordered(
     map.entries.map((entry) => Object.hash(entry.key, entry.value)),
   );
@@ -271,4 +299,21 @@ int _nestedMapHash<T>(Map<String, Map<String, T>> map) {
   return Object.hashAllUnordered(
     map.entries.map((entry) => Object.hash(entry.key, _mapHash(entry.value))),
   );
+}
+
+bool _estimateDaysEqual(
+  Map<UsageHarness, Map<DateTime, double>?> a,
+  Map<UsageHarness, Map<DateTime, double>?> b,
+) {
+  if (a.length != b.length) return false;
+  for (final e in a.entries) {
+    if (!b.containsKey(e.key)) return false;
+    final other = b[e.key];
+    if (e.value == null || other == null) {
+      if (e.value != other) return false;
+    } else if (!_mapEquals(e.value!, other)) {
+      return false;
+    }
+  }
+  return true;
 }

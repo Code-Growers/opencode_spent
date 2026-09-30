@@ -49,3 +49,9 @@ OpenCodeSessionRepository importedSqliteBytesRepositoryFactory(
 bool _isJsonFile(String fileName) {
   return p.extension(fileName).toLowerCase() == '.json';
 }
+
+LocalUsageSources? createLocalUsageSources(
+  KeyValueStore store,
+  OpenCodeSessionRepository repository,
+) => null;
+Future<String?> pickSourceDirectory() async => null;

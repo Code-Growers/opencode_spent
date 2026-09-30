@@ -2,7 +2,7 @@
   "@@locale": "cs",
   "appTitle": "OpenSpent",
   "localLabel": "[ LOKÁLNÍ ]",
-  "heroTitle": "Monitorujte OpenCode. Lokálně.",
+  "heroTitle": "Monitorujte využití AI. Lokálně.",
   "heroDescription": "Soukromý lokální dashboard s cachovanými metrikami a terminálovým zobrazením.",
   "heroEyebrow": "// LOKÁLNÍ PŘEHLED ÚTRATY",
   "heroMetricSyncLabel": "SYNC",
@@ -70,11 +70,11 @@
       }
     }
   },
-  "metricsTitle": "METRIKY",
-  "shellNavMetrics": "[ METRIKY ]",
-  "shellNavSessions": "[ RELACE ]",
-  "shellNavExchangeRates": "[ KURZY ]",
-  "shellNavState": "[ STAV ]",
+  "metricsTitle": "Období",
+  "shellNavMetrics": "Přehled",
+  "shellNavSessions": "Relace",
+  "shellNavExchangeRates": "Měnové kurzy",
+  "shellNavState": "Zdroje a stav",
   "metricsLoad": "_ čekám na první data metrik ...",
   "metricsUnavailable": "> metriky nedostupné",
   "metricsMissingExchangeRatesHelper": "> chybí kurzy pro dny s útratou. Synchronizujte kurzy v panelu měn a zkuste to znovu.",
@@ -314,7 +314,7 @@
     }
   },
   "metricsProvidersTab": "[ POSKYTOVATELÉ ]",
-  "metricsKpiTotalPrice": "> CELKOVÁ CENA ...... {value} {currency}",
+  "metricsKpiTotalPrice": "Vykázané náklady · {value} {currency}",
   "@metricsKpiTotalPrice": {
     "placeholders": {
       "currency": {
@@ -325,7 +325,7 @@
       }
     }
   },
-  "metricsKpiTotalRequests": "> CELKEM POŽADAVKŮ .. {value}",
+  "metricsKpiTotalRequests": "Požadavky · {value}",
   "@metricsKpiTotalRequests": {
     "placeholders": {
       "value": {
@@ -333,7 +333,7 @@
       }
     }
   },
-  "metricsKpiTotalToolCalls": "> CELKEM TOOL CALLŮ . {value}",
+  "metricsKpiTotalToolCalls": "Volání nástrojů · {value}",
   "@metricsKpiTotalToolCalls": {
     "placeholders": {
       "value": {
@@ -341,7 +341,7 @@
       }
     }
   },
-  "metricsKpiAvgResponseTime": "> PRŮM. ODEZVA ...... {value}",
+  "metricsKpiAvgResponseTime": "Průměrná odezva · {value}",
   "@metricsKpiAvgResponseTime": {
     "placeholders": {
       "value": {
@@ -349,7 +349,7 @@
       }
     }
   },
-  "metricsKpiTotalTokens": "> CELKEM TOKENŮ ..... {value}",
+  "metricsKpiTotalTokens": "Tokeny · {value}",
   "@metricsKpiTotalTokens": {
     "placeholders": {
       "value": {
@@ -881,5 +881,72 @@
         "type": "String"
       }
     }
-  }
+  },
+  "usageSourcesTitle": "Lokální zdroje využití",
+  "usageConnect": "Připojit",
+  "usageRefresh": "Obnovit",
+  "usageDisconnect": "Odpojit",
+  "usageConnected": "Připojeno",
+  "usageNotConnected": "Nepřipojeno",
+  "usageChooseFolder": "Vybrat složku",
+  "usageSourceError": "Zdroj se nepodařilo načíst. Dříve importovaná data zůstávají zachována.",
+  "usageSourceResult": "{sessions} relací · {skipped} přeskočených záznamů · {failed} nečitelných souborů",
+  "usageLastRefresh": "Poslední obnovení: {time}",
+  "usageNeverRefreshed": "Zatím neobnoveno",
+  "usageSourcesBrowser": "Připojení lokálních zdrojů je dostupné v desktopové aplikaci.",
+  "usagePricingTitle": "Ceny pro odhad API",
+  "usagePricingHelp": "Standardní ceny API tokenů v USD za milion tokenů. Předplatné, daně, nástroje a příplatky za rychlý režim nejsou zahrnuty.",
+  "usagePricingSnapshot": "Verze zveřejněných cen: {version}",
+  "usagePricingModel": "Použitý model",
+  "usagePricingMapping": "Použít ceny zveřejněného modelu",
+  "usagePricingCustom": "Vlastní ceny",
+  "usagePricingReset": "Obnovit zveřejněné ceny",
+  "usagePricingSave": "Uložit ceny",
+  "usagePricingInvalid": "Zadejte konečné nezáporné ceny. Ceny vstupu a výstupu jsou povinné.",
+  "usageInput": "Vstup",
+  "usageOutput": "Výstup",
+  "usageCacheRead": "Čtení cache",
+  "usageCacheWrite": "Zápis cache",
+  "usageCacheWrite1h": "Zápis cache (1 hodina)",
+  "usageReasoning": "Uvažování (zahrnuto ve výstupu)",
+  "usageHarnessAll": "Všechny nástroje",
+  "usageComparisonTitle": "Využití podle nástroje",
+  "usageApiEstimate": "Odhad nákladů API",
+  "usageReportedCost": "Vykázané náklady",
+  "usageUnknown": "Nedostupné",
+  "usagePricingCoverage": "Oceněno {priced} z {total} záznamů využití",
+  "usageCustomPrice": "Vlastní ceny",
+  "usageApproximate": "Přibližný odhad: bez příslušných metadat používá ceny krátkého kontextu nebo pětiminutového zápisu cache.",
+  "usageTokensHelp": "Vstup zahrnuje čtení a zápisy cache ve všech požadavcích, včetně opakovaného kontextu konverzace. Uvažování je součástí výstupu. Přesné počty tokenů zobrazíte najetím kurzoru.",
+  "usagePartial": "Částečné",
+  "usageNoMapping": "Ponechat původní model",
+  "usagePricingNoModels": "Pro nastavení cen modelů nejprve importujte využití.",
+  "usagePricingPublished": "Zveřejněné ceny",
+  "usageSourcesHelp": "Připojte zdroj pro načtení lokálních metadat tokenů. Obnovuje se při spuštění nebo ručně; odpojení zachová historii.",
+  "usagePricingRatesHelp": "Prázdné ceny cache ponechají příslušné záznamy bez odhadu. Nula znamená výslovně bezplatnou kategorii.",
+  "usageSourceBusy": "Obnovování lokálního využití…",
+  "overviewPurpose": "Náklady, využití a modely na jednom místě.",
+  "sessionsPurpose": "Najděte relaci. Porovnejte využití a náklady.",
+  "exchangePurpose": "Správa kurzů pro přepočet vašich nákladů.",
+  "sourcesPurpose": "Zkontrolujte lokální data, připojení a soukromí.",
+  "mockDataNotice": "Ukázková data · pro své využití přepněte na Real",
+  "realDataNotice": "Lokální data",
+  "sessionsPage": "Strana {page} z {pages}",
+  "previousPage": "Předchozí strana",
+  "nextPage": "Další strana",
+  "@sessionsPage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "mockDataLabel": "Ukázková data",
+  "sessionsSortLatest": "Nejnovější",
+  "sessionsSortCost": "Vykázané náklady",
+  "sessionsSortTokens": "Tokeny",
+  "clearScopeFilters": "Zrušit filtry"
 }

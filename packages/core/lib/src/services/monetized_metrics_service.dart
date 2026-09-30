@@ -1,3 +1,4 @@
+import '../usage/harness_usage.dart';
 import '../models/monetized_metrics.dart';
 import '../models/supported_currency.dart';
 import '../repositories/metrics_repository.dart';
@@ -16,11 +17,19 @@ final class MonetizedMetricsService {
   final MonetizedMetricsComposer composer;
 
   Future<MonetizedAggregatedMetrics> readMonetizedMetrics({
+    UsageHarness? harness,
     DateTime? from,
     DateTime? to,
   }) async {
     final settings = await settingsRepository.readSettings();
-    final metrics = await metricsRepository.readMetrics(from: from, to: to);
+    final repository = metricsRepository;
+    final metrics = harness != null && repository is HarnessMetricsRepository
+        ? await repository.readHarnessMetrics(
+            from: from,
+            to: to,
+            harness: harness,
+          )
+        : await repository.readMetrics(from: from, to: to);
 
     return composer.compose(
       metrics: metrics,

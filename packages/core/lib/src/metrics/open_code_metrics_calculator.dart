@@ -1,3 +1,5 @@
+import '../usage/api_pricing.dart';
+import '../usage/harness_usage.dart';
 import '../models/aggregated_metrics.dart';
 import '../models/daily_metrics.dart';
 import '../models/hourly_metrics.dart';
@@ -8,7 +10,51 @@ import '../models/usage_breakdown.dart';
 final class OpenCodeMetricsCalculator {
   const OpenCodeMetricsCalculator();
 
-  AggregatedMetrics calculate(Iterable<OpenCodeSession> sessions) {
+  AggregatedMetrics calculate(
+    Iterable<OpenCodeSession> sessions, {
+    PricingConfig? pricing,
+  }) {
+    final sourceSessions = sessions.toList();
+    pricing ??= PricingConfig();
+    final harnessUsage = <UsageHarness, HarnessUsageSummary>{};
+    final estimatedDaily = <UsageHarness, Map<DateTime, double>>{};
+    for (final harness in UsageHarness.values) {
+      final selected = sourceSessions
+          .where((s) => s.harness == harness)
+          .toList();
+      if (selected.isEmpty) continue;
+      final events = selected.expand(usageEventsForPricing).toList();
+      var priced = 0, custom = 0, assumptions = 0;
+      var usd = 0.0;
+      for (final event in events) {
+        final estimate = pricing.estimate(event);
+        if (estimate.usd == null) continue;
+        priced++;
+        usd += estimate.usd!;
+        if (estimate.custom) custom++;
+        if (estimate.assumedShortContext || estimate.assumedCacheDuration) {
+          assumptions++;
+        }
+        final days = estimatedDaily.putIfAbsent(harness, () => {});
+        final day = _normalizeUtcDay(event.timestamp);
+        days[day] = (days[day] ?? 0) + estimate.usd!;
+      }
+      harnessUsage[harness] = HarnessUsageSummary(
+        harness: harness,
+        tokens: TokenUsage.sum(selected.map((s) => s.tokens)),
+        eventCount:
+            events.length +
+            selected
+                .where(
+                  (s) => s.usageEvents.isEmpty && _usageSlicesFor(s).isEmpty,
+                )
+                .length,
+        pricedEventCount: priced,
+        estimatedUsd: priced == 0 ? null : usd,
+        customPriceCount: custom,
+        assumptionCount: assumptions,
+      );
+    }
     var totalSessionCount = 0;
     var totalInputTokens = 0;
     var totalOutputTokens = 0;
@@ -33,7 +79,7 @@ final class OpenCodeMetricsCalculator {
     final providerModelBreakdowns =
         <String, Map<String, _MutableUsageBreakdown>>{};
 
-    for (final session in sessions) {
+    for (final session in sourceSessions) {
       final day = _normalizeUtcDay(session.createdAt);
       final hour = _normalizeUtcHour(session.createdAt);
 
@@ -67,17 +113,37 @@ final class OpenCodeMetricsCalculator {
         responseTimeCoverageSessionCount += 1;
       }
 
-      final dailyBucket = dailyGrouped.putIfAbsent(
-        day,
-        () => _MutableMetricsBucket(),
-      );
-      _addSessionToBucket(dailyBucket, session);
-
-      final hourlyBucket = hourlyGrouped.putIfAbsent(
-        hour,
-        () => _MutableMetricsBucket(),
-      );
-      _addSessionToBucket(hourlyBucket, session);
+      if (session.usageEvents.isEmpty) {
+        final dailyBucket = dailyGrouped.putIfAbsent(
+          day,
+          () => _MutableMetricsBucket(),
+        );
+        _addSessionToBucket(dailyBucket, session);
+        final hourlyBucket = hourlyGrouped.putIfAbsent(
+          hour,
+          () => _MutableMetricsBucket(),
+        );
+        _addSessionToBucket(hourlyBucket, session);
+      } else {
+        final seenDays = <DateTime>{};
+        final seenHours = <DateTime>{};
+        for (final event in session.usageEvents) {
+          final eventDay = _normalizeUtcDay(event.timestamp);
+          final eventHour = _normalizeUtcHour(event.timestamp);
+          final dailyBucket = dailyGrouped.putIfAbsent(
+            eventDay,
+            () => _MutableMetricsBucket(),
+          );
+          final hourlyBucket = hourlyGrouped.putIfAbsent(
+            eventHour,
+            () => _MutableMetricsBucket(),
+          );
+          _addUsageSliceToBucket(dailyBucket, event.slice);
+          _addUsageSliceToBucket(hourlyBucket, event.slice);
+          if (!seenDays.add(eventDay)) dailyBucket.sessionCount--;
+          if (!seenHours.add(eventHour)) hourlyBucket.sessionCount--;
+        }
+      }
 
       final legacyModelName = _normalizeModelName(session.modelName);
       if (legacyModelName != null && session.usageSlices.isEmpty) {
@@ -102,7 +168,15 @@ final class OpenCodeMetricsCalculator {
         _addSessionToBucket(perModelHourlyBucket, session);
       }
 
+      final seenModelDays = <(String, DateTime)>{};
+      final seenModelHours = <(String, DateTime)>{};
       for (final usageSlice in _usageSlicesFor(session)) {
+        final sliceDay = _normalizeUtcDay(
+          usageSlice.createdAt ?? session.createdAt,
+        );
+        final sliceHour = _normalizeUtcHour(
+          usageSlice.createdAt ?? session.createdAt,
+        );
         final modelName = _normalizeModelName(usageSlice.modelName);
         final provider = _normalizeProvider(usageSlice.provider);
         if (modelName == null || provider == null) {
@@ -114,20 +188,29 @@ final class OpenCodeMetricsCalculator {
           () => <DateTime, _MutableMetricsBucket>{},
         );
         final perModelBucket = perModelBuckets.putIfAbsent(
-          day,
+          sliceDay,
           () => _MutableMetricsBucket(),
         );
         _addUsageSliceToBucket(perModelBucket, usageSlice);
+        if (session.usageEvents.isNotEmpty &&
+            !seenModelDays.add((modelName, sliceDay))) {
+          perModelBucket.sessionCount--;
+        }
 
         final perModelHourlyBuckets = perModelHourlyGrouped.putIfAbsent(
           modelName,
           () => <DateTime, _MutableMetricsBucket>{},
         );
         final perModelHourlyBucket = perModelHourlyBuckets.putIfAbsent(
-          hour,
+          sliceHour,
           () => _MutableMetricsBucket(),
         );
         _addUsageSliceToBucket(perModelHourlyBucket, usageSlice);
+        if (session.usageEvents.isNotEmpty &&
+            !seenModelHours.add((modelName, sliceHour))) {
+          perModelHourlyBucket.sessionCount--;
+        }
+        if (session.usageEvents.isNotEmpty) continue;
 
         final providerBreakdown = providerBreakdowns.putIfAbsent(
           provider,
@@ -146,6 +229,57 @@ final class OpenCodeMetricsCalculator {
         );
         providerModelBreakdown.addSessionSlice(usageSlice);
       }
+      if (session.usageEvents.isNotEmpty) {
+        final byProvider = <String, List<UsageEvent>>{};
+        final byProviderModel = <String, Map<String, List<UsageEvent>>>{};
+        for (final event in session.usageEvents) {
+          byProvider.putIfAbsent(event.provider, () => []).add(event);
+          byProviderModel
+              .putIfAbsent(event.provider, () => {})
+              .putIfAbsent(event.model ?? 'unknown', () => [])
+              .add(event);
+        }
+        SessionUsageSlice combined(
+          String provider,
+          String model,
+          List<UsageEvent> events,
+        ) {
+          final tokens = TokenUsage.sum(events.map((e) => e.tokens));
+          return SessionUsageSlice(
+            provider: provider,
+            modelName: model,
+            inputTokens: tokens.input,
+            outputTokens: tokens.output,
+            requestCount: events.length,
+          );
+        }
+
+        for (final entry in byProvider.entries) {
+          providerBreakdowns
+              .putIfAbsent(
+                entry.key,
+                () => _MutableUsageBreakdown(provider: entry.key),
+              )
+              .addSessionSlice(combined(entry.key, 'mixed', entry.value));
+        }
+        for (final entry in byProviderModel.entries) {
+          final models = providerModelBreakdowns.putIfAbsent(
+            entry.key,
+            () => {},
+          );
+          for (final model in entry.value.entries) {
+            models
+                .putIfAbsent(
+                  model.key,
+                  () => _MutableUsageBreakdown(
+                    provider: entry.key,
+                    modelName: model.key,
+                  ),
+                )
+                .addSessionSlice(combined(entry.key, model.key, model.value));
+          }
+        }
+      }
     }
 
     final perModelDailyBreakdown = <String, List<DailyMetrics>>{};
@@ -163,6 +297,8 @@ final class OpenCodeMetricsCalculator {
     }
 
     return AggregatedMetrics(
+      harnessUsage: harnessUsage,
+      estimatedDailyUsd: estimatedDaily,
       totalSessionCount: totalSessionCount,
       totalInputTokens: totalInputTokens,
       totalOutputTokens: totalOutputTokens,
@@ -294,6 +430,7 @@ Iterable<SessionUsageSlice> _usageSlicesFor(OpenCodeSession session) {
 
   return <SessionUsageSlice>[
     SessionUsageSlice(
+      tokenUsage: session.tokenUsage,
       provider: provider,
       modelName: modelName,
       inputTokens: session.inputTokens,

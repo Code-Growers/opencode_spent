@@ -1,3 +1,4 @@
+import '../usage/harness_usage.dart';
 import '../models/aggregated_metrics.dart';
 import '../models/daily_metrics.dart';
 import '../models/exchange_rate.dart';
@@ -16,8 +17,42 @@ final class MonetizedMetricsComposer {
     required AggregatedMetrics metrics,
     required SupportedCurrency selectedCurrency,
   }) async {
+    final estimates = <UsageHarness, double?>{};
+    final estimateDays = <UsageHarness, Map<DateTime, double>?>{};
+    final estimateRateCache = <DateTime, List<ExchangeRate>>{};
+    for (final entry in metrics.harnessUsage.entries) {
+      if (entry.value.estimatedUsd == null) {
+        estimates[entry.key] = null;
+        continue;
+      }
+      final converted = <DateTime, double>{};
+      try {
+        for (final day
+            in (metrics.estimatedDailyUsd[entry.key] ?? {}).entries) {
+          converted[day.key] = selectedCurrency == SupportedCurrency.usd
+              ? day.value
+              : await _convertUsdTotalToDisplayCurrency(
+                  totalCostUsd: day.value,
+                  date: day.key,
+                  displayCurrency: selectedCurrency,
+                  exchangeRateCache: estimateRateCache,
+                );
+        }
+        estimates[entry.key] = converted.values.fold<double>(
+          0,
+          (a, b) => a + b,
+        );
+        estimateDays[entry.key] = converted;
+      } catch (_) {
+        // Usage remains useful even when currency conversion is unavailable.
+        estimates[entry.key] = null;
+        estimateDays[entry.key] = null;
+      }
+    }
     if (selectedCurrency == SupportedCurrency.usd) {
       return MonetizedAggregatedMetrics(
+        displayHarnessEstimates: estimates,
+        displayEstimatedDaily: estimateDays,
         baseMetrics: metrics,
         displayCurrency: selectedCurrency,
         displayTotalCost: metrics.totalCostUsd,
@@ -142,6 +177,8 @@ final class MonetizedMetricsComposer {
     }
 
     return MonetizedAggregatedMetrics(
+      displayHarnessEstimates: estimates,
+      displayEstimatedDaily: estimateDays,
       baseMetrics: metrics,
       displayCurrency: selectedCurrency,
       displayTotalCost: displayTotalCost,

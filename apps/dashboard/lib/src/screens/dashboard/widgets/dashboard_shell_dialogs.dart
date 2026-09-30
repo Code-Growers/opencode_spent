@@ -10,7 +10,7 @@ class DashboardHelpDialogContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return DefaultTabController(
+    final dialog = DefaultTabController(
       length: 2,
       child: DashboardSurface(
         key: const Key('help-dialog'),
@@ -52,8 +52,7 @@ class DashboardHelpDialogContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 300,
+              Expanded(
                 child: TabBarView(
                   children: [
                     _HelpDialogBody(
@@ -98,6 +97,12 @@ class DashboardHelpDialogContent extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) => SizedBox(
+        height: constraints.maxHeight.clamp(0, 640).toDouble(),
+        child: dialog,
       ),
     );
   }

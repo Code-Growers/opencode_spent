@@ -2,7 +2,7 @@
   "@@locale": "en",
   "appTitle": "OpenSpent",
   "localLabel": "[ LOCAL ]",
-  "heroTitle": "Monitor OpenCode. Locally.",
+  "heroTitle": "Monitor coding usage. Locally.",
   "heroDescription": "A privacy-first local dashboard with cached metrics and terminal-style drilldowns.",
   "heroEyebrow": "// LOCAL-FIRST SPEND INTELLIGENCE",
   "heroMetricSyncLabel": "SYNC",
@@ -70,11 +70,11 @@
       }
     }
   },
-  "metricsTitle": "METRICS",
-  "shellNavMetrics": "[ METRICS ]",
-  "shellNavSessions": "[ SESSIONS ]",
-  "shellNavExchangeRates": "[ EXCHANGE ]",
-  "shellNavState": "[ STATE ]",
+  "metricsTitle": "Time window",
+  "shellNavMetrics": "Overview",
+  "shellNavSessions": "Sessions",
+  "shellNavExchangeRates": "Exchange rates",
+  "shellNavState": "Sources & status",
   "metricsLoad": "_ awaiting first metrics payload ...",
   "metricsUnavailable": "> metrics unavailable",
   "metricsMissingExchangeRatesHelper": "> missing exchange rates for spend days. Sync rates in the exchange panel and retry.",
@@ -249,7 +249,7 @@
       }
     }
   },
-  "modelCostShareTrend": "{currency} {totalCost} [{share}%] \u2022 {trend}",
+  "modelCostShareTrend": "{currency} {totalCost} [{share}%] • {trend}",
   "@modelCostShareTrend": {
     "placeholders": {
       "currency": {
@@ -314,7 +314,7 @@
     }
   },
   "metricsProvidersTab": "[ PROVIDERS ]",
-  "metricsKpiTotalPrice": "> TOTAL PRICE ....... {currency} {value}",
+  "metricsKpiTotalPrice": "Reported cost · {currency} {value}",
   "@metricsKpiTotalPrice": {
     "placeholders": {
       "currency": {
@@ -325,7 +325,7 @@
       }
     }
   },
-  "metricsKpiTotalRequests": "> TOTAL REQUESTS .... {value}",
+  "metricsKpiTotalRequests": "Requests · {value}",
   "@metricsKpiTotalRequests": {
     "placeholders": {
       "value": {
@@ -333,7 +333,7 @@
       }
     }
   },
-  "metricsKpiTotalToolCalls": "> TOTAL TOOL CALLS .. {value}",
+  "metricsKpiTotalToolCalls": "Tool calls · {value}",
   "@metricsKpiTotalToolCalls": {
     "placeholders": {
       "value": {
@@ -341,7 +341,7 @@
       }
     }
   },
-  "metricsKpiAvgResponseTime": "> AVG RESPONSE TIME . {value}",
+  "metricsKpiAvgResponseTime": "Avg. response time · {value}",
   "@metricsKpiAvgResponseTime": {
     "placeholders": {
       "value": {
@@ -349,7 +349,7 @@
       }
     }
   },
-  "metricsKpiTotalTokens": "> TOTAL TOKENS ...... {value}",
+  "metricsKpiTotalTokens": "Tokens · {value}",
   "@metricsKpiTotalTokens": {
     "placeholders": {
       "value": {
@@ -376,7 +376,7 @@
       }
     }
   },
-  "helpRemoteLineCors": "> When using the dashboard in a browser against a local server, start OpenCode with --cors=\"{origin}\" so it allows this browser origin. The value must be origin only \u2014 not /demo or any other path.",
+  "helpRemoteLineCors": "> When using the dashboard in a browser against a local server, start OpenCode with --cors=\"{origin}\" so it allows this browser origin. The value must be origin only — not /demo or any other path.",
   "@helpRemoteLineCors": {
     "placeholders": {
       "origin": {
@@ -545,7 +545,7 @@
     }
   },
   "sessionsExplorerError": "> Error ............. operation failed. Check source data or server status.",
-  "sessionRowData": "> {date} \u2022 {model} \u2022 {tokens} TOK \u2022 {currency} {cost} \u2022 ID: {id}",
+  "sessionRowData": "> {date} • {model} • {tokens} TOK • {currency} {cost} • ID: {id}",
   "@sessionRowData": {
     "placeholders": {
       "date": {
@@ -955,5 +955,109 @@
         "type": "String"
       }
     }
-  }
+  },
+  "usageSourcesTitle": "Local usage sources",
+  "usageConnect": "Connect",
+  "usageRefresh": "Refresh",
+  "usageDisconnect": "Disconnect",
+  "usageConnected": "Connected",
+  "usageNotConnected": "Not connected",
+  "usageChooseFolder": "Choose folder",
+  "usageSourceError": "Could not read this source. Previously imported usage is retained.",
+  "usageSourceResult": "{sessions} sessions · {skipped} skipped records · {failed} unreadable files",
+  "usageLastRefresh": "Last refresh: {time}",
+  "usageNeverRefreshed": "Not refreshed yet",
+  "usageSourcesBrowser": "Local source connections are available in the desktop app.",
+  "usagePricingTitle": "API estimate pricing",
+  "usagePricingHelp": "Standard API token rates, USD per million tokens. Subscription fees, taxes, tools and fast-mode premiums are excluded.",
+  "usagePricingSnapshot": "Published rate snapshot: {version}",
+  "usagePricingModel": "Usage model",
+  "usagePricingMapping": "Use published model rates",
+  "usagePricingCustom": "Custom rates",
+  "usagePricingReset": "Reset to published rates",
+  "usagePricingSave": "Save rates",
+  "usagePricingInvalid": "Enter finite, nonnegative rates. Input and output rates are required.",
+  "usageInput": "Input",
+  "usageOutput": "Output",
+  "usageCacheRead": "Cache reads",
+  "usageCacheWrite": "Cache writes",
+  "usageCacheWrite1h": "Cache writes (1 hour)",
+  "usageReasoning": "Reasoning (included in output)",
+  "usageHarnessAll": "All harnesses",
+  "usageComparisonTitle": "Usage by harness",
+  "usageApiEstimate": "Estimated API cost",
+  "usageReportedCost": "Reported cost",
+  "usageUnknown": "Unavailable",
+  "usagePricingCoverage": "{priced} of {total} usage records priced",
+  "usageCustomPrice": "Custom pricing",
+  "usageApproximate": "Approximate: uses short-context or 5-minute cache-write rates where metadata is unavailable.",
+  "usageTokensHelp": "Input includes cache reads and writes across all requests, including repeated conversation context. Reasoning is included in output. Hover over token totals for exact counts.",
+  "usagePartial": "Partial",
+  "usageNoMapping": "Keep original model",
+  "usagePricingNoModels": "Import usage to configure model prices.",
+  "usagePricingPublished": "Published rates",
+  "usageSourcesHelp": "Connect once to load local token metadata. Refresh on launch or on demand; disconnect keeps imported history.",
+  "usagePricingRatesHelp": "Blank cache rates leave events using that category unpriced. A zero rate is an explicit free category.",
+  "usageSourceBusy": "Refreshing local usage…",
+  "@usageSourceResult": {
+    "placeholders": {
+      "sessions": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "@usageLastRefresh": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@usagePricingSnapshot": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "@usagePricingCoverage": {
+    "placeholders": {
+      "priced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "overviewPurpose": "Your spending, usage and models in one place.",
+  "sessionsPurpose": "Find a session. Compare usage. Trace the cost.",
+  "exchangePurpose": "Manage the rates used to convert your spending.",
+  "sourcesPurpose": "Check your local data, connection and privacy.",
+  "mockDataNotice": "Sample data · switch to Real to see your usage",
+  "realDataNotice": "Local data",
+  "sessionsPage": "Page {page} of {pages}",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "@sessionsPage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "mockDataLabel": "Sample data",
+  "sessionsSortLatest": "Latest",
+  "sessionsSortCost": "Reported cost",
+  "sessionsSortTokens": "Tokens",
+  "clearScopeFilters": "Clear filters"
 }

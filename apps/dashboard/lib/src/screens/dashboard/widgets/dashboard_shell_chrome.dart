@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../theme/dashboard_colors.dart';
 import '../../../app/dashboard_build_info.dart';
 import 'dashboard_surface.dart';
+import 'dashboard_chip_button.dart';
 
 class DashboardShellHeader extends StatelessWidget {
   const DashboardShellHeader({
@@ -13,20 +14,28 @@ class DashboardShellHeader extends StatelessWidget {
     required this.hasSettingsRoute,
     required this.onHelpPressed,
     required this.onSettingsPressed,
+    this.isMockData = false,
+    this.onModeChanged,
   });
 
   final bool hasSettingsRoute;
   final VoidCallback onHelpPressed;
   final VoidCallback onSettingsPressed;
+  final bool isMockData;
+  final VoidCallback? onModeChanged;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context)!;
+    final compact = MediaQuery.sizeOf(context).width < 600;
 
     return DashboardSurface(
       key: const Key('dashboard-shell-header'),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 12 : 20,
+        vertical: compact ? 12 : 16,
+      ),
       backgroundColor: dashboardSurfaceElevatedColor,
 
       child: Row(
@@ -37,20 +46,23 @@ class DashboardShellHeader extends StatelessWidget {
               children: [
                 SvgPicture.asset(
                   'web/brand-symbol.svg',
-                  width: 24,
-                  height: 32,
+                  width: compact ? 18 : 24,
+                  height: compact ? 24 : 32,
                   colorFilter: const ColorFilter.mode(
                     dashboardPrimaryTextColor,
                     BlendMode.srcIn,
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: compact ? 8 : 14),
                 Flexible(
                   child: Text(
                     OpenSpentInfo.productName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: textTheme.headlineSmall?.copyWith(height: 1),
+                    style: textTheme.headlineSmall?.copyWith(
+                      height: 1,
+                      fontSize: compact ? 20 : null,
+                    ),
                   ),
                 ),
                 if (MediaQuery.sizeOf(context).width >= 600) ...[
@@ -77,6 +89,24 @@ class DashboardShellHeader extends StatelessWidget {
               ],
             ),
           ),
+          if (onModeChanged != null) ...[
+            Tooltip(
+              message: isMockData ? l10n.mockDataNotice : l10n.realDataNotice,
+              child: DashboardChipButton(
+                key: const Key('header-data-mode'),
+                label: compact
+                    ? isMockData
+                          ? l10n.dataModeMock
+                          : l10n.dataModeReal
+                    : isMockData
+                    ? l10n.mockDataLabel
+                    : l10n.realDataNotice,
+                isSelected: isMockData,
+                onTap: onModeChanged,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
           IconButton(
             key: const Key('help-open-button'),
             onPressed: onHelpPressed,
@@ -281,8 +311,10 @@ class DashboardShellNav extends StatelessWidget {
     required this.onSessionsNav,
     required this.onExchangeRatesNav,
     required this.onStateNav,
+    this.vertical = false,
   });
 
+  final bool vertical;
   final int selectedIndex;
   final bool hasSessionsRoute;
   final bool hasExchangeRatesRoute;
@@ -327,7 +359,11 @@ class DashboardShellNav extends StatelessWidget {
     return LayoutBuilder(
       key: const Key('dashboard-shell-nav'),
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 640 ? entries.length : 2;
+        final columns = vertical
+            ? 1
+            : constraints.maxWidth >= 640
+            ? entries.length
+            : 2;
         return Wrap(
           children: [
             for (var index = 0; index < entries.length; index++)
@@ -344,11 +380,12 @@ class DashboardShellNav extends StatelessWidget {
                       key: entries[index].key,
                       onTap: entries[index].onTap,
                       hoverColor: dashboardAccentColor.withValues(alpha: 0.08),
+                      focusColor: dashboardAccentColor.withValues(alpha: 0.2),
                       child: Container(
                         constraints: const BoxConstraints(minHeight: 58),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
+                          horizontal: 14,
+                          vertical: 12,
                         ),
                         decoration: BoxDecoration(
                           border: Border(

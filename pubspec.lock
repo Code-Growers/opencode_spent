@@ -493,6 +493,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.23.5"
+  jaspr_hooks:
+    dependency: transitive
+    description:
+      name: jaspr_hooks
+      sha256: "8dbec8e692bf488333e55575a461465cd21d2dae3426d2037345585a1a6b0bf3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   jaspr_test:
     dependency: transitive
     description:

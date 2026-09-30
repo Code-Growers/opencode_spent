@@ -1,8 +1,12 @@
 import 'session_usage_slice.dart';
+import '../usage/harness_usage.dart';
 
 final class OpenCodeSession {
   OpenCodeSession({
     required this.id,
+    this.harness = UsageHarness.openCode,
+    this.tokenUsage,
+    Iterable<UsageEvent> usageEvents = const [],
     required this.createdAt,
     this.provider,
     this.modelName,
@@ -15,9 +19,16 @@ final class OpenCodeSession {
     this.totalResponseTimeMs,
     this.subagentCategory,
     Iterable<SessionUsageSlice> usageSlices = const <SessionUsageSlice>[],
-  }) : usageSlices = List<SessionUsageSlice>.unmodifiable(usageSlices);
+  }) : usageEvents = List<UsageEvent>.unmodifiable(usageEvents),
+       usageSlices = List<SessionUsageSlice>.unmodifiable(usageSlices);
 
   final String id;
+  final UsageHarness harness;
+  final TokenUsage? tokenUsage;
+  final List<UsageEvent> usageEvents;
+  TokenUsage get tokens => usageEvents.isEmpty
+      ? tokenUsage ?? TokenUsage(input: inputTokens, output: outputTokens)
+      : TokenUsage.sum(usageEvents.map((e) => e.tokens));
   final String? provider;
   final String? modelName;
   final int? inputTokens;
@@ -36,6 +47,9 @@ final class OpenCodeSession {
     return identical(this, other) ||
         other is OpenCodeSession &&
             other.id == id &&
+            other.harness == harness &&
+            other.tokenUsage == tokenUsage &&
+            _listEquals(other.usageEvents, usageEvents) &&
             other.provider == provider &&
             other.modelName == modelName &&
             other.inputTokens == inputTokens &&
@@ -53,6 +67,9 @@ final class OpenCodeSession {
   @override
   int get hashCode => Object.hash(
     id,
+    harness,
+    tokenUsage,
+    Object.hashAll(usageEvents),
     provider,
     modelName,
     inputTokens,

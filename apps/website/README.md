@@ -2,6 +2,22 @@
 
 OpenSpent's Jaspr static marketing site uses Tailwind CSS and local English/Czech localization.
 
+## Component architecture
+
+`App` is the client entry point and a `HookComponent`. Reusable component state
+and lifecycle logic belongs in custom `use…` functions under `lib/hooks`, using
+`jaspr_hooks`. `useWebsiteLocalization` owns the English/Czech language switch;
+the landing page receives immutable localization and an event callback.
+Translations and pure rendering helpers remain ordinary Dart code.
+
+Call hooks unconditionally and in the same order on every build. Keep initial
+state deterministic for static rendering and browser hydration. Use SSR-aware
+effect hooks for future subscriptions or timers, returning cleanup where needed,
+and `usePostFrameEffect` for browser DOM work.
+
+Keep runtime dependencies aligned in this package and
+`tool/website_build/pubspec.yaml`, and regenerate both lockfiles when they change.
+
 ## Build
 
 From the repository root, using the pinned Flutter/Dart toolchain:

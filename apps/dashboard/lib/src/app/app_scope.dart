@@ -17,8 +17,14 @@ class OpenSpentAppScope extends InheritedWidget {
     this.exchangeRatesDependencies,
     this.sessionsDependencies,
     this.pickImportSource,
+    this.localUsageSources,
+    this.pricingRepository,
+    this.pickSourceDirectory,
   });
 
+  final LocalUsageSources? localUsageSources;
+  final PricingRepository? pricingRepository;
+  final Future<String?> Function()? pickSourceDirectory;
   final MonetizedMetricsService metricsService;
   final ValueChanged<String?> onLocaleChanged;
   final SettingsRepository? settingsRepository;
@@ -37,7 +43,10 @@ class OpenSpentAppScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(OpenSpentAppScope oldWidget) {
-    return metricsService != oldWidget.metricsService ||
+    return localUsageSources != oldWidget.localUsageSources ||
+        pricingRepository != oldWidget.pricingRepository ||
+        pickSourceDirectory != oldWidget.pickSourceDirectory ||
+        metricsService != oldWidget.metricsService ||
         onLocaleChanged != oldWidget.onLocaleChanged ||
         settingsRepository != oldWidget.settingsRepository ||
         serverProbe != oldWidget.serverProbe ||

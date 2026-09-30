@@ -20,3 +20,8 @@ export 'src/services/exchange_rate_sync_service.dart';
 export 'src/services/monetized_metrics_composer.dart';
 export 'src/services/monetized_metrics_service.dart';
 export 'src/services/open_code_session_sync_service.dart';
+
+export 'src/usage/harness_usage.dart';
+export 'src/usage/api_pricing.dart';
+export 'src/usage/local_usage_sources.dart';
+export 'src/parsers/harness_transcript_parser.dart';

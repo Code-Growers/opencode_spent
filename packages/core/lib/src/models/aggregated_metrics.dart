@@ -1,9 +1,13 @@
+import '../usage/api_pricing.dart';
+import '../usage/harness_usage.dart';
 import 'daily_metrics.dart';
 import 'hourly_metrics.dart';
 import 'usage_breakdown.dart';
 
 final class AggregatedMetrics {
   AggregatedMetrics({
+    Map<UsageHarness, HarnessUsageSummary> harnessUsage = const {},
+    Map<UsageHarness, Map<DateTime, double>> estimatedDailyUsd = const {},
     required this.totalSessionCount,
     required this.totalInputTokens,
     required this.totalOutputTokens,
@@ -25,7 +29,13 @@ final class AggregatedMetrics {
     this.toolCallCountCoverageSessionCount = 0,
     this.responseCountCoverageSessionCount = 0,
     this.responseTimeCoverageSessionCount = 0,
-  }) : dailyBreakdown = List<DailyMetrics>.unmodifiable(dailyBreakdown),
+  }) : harnessUsage = Map.unmodifiable(harnessUsage),
+       estimatedDailyUsd = Map.unmodifiable(
+         estimatedDailyUsd.map(
+           (k, v) => MapEntry(k, Map<DateTime, double>.unmodifiable(v)),
+         ),
+       ),
+       dailyBreakdown = List<DailyMetrics>.unmodifiable(dailyBreakdown),
        hourlyBreakdown = List<HourlyMetrics>.unmodifiable(hourlyBreakdown),
        inputTokensCoverageSessionCount =
            inputTokensCoverageSessionCount ?? totalSessionCount,
@@ -66,6 +76,8 @@ final class AggregatedMetrics {
                  ),
            );
 
+  final Map<UsageHarness, HarnessUsageSummary> harnessUsage;
+  final Map<UsageHarness, Map<DateTime, double>> estimatedDailyUsd;
   final int totalSessionCount;
   final int totalInputTokens;
   final int totalOutputTokens;
@@ -92,6 +104,8 @@ final class AggregatedMetrics {
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is AggregatedMetrics &&
+            _mapEquals(other.harnessUsage, harnessUsage) &&
+            _nestedMapEquals(other.estimatedDailyUsd, estimatedDailyUsd) &&
             other.totalSessionCount == totalSessionCount &&
             other.totalInputTokens == totalInputTokens &&
             other.totalOutputTokens == totalOutputTokens &&
@@ -133,6 +147,8 @@ final class AggregatedMetrics {
 
   @override
   int get hashCode => Object.hash(
+    _mapHash(harnessUsage),
+    _nestedMapHash(estimatedDailyUsd),
     Object.hash(
       totalSessionCount,
       totalInputTokens,
@@ -209,7 +225,7 @@ int _mapOfListsHash<T>(Map<String, List<T>> map) {
   );
 }
 
-bool _mapEquals<T>(Map<String, T> left, Map<String, T> right) {
+bool _mapEquals<K, T>(Map<K, T> left, Map<K, T> right) {
   if (identical(left, right)) {
     return true;
   }
@@ -227,9 +243,9 @@ bool _mapEquals<T>(Map<String, T> left, Map<String, T> right) {
   return true;
 }
 
-bool _nestedMapEquals<T>(
-  Map<String, Map<String, T>> left,
-  Map<String, Map<String, T>> right,
+bool _nestedMapEquals<K, J, T>(
+  Map<K, Map<J, T>> left,
+  Map<K, Map<J, T>> right,
 ) {
   if (identical(left, right)) {
     return true;
@@ -249,13 +265,13 @@ bool _nestedMapEquals<T>(
   return true;
 }
 
-int _mapHash<T>(Map<String, T> map) {
+int _mapHash<K, T>(Map<K, T> map) {
   return Object.hashAllUnordered(
     map.entries.map((entry) => Object.hash(entry.key, entry.value)),
   );
 }
 
-int _nestedMapHash<T>(Map<String, Map<String, T>> map) {
+int _nestedMapHash<K, J, T>(Map<K, Map<J, T>> map) {
   return Object.hashAllUnordered(
     map.entries.map((entry) => Object.hash(entry.key, _mapHash(entry.value))),
   );

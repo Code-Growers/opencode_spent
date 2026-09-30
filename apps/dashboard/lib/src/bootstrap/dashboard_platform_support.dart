@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:openspent_core/openspent_core.dart';
+import 'package:openspent_local/openspent_local.dart';
 
 import '../sessions/import_selection.dart';
 import 'dashboard_platform_support_native.dart'
@@ -28,3 +29,9 @@ OpenCodeSessionRepository Function(Uint8List bytes)?
 get importedSqliteBytesRepositoryFactory {
   return impl.importedSqliteBytesRepositoryFactory;
 }
+
+LocalUsageSources? createLocalUsageSources(
+  KeyValueStore store,
+  OpenCodeSessionRepository repository,
+) => impl.createLocalUsageSources(store, repository);
+Future<String?> pickSourceDirectory() => impl.pickSourceDirectory();

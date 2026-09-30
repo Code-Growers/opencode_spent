@@ -6,3 +6,5 @@ export 'src/repositories/local_metrics_repository.dart';
 export 'src/repositories/local_open_code_session_repository.dart';
 export 'src/repositories/local_settings_repository.dart';
 export 'src/repositories/open_code_uploaded_sqlite_session_repository.dart';
+
+export 'src/repositories/local_pricing_repository.dart';

@@ -60,6 +60,15 @@ final class OpenCodeSessionMapper {
       return current;
     });
 
+    final tokenUsage = assistantMessages.any((m) => m.tokens?.detailed != null)
+        ? TokenUsage.sum(
+            assistantMessages.map(
+              (m) =>
+                  m.tokens?.detailed ??
+                  TokenUsage(input: m.tokens?.input, output: m.tokens?.output),
+            ),
+          )
+        : null;
     final inputTokens = _sumAssistantInts(
       assistantMessages,
       (message) => message.tokens?.input,
@@ -86,9 +95,10 @@ final class OpenCodeSessionMapper {
     return OpenCodeSession(
       id: id,
       createdAt: createdAt,
+      tokenUsage: tokenUsage,
       provider: latestAssistant.providerId,
       modelName: latestAssistant.modelId,
-      inputTokens: inputTokens,
+      inputTokens: tokenUsage?.input ?? inputTokens,
       outputTokens: outputTokens,
       totalCostUsd: totalCostUsd,
       requestCount: requestCount,
@@ -187,7 +197,10 @@ final class OpenCodeSessionMapper {
       );
       usageSlice.responseCount += 1;
       usageSlice.toolCallCount += message.toolCallCount;
-      usageSlice.addInputTokens(message.tokens?.input);
+      usageSlice.addTokenUsage(message.tokens?.detailed);
+      usageSlice.addInputTokens(
+        message.tokens?.detailed?.input ?? message.tokens?.input,
+      );
       usageSlice.addOutputTokens(message.tokens?.output);
       usageSlice.addTotalCostUsd(message.cost);
 
@@ -417,6 +430,8 @@ final class _MutableUsageSlice {
 
   final String provider;
   final String modelName;
+  final List<TokenUsage?> _tokens = [];
+  void addTokenUsage(TokenUsage? value) => _tokens.add(value);
   int? _inputTokens = 0;
   int? _outputTokens = 0;
   double? _totalCostUsd = 0;
@@ -455,6 +470,9 @@ final class _MutableUsageSlice {
 
   SessionUsageSlice build() {
     return SessionUsageSlice(
+      tokenUsage: _tokens.any((u) => u != null)
+          ? TokenUsage.sum(_tokens.map((u) => u ?? const TokenUsage()))
+          : null,
       provider: provider,
       modelName: modelName,
       inputTokens: _inputTokens,
@@ -469,7 +487,13 @@ final class _MutableUsageSlice {
 }
 
 final class _SessionTokensView {
-  const _SessionTokensView({required this.input, required this.output});
+  const _SessionTokensView({
+    required this.input,
+    required this.output,
+    this.detailed,
+  });
+
+  final TokenUsage? detailed;
 
   final int input;
   final int output;
@@ -490,6 +514,10 @@ final class _SessionTokensView {
       );
     }
 
-    return _SessionTokensView(input: input, output: output);
+    return _SessionTokensView(
+      input: input,
+      output: output,
+      detailed: readOpenCodeTokenUsage(json),
+    );
   }
 }

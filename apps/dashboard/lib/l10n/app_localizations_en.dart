@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get localLabel => '[ LOCAL ]';
 
   @override
-  String get heroTitle => 'Monitor OpenCode. Locally.';
+  String get heroTitle => 'Monitor coding usage. Locally.';
 
   @override
   String get heroDescription =>
@@ -125,19 +125,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get metricsTitle => 'METRICS';
+  String get metricsTitle => 'Time window';
 
   @override
-  String get shellNavMetrics => '[ METRICS ]';
+  String get shellNavMetrics => 'Overview';
 
   @override
-  String get shellNavSessions => '[ SESSIONS ]';
+  String get shellNavSessions => 'Sessions';
 
   @override
-  String get shellNavExchangeRates => '[ EXCHANGE ]';
+  String get shellNavExchangeRates => 'Exchange rates';
 
   @override
-  String get shellNavState => '[ STATE ]';
+  String get shellNavState => 'Sources & status';
 
   @override
   String get metricsLoad => '_ awaiting first metrics payload ...';
@@ -314,27 +314,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String metricsKpiTotalPrice(String currency, String value) {
-    return '> TOTAL PRICE ....... $currency $value';
+    return 'Reported cost · $currency $value';
   }
 
   @override
   String metricsKpiTotalRequests(String value) {
-    return '> TOTAL REQUESTS .... $value';
+    return 'Requests · $value';
   }
 
   @override
   String metricsKpiTotalToolCalls(String value) {
-    return '> TOTAL TOOL CALLS .. $value';
+    return 'Tool calls · $value';
   }
 
   @override
   String metricsKpiAvgResponseTime(String value) {
-    return '> AVG RESPONSE TIME . $value';
+    return 'Avg. response time · $value';
   }
 
   @override
   String metricsKpiTotalTokens(String value) {
-    return '> TOTAL TOKENS ...... $value';
+    return 'Tokens · $value';
   }
 
   @override
@@ -930,4 +930,195 @@ class AppLocalizationsEn extends AppLocalizations {
   String metricsHeatmapCellTooltip(String day, int sessions, String tokens) {
     return '$day\n$sessions sessions • $tokens tokens';
   }
+
+  @override
+  String get usageSourcesTitle => 'Local usage sources';
+
+  @override
+  String get usageConnect => 'Connect';
+
+  @override
+  String get usageRefresh => 'Refresh';
+
+  @override
+  String get usageDisconnect => 'Disconnect';
+
+  @override
+  String get usageConnected => 'Connected';
+
+  @override
+  String get usageNotConnected => 'Not connected';
+
+  @override
+  String get usageChooseFolder => 'Choose folder';
+
+  @override
+  String get usageSourceError =>
+      'Could not read this source. Previously imported usage is retained.';
+
+  @override
+  String usageSourceResult(int sessions, int skipped, int failed) {
+    return '$sessions sessions · $skipped skipped records · $failed unreadable files';
+  }
+
+  @override
+  String usageLastRefresh(String time) {
+    return 'Last refresh: $time';
+  }
+
+  @override
+  String get usageNeverRefreshed => 'Not refreshed yet';
+
+  @override
+  String get usageSourcesBrowser =>
+      'Local source connections are available in the desktop app.';
+
+  @override
+  String get usagePricingTitle => 'API estimate pricing';
+
+  @override
+  String get usagePricingHelp =>
+      'Standard API token rates, USD per million tokens. Subscription fees, taxes, tools and fast-mode premiums are excluded.';
+
+  @override
+  String usagePricingSnapshot(String version) {
+    return 'Published rate snapshot: $version';
+  }
+
+  @override
+  String get usagePricingModel => 'Usage model';
+
+  @override
+  String get usagePricingMapping => 'Use published model rates';
+
+  @override
+  String get usagePricingCustom => 'Custom rates';
+
+  @override
+  String get usagePricingReset => 'Reset to published rates';
+
+  @override
+  String get usagePricingSave => 'Save rates';
+
+  @override
+  String get usagePricingInvalid =>
+      'Enter finite, nonnegative rates. Input and output rates are required.';
+
+  @override
+  String get usageInput => 'Input';
+
+  @override
+  String get usageOutput => 'Output';
+
+  @override
+  String get usageCacheRead => 'Cache reads';
+
+  @override
+  String get usageCacheWrite => 'Cache writes';
+
+  @override
+  String get usageCacheWrite1h => 'Cache writes (1 hour)';
+
+  @override
+  String get usageReasoning => 'Reasoning (included in output)';
+
+  @override
+  String get usageHarnessAll => 'All harnesses';
+
+  @override
+  String get usageComparisonTitle => 'Usage by harness';
+
+  @override
+  String get usageApiEstimate => 'Estimated API cost';
+
+  @override
+  String get usageReportedCost => 'Reported cost';
+
+  @override
+  String get usageUnknown => 'Unavailable';
+
+  @override
+  String usagePricingCoverage(int priced, int total) {
+    return '$priced of $total usage records priced';
+  }
+
+  @override
+  String get usageCustomPrice => 'Custom pricing';
+
+  @override
+  String get usageApproximate =>
+      'Approximate: uses short-context or 5-minute cache-write rates where metadata is unavailable.';
+
+  @override
+  String get usageTokensHelp =>
+      'Input includes cache reads and writes across all requests, including repeated conversation context. Reasoning is included in output. Hover over token totals for exact counts.';
+
+  @override
+  String get usagePartial => 'Partial';
+
+  @override
+  String get usageNoMapping => 'Keep original model';
+
+  @override
+  String get usagePricingNoModels => 'Import usage to configure model prices.';
+
+  @override
+  String get usagePricingPublished => 'Published rates';
+
+  @override
+  String get usageSourcesHelp =>
+      'Connect once to load local token metadata. Refresh on launch or on demand; disconnect keeps imported history.';
+
+  @override
+  String get usagePricingRatesHelp =>
+      'Blank cache rates leave events using that category unpriced. A zero rate is an explicit free category.';
+
+  @override
+  String get usageSourceBusy => 'Refreshing local usage…';
+
+  @override
+  String get overviewPurpose => 'Your spending, usage and models in one place.';
+
+  @override
+  String get sessionsPurpose =>
+      'Find a session. Compare usage. Trace the cost.';
+
+  @override
+  String get exchangePurpose =>
+      'Manage the rates used to convert your spending.';
+
+  @override
+  String get sourcesPurpose => 'Check your local data, connection and privacy.';
+
+  @override
+  String get mockDataNotice => 'Sample data · switch to Real to see your usage';
+
+  @override
+  String get realDataNotice => 'Local data';
+
+  @override
+  String sessionsPage(int page, int pages) {
+    return 'Page $page of $pages';
+  }
+
+  @override
+  String get previousPage => 'Previous page';
+
+  @override
+  String get nextPage => 'Next page';
+
+  @override
+  String get mockDataLabel => 'Sample data';
+
+  @override
+  String get sessionsSortLatest => 'Latest';
+
+  @override
+  String get sessionsSortCost => 'Reported cost';
+
+  @override
+  String get sessionsSortTokens => 'Tokens';
+
+  @override
+  String get clearScopeFilters => 'Clear filters';
 }

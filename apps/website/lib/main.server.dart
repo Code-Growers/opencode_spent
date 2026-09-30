@@ -16,14 +16,14 @@ void main() {
         meta(
           name: 'description',
           content:
-              'Privacy-first, local-only dashboard for tracking OpenCode AI usage and cost data.',
+              'Track OpenCode, Claude Code and Codex costs on your machine. Local processing, offline estimates, no account and no usage uploads.',
         ),
         meta(attributes: {'property': 'og:title', 'content': 'OpenSpent'}),
         meta(
           attributes: {
             'property': 'og:description',
             'content':
-                'Privacy-first, local-only dashboard for tracking OpenCode AI usage and cost data.',
+                'Track OpenCode, Claude Code and Codex costs on your machine. Local processing, offline estimates, no account and no usage uploads.',
           },
         ),
         meta(attributes: {'property': 'og:image', 'content': 'cover.jpg'}),
